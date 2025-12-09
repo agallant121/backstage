@@ -1,0 +1,13 @@
+<p><%= @post.body %></p>
+
+<p><%= 'Created at: ' %><%= @post.created_at %></p>
+
+<% if @post.images.attached? %>
+  <h3><%= 'Images:' %></h3>
+  <% @post.images.each do |image| %>
+    <%= image_tag image, alt: 'Post Image', class: 'post-image' %>
+  <% end %>
+<% end %>
+
+<%= link_to 'Edit Post', edit_post_path(@post) %> |
+<%= link_to 'Back to Posts', posts_path %>
