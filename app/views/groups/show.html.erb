@@ -1,0 +1,17 @@
+<%= @group.name %>
+
+<% if @group.description.present? %>
+  <p><%= @group.description %></p>
+<% end %>
+
+<%= "Posts in this group:" %>
+
+<ul>
+  <% @group.posts.order(created_at: :desc).each do |post| %>
+    <li>
+      <%= link_to post.body.truncate(40), post %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to "New Post in this Group", new_post_path(group_id: @group.id) %>
