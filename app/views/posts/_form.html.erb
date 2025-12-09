@@ -1,0 +1,35 @@
+<%= form_with model: @post, local: true do |f| %>
+  <% if @post.errors.any? %>
+    <div>
+      <h2><%= pluralize(@post.errors.count, "error") %> <%= "prohibited this post from being saved:" %></h2>
+      <ul>
+        <% @post.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :body, "What's going on?" %><br>
+    <%= f.text_area :body, rows: 5 %>
+  </div>
+
+  <div>
+    <%= f.label :group_id, "Send to group" %><br>
+    <%= f.collection_select :group_id,
+                            current_user.groups,
+                            :id,
+                            :name,
+                            { include_blank: "All groups" } %>
+  </div>
+
+  <div>
+    <%= f.label :images, "Attach images" %><br>
+    <%= f.file_field :images, multiple: true %>
+  </div>
+
+  <div>
+    <%= f.submit "Post" %>
+  </div>
+<% end %>
