@@ -1,7 +1,19 @@
-<h1>Your Groups</h1>
+<%= "Your Groups" %>
 
 <ul>
   <% current_user.groups.each do |group| %>
     <li><%= group.name %></li>
   <% end %>
 </ul>
+
+<%= "Your Posts" %>
+
+<ul>
+  <% @posts.each do |post| %>
+    <li>
+      <%= link_to post.body.truncate(30), post %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to "New Post", new_post_path %>
