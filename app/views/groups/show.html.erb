@@ -4,14 +4,21 @@
   <p><%= @group.description %></p>
 <% end %>
 
+<% unless @group.users.include?(current_user) %>
+  <%= button_to "Join Group", group_memberships_path(@group), method: :post %>
+<% else %>
+  <%= "You are a member of this group" %>
+<% end %>
+
 <%= "Posts in this group:" %>
 
-<ul>
-  <% @group.posts.order(created_at: :desc).each do |post| %>
-    <li>
-      <%= link_to post.body.truncate(40), post %>
-    </li>
-  <% end %>
-</ul>
-
+<% if @posts.present? %>
+  <ul>
+    <% @posts.each do |post| %>
+      <li>
+        <%= link_to post.body.truncate(40), post %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
 <%= link_to "New Post in this Group", new_post_path(group_id: @group.id) %>
