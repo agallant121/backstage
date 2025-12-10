@@ -1,19 +1,28 @@
-<%= "Your Groups" %>
-
+<h2>Your Groups</h2>
 <ul>
-  <% current_user.groups.each do |group| %>
-    <li><%= group.name %></li>
+  <% @groups.each do |group| %>
+    <li><%= link_to group.name, group_path(group) %></li>
   <% end %>
 </ul>
 
-<%= "Your Posts" %>
+<h2>Group Walls</h2>
+<% @groups.each do |group| %>
+  <h3><%= group.name %></h3>
 
-<ul>
-  <% @posts.each do |post| %>
-    <li>
-      <%= link_to post.body.truncate(30), post %>
-    </li>
+  <% posts = group.posts.order(created_at: :desc) %>
+
+  <% if posts.any? %>
+    <ul>
+      <% posts.each do |post| %>
+        <li>
+          <%= link_to truncate(post.body, length: 40), post_path(post) %>
+          (<%= post.created_at.to_date.to_s(:long) rescue post.created_at.to_date %>)
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No posts in this group yet.</p>
   <% end %>
-</ul>
+<% end %>
 
-<%= link_to "New Post", new_post_path %>
+<p><%= link_to "New Post", new_post_path %></p>

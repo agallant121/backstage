@@ -3,5 +3,9 @@ Rails.application.routes.draw do
 
   resources :posts
 
+  resources :groups do
+    resources :memberships, only: [ :create ]
+  end
+
   root "home#index"
 end
