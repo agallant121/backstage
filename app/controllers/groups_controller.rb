@@ -7,6 +7,7 @@ class GroupsController < ApplicationController
   end
 
   def show
+    @posts = @group.posts.order(created_at: :desc)
   end
 
   def new
