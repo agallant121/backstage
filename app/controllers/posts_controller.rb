@@ -4,7 +4,10 @@ class PostsController < ApplicationController
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @posts = current_user.posts.all
+    @posts = Post.joins(:groups)
+                 .where(groups: { id: current_user.groups.select(:id) })
+                 .distinct
+                 .order(created_at: :desc)
   end
 
   def show
@@ -15,9 +18,24 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = current_user.posts.new(post_params)
+    @post = current_user.posts.build(post_params)
+
     if @post.save
-      redirect_to @post, notice: "Post was successfully created."
+      # Look directly at what came from the form
+      selected_group_id = params.dig(:post, :group_id).presence
+
+      group_ids_to_attach =
+        if selected_group_id
+          [ selected_group_id.to_i ]
+        else
+          current_user.groups.pluck(:id)
+        end
+
+      group_ids_to_attach.each do |gid|
+        PostGroup.find_or_create_by!(post_id: @post.id, group_id: gid)
+      end
+
+      redirect_to root_path, notice: "Post created."
     else
       render :new, status: :unprocessable_entity
     end
