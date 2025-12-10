@@ -21,7 +21,6 @@ class PostsController < ApplicationController
     @post = current_user.posts.build(post_params)
 
     if @post.save
-      # Look directly at what came from the form
       selected_group_id = params.dig(:post, :group_id).presence
 
       group_ids_to_attach =
@@ -67,7 +66,8 @@ class PostsController < ApplicationController
     @group = current_user.groups.find(params[:group_id]) if params[:group_id]
   end
 
+  # ⬇️ group_id is no longer saved on the Post itself
   def post_params
-    params.require(:post).permit(:body, :group_id, images: [])
+    params.require(:post).permit(:body, images: [])
   end
 end

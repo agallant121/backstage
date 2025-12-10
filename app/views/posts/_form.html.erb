@@ -21,7 +21,7 @@
                             current_user.groups,
                             :id,
                             :name,
-                            include_blank: "All Groups" %>
+                            { include_blank: "All Groups", selected: @group&.id } %>
   </div>
 
   <div>

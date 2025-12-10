@@ -3,9 +3,7 @@
 one:
   body: MyText
   user: one
-  group: one
 
 two:
   body: MyText
   user: two
-  group: two
