@@ -1,13 +1,24 @@
-<p><%= @post.body %></p>
-
-<p><%= 'Created at: ' %><%= @post.created_at %></p>
+<p>
+  <strong><%= "Message:" %></strong><br>
+  <%= @post.body %>
+</p>
 
 <% if @post.images.attached? %>
-  <h3><%= 'Images:' %></h3>
+  <p><strong>Images:</strong></p>
+
   <% @post.images.each do |image| %>
-    <%= image_tag image, alt: 'Post Image', class: 'post-image' %>
+    <%= image_tag image, size: "500x500" %>
   <% end %>
 <% end %>
 
-<%= link_to 'Edit Post', edit_post_path(@post) %> |
-<%= link_to 'Back to Posts', posts_path %>
+<% groups = @post.groups.order(:name) %>
+<% if groups.any? %>
+  <p>
+    <strong><%= "Sent to:" %></strong>
+    <%= groups.map(&:name).join(", ") %>
+  </p>
+<% end %>
+
+<p>
+  <%= link_to "Back", posts_path %>
+</p>
