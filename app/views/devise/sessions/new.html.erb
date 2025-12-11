@@ -1,0 +1,41 @@
+<div class="auth-shell py-5">
+  <div class="auth-card card mx-auto shadow-lg">
+    <div class="card-body p-4 p-sm-5">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <p class="text-uppercase fw-semibold text-muted small mb-1"><%= "Welcome back" %></p>
+          <h1 class="h3 fw-bold mb-0"><%= "Sign in" %></h1>
+        </div>
+        <div class="badge bg-info-subtle text-dark border border-info"><%= "Secure" %></div>
+      </div>
+
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+        <div class="mb-3">
+          <%= f.label :email, "Email", class: "form-label fw-semibold" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <%= f.label :password, "Password", class: "form-label fw-semibold mb-0" %>
+            <% if devise_mapping.rememberable? %>
+              <div class="form-check">
+                <%= f.check_box :remember_me, class: "form-check-input" %>
+                <%= f.label :remember_me, "Remember me", class: "form-check-label small" %>
+              </div>
+            <% end %>
+          </div>
+          <%= f.password_field :password, autocomplete: "current-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="d-grid gap-3 mt-4">
+          <%= f.submit "Sign in", class: "btn btn-primary btn-lg" %>
+        </div>
+      <% end %>
+
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>

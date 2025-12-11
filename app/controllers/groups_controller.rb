@@ -11,12 +11,13 @@ class GroupsController < ApplicationController
   end
 
   def new
-    @group = current_user.groups.new
+    @group = Group.new
   end
 
   def create
-    @group = current_user.groups.new(group_params)
+    @group = Group.new(group_params)
     if @group.save
+      current_user.memberships.find_or_create_by!(group: @group)
       redirect_to @group, notice: "Group was successfully created."
     else
       render :new, status: :unprocessable_entity

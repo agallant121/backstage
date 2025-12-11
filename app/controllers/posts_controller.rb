@@ -8,6 +8,8 @@ class PostsController < ApplicationController
                  .where(groups: { id: current_user.groups.select(:id) })
                  .distinct
                  .order(created_at: :desc)
+
+    @view_mode = params[:view] == "full" ? :full : :compact
   end
 
   def show

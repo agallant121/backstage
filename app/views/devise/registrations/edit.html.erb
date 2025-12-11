@@ -1,0 +1,51 @@
+<div class="auth-shell py-5">
+  <div class="auth-card card mx-auto shadow-lg">
+    <div class="card-body p-4 p-sm-5">
+      <p class="text-uppercase fw-semibold text-muted small mb-1"><%= "Account" %></p>
+      <h1 class="h3 fw-bold mb-3"><%= "Edit profile" %></h1>
+
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+        <div class="mb-3">
+          <%= f.label :email, "Email", class: "form-label fw-semibold" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg" %>
+        </div>
+
+        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+          <div class="alert alert-info" role="alert">
+            <%= "Currently waiting confirmation for: #{resource.unconfirmed_email}" %>
+          </div>
+        <% end %>
+
+        <div class="mb-3">
+          <%= f.label :password, "New password", class: "form-label fw-semibold" %>
+          <p class="text-muted small mb-1"><%= "Leave blank if you don't want to change it." %></p>
+          <%= f.password_field :password, autocomplete: "new-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :password_confirmation, "Confirm new password", class: "form-label fw-semibold" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="mb-4">
+          <%= f.label :current_password, "Current password", class: "form-label fw-semibold" %>
+          <p class="text-muted small mb-1"><%= "We need your current password to confirm your changes." %></p>
+          <%= f.password_field :current_password, autocomplete: "current-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="d-grid gap-3">
+          <%= f.submit "Update", class: "btn btn-primary btn-lg" %>
+          <%= link_to "Cancel", root_path, class: "btn btn-outline-primary" %>
+        </div>
+      <% end %>
+
+      <div class="mt-4 p-3 rounded border border-danger-subtle bg-danger-subtle">
+        <h2 class="h6 fw-semibold text-danger mb-2"><%= "Need a reset?" %></h2>
+        <p class="text-muted small mb-3"><%= "You can cancel your account, but this cannot be undone." %></p>
+        <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: "btn btn-danger" %>
+      </div>
+    </div>
+  </div>
+</div>
