@@ -3,7 +3,7 @@
     <p class="text-uppercase text-muted small mb-1"><%= "Posts" %></p>
     <h1 class="h4 mb-0"><%= "Share an update" %></h1>
   </div>
-  <%= link_to "Back", posts_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "Back", request.referer || posts_path, class: "btn btn-outline-secondary" %>
 </div>
 
 <%= render "form", post: @post %>
