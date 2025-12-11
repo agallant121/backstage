@@ -1,0 +1,32 @@
+<div class="auth-shell py-5">
+  <div class="auth-card card mx-auto shadow-lg">
+    <div class="card-body p-4 p-sm-5">
+      <p class="text-uppercase fw-semibold text-muted small mb-1"><%= "Password reset" %></p>
+      <h1 class="h3 fw-bold mb-3"><%= "Choose a new password" %></h1>
+
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+        <%= f.hidden_field :reset_password_token %>
+
+        <div class="mb-3">
+          <%= f.label :password, "New password", class: "form-label fw-semibold" %>
+          <% if @minimum_password_length %>
+            <p class="text-muted small mb-1"><%= "Minimum password length: #{@minimum_password_length} characters" %></p>
+          <% end %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="mb-4">
+          <%= f.label :password_confirmation, "Confirm new password", class: "form-label fw-semibold" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control form-control-lg" %>
+        </div>
+
+        <div class="d-grid gap-3">
+          <%= f.submit "Change my password", class: "btn btn-primary btn-lg" %>
+          <%= link_to "Back to sign in", new_session_path(resource_name), class: "btn btn-outline-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

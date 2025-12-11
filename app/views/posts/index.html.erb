@@ -1,24 +1,71 @@
-<%= content_tag :h1, 'Posts' %>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <p class="text-uppercase text-muted small mb-1"><%= "Updates" %></p>
+    <h1 class="h4 mb-0"><%= "All posts from your groups" %></h1>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <%= link_to "New Post", new_post_path, class: "btn btn-primary" %>
+  </div>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th><%= 'Body' %></th>
-      <th><%= 'Created at' %></th>
-  </thead>
-  <tbody>
-    <% @posts.each do |post| %>
-      <tr>
-        <td><%= post.body %></td>
-        <td><%= post.created_at.strftime("%B %d, %Y") %></td>
-        <td>
-          <%= link_to 'Show', post_path(post) %> |
-          <%= link_to 'Edit', edit_post_path(post) %> |
-          <%= link_to 'Delete', post_path(post), method: :delete, data: { confirm: 'Are you sure?' } %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<%= turbo_frame_tag "posts_list" do %>
+  <div class="d-flex justify-content-end mb-3">
+    <% toggle_path = @view_mode == :full ? posts_path : posts_path(view: "full") %>
+    <%= link_to(@view_mode == :full ? "Show summaries" : "Show full posts", toggle_path, class: "btn btn-outline-secondary btn-sm") %>
+  </div>
 
-<%= link_to 'New Post', new_post_path, class: 'btn btn-primary' %>
+  <% if @posts.any? %>
+    <div class="d-flex flex-column gap-3">
+      <% @posts.each do |post| %>
+        <div class="card shadow-sm post-card">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+              <div>
+                <p class="post-meta small mb-1"><%= "Posted by " + (post.user&.email || "Unknown author") %></p>
+                <p class="post-meta small mb-0"><%= "Posted " + time_ago_in_words(post.created_at) + " ago" %></p>
+              </div>
+              <div class="d-flex align-items-start gap-2 flex-wrap">
+                <% if post.groups.any? %>
+                  <div class="d-flex flex-wrap gap-2">
+                    <% post.groups.order(:name).each do |group| %>
+                      <span class="badge text-bg-light border"> <%= group.name %> </span>
+                    <% end %>
+                  </div>
+                <% end %>
+                <div class="d-flex align-items-start gap-2">
+                  <%= link_to "Show", post_path(post), class: "btn btn-sm btn-outline-primary" %>
+                  <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm btn-outline-secondary" %>
+                  <%= link_to "Delete", post_path(post), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-outline-danger" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="fs-6">
+              <% if @view_mode == :full %>
+                <%= simple_format(post.body) %>
+              <% else %>
+                <%= simple_format(truncate(post.body, length: 160)) %>
+              <% end %>
+            </div>
+
+            <% if @view_mode == :full && post.images.attached? %>
+              <hr class="muted-divider">
+              <div class="d-flex flex-column gap-2">
+                <p class="fw-semibold mb-1"><%= "Images" %></p>
+                <div class="post-attachment-grid">
+                  <% post.images.each do |image| %>
+                    <div class="post-attachment">
+                      <%= image_tag(image, class: "img-fluid w-100 h-auto", loading: "lazy", decoding: "async") %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="alert alert-light border"><%= "No posts yet. Share something to kick things off!" %></div>
+  <% end %>
+<% end %>
