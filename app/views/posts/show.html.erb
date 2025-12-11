@@ -31,12 +31,13 @@
 </div>
 
 <% if @post.images.attached? %>
+  <% single_image = @post.images.one? %>
   <div class="card shadow-sm post-card">
     <div class="card-body d-flex flex-column gap-2">
       <h2 class="h5 mb-1"><%= "Images" %></h2>
-      <div class="post-attachment-grid">
+      <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_image %>">
         <% @post.images.each do |image| %>
-          <div class="post-attachment">
+          <div class="post-attachment <%= "post-attachment-single" if single_image %>">
             <%= image_tag(image, class: "img-fluid w-100 h-auto", loading: "lazy", decoding: "async") %>
           </div>
         <% end %>
