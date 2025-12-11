@@ -8,6 +8,7 @@ class GroupsController < ApplicationController
 
   def show
     @posts = @group.posts.order(created_at: :desc)
+    @view_mode = params[:view] == "full" ? :full : :compact
   end
 
   def new
