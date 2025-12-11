@@ -70,33 +70,35 @@
           <div class="d-flex flex-column gap-3">
             <% @groups.each do |group| %>
               <% posts = group.posts.order(created_at: :desc) %>
-              <div class="group-wall-preview rounded p-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <div>
-                    <h3 class="h6 mb-0 group-name-strong"><%= group.name %></h3>
-                    <small class="text-muted"><%= "Tap to view each wall" %></small>
+              <% if group.posts.present? %>
+                <div class="group-wall-preview rounded p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                      <h3 class="h6 mb-0 group-name-strong"><%= group.name %></h3>
+                      <small class="text-muted"><%= "Tap to view each wall" %></small>
+                    </div>
+                    <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary" %>
                   </div>
-                  <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary" %>
-                </div>
 
-                <% if posts.any? %>
-                  <div class="list-group list-group-flush post-preview-list">
-                    <% posts.first(3).each do |post| %>
-                      <%= link_to post_path(post), class: "list-group-item list-group-item-action" do %>
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <div class="fw-semibold text-body"><%= truncate(post.body, length: 80) %></div>
-                            <small class="text-muted"><%= "Posted " + time_ago_in_words(post.created_at) + " ago" %></small>
+                  <% if posts.any? %>
+                    <div class="list-group list-group-flush post-preview-list">
+                      <% posts.first(3).each do |post| %>
+                        <%= link_to post_path(post), class: "list-group-item list-group-item-action" do %>
+                          <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                              <div class="fw-semibold text-body"><%= truncate(post.body, length: 80) %></div>
+                              <small class="text-muted"><%= "Posted " + time_ago_in_words(post.created_at) + " ago" %></small>
+                            </div>
+                            <span class="badge text-bg-light border"><%= "View" %></span>
                           </div>
-                          <span class="badge text-bg-light border"><%= "View" %></span>
-                        </div>
+                        <% end %>
                       <% end %>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <p class="text-muted mb-0"><%= "No posts in this group yet." %></p>
-                <% end %>
-              </div>
+                    </div>
+                  <% else %>
+                    <p class="text-muted mb-0"><%= "No posts in this group yet." %></p>
+                  <% end %>
+                </div>
+            <% end %>
             <% end %>
           </div>
         <% else %>

@@ -24,7 +24,7 @@
                 <p class="post-meta small mb-1"><%= "Posted by " + (post.user&.email || "Unknown author") %></p>
                 <p class="post-meta small mb-0"><%= "Posted " + time_ago_in_words(post.created_at) + " ago" %></p>
               </div>
-              <div class="d-flex align-items-start gap-2 flex-wrap">
+              <div class="d-flex align-items-start gap-3 flex-wrap">
                 <% if post.groups.any? %>
                   <div class="d-flex flex-wrap gap-2">
                     <% post.groups.order(:name).each do |group| %>
@@ -32,10 +32,16 @@
                     <% end %>
                   </div>
                 <% end %>
-                <div class="d-flex align-items-start gap-2">
-                  <%= link_to "Show", post_path(post), class: "btn btn-sm btn-outline-primary" %>
-                  <%= link_to "Edit", edit_post_path(post), class: "btn btn-sm btn-outline-secondary" %>
-                  <%= link_to "Delete", post_path(post), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-outline-danger" %>
+                <div class="d-flex align-items-center gap-3 small text-body">
+                  <%= link_to post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold" do %>
+                    <span class="text-primary" aria-hidden="true">↗</span> <span class="text-body-emphasis"><%= "Open" %></span>
+                  <% end %>
+                  <%= link_to edit_post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <span class="text-secondary" aria-hidden="true">✏️</span> <span class="text-body-emphasis"><%= "Edit" %></span>
+                  <% end %>
+                  <%= link_to post_path(post), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-decoration-none d-inline-flex align-items-center gap-1 text-danger" do %>
+                    <span aria-hidden="true">🗑️</span> <span class="text-body-emphasis"><%= "Delete" %></span>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -44,7 +50,25 @@
               <% if @view_mode == :full %>
                 <%= simple_format(post.body) %>
               <% else %>
+                <% truncated_summary = post.body.to_s.length > 160 %>
                 <%= simple_format(truncate(post.body, length: 160)) %>
+
+                <% if truncated_summary || post.images.attached? %>
+                  <div class="d-flex flex-wrap align-items-center gap-2 small mt-3">
+                    <% if truncated_summary %>
+                        <span class="badge rounded-pill text-bg-light border border-primary text-primary-emphasis d-inline-flex align-items-center gap-1 px-3 py-2">
+                          <span aria-hidden="true">📖</span>
+                          <span class="fw-semibold"><%= "More to read" %></span>
+                        </span>
+                      <% end %>
+                      <% if post.images.attached? %>
+                        <span class="badge rounded-pill text-bg-light border border-success text-success-emphasis d-inline-flex align-items-center gap-1 px-3 py-2">
+                          <span aria-hidden="true">📷</span>
+                          <span class="fw-semibold"><%= "Includes photos" %></span>
+                        </span>
+                    <% end %>
+                  </div>
+                <% end %>
               <% end %>
             </div>
 
