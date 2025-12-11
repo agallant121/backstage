@@ -160,11 +160,25 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.post-attachment-grid-single {
+  grid-template-columns: minmax(320px, 780px);
+  justify-content: center;
+}
+
 .post-attachment {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 8px;
   background: #fefefe;
+}
+
+.post-attachment-single {
+  padding: 18px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 20% 20%, rgba(200, 181, 244, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(127, 209, 200, 0.12), transparent 38%),
+    #ffffff;
+  box-shadow: 0 14px 36px rgba(24, 36, 46, 0.12);
 }
 
 .post-attachment img {
@@ -176,6 +190,11 @@ body {
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
   background: radial-gradient(circle, rgba(127, 209, 200, 0.08), rgba(200, 181, 244, 0.04));
   padding: 8px;
+}
+
+.post-attachment-single img {
+  max-height: 640px;
+  border-radius: 14px;
 }
 
 .badge-soft {
