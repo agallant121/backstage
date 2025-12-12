@@ -86,14 +86,45 @@
             <div class="d-flex flex-column gap-3">
               <% if image_attachments.any? %>
                 <% single_image = image_attachments.one? %>
-                <div class="d-flex flex-column gap-2">
+                <div class="d-flex flex-column gap-2" data-controller="image-lightbox">
                   <p class="fw-semibold mb-1"><%= "Images" %></p>
                   <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_image %>">
                     <% image_attachments.each do |image| %>
                       <div class="post-attachment <%= "post-attachment-single" if single_image %>">
-                        <%= image_tag(image, class: "img-fluid w-100 h-auto", loading: "lazy", decoding: "async") %>
+                        <%= image_tag(image,
+                                      class: "img-fluid w-100 h-auto cursor-pointer",
+                                      loading: "lazy",
+                                      decoding: "async",
+                                      data: {
+                                        image_lightbox_target: "thumbnail",
+                                        action: "click->image-lightbox#open",
+                                        image_lightbox_full_url: url_for(image),
+                                        image_lightbox_alt: image.filename.to_s
+                                      }) %>
                       </div>
                     <% end %>
+                  </div>
+
+                  <div class="modal fade" tabindex="-1" aria-hidden="true" data-image-lightbox-target="modal">
+                    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" data-image-lightbox-target="modalTitle"><%= "Image preview" %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <img class="img-fluid w-100 h-auto" alt="" data-image-lightbox-target="modalImage">
+                        </div>
+                        <div class="modal-footer d-flex justify-content-between">
+                          <button type="button" class="btn btn-outline-secondary" data-image-lightbox-target="prevButton" data-action="click->image-lightbox#previous">
+                            <%= "Previous" %>
+                          </button>
+                          <button type="button" class="btn btn-outline-primary" data-image-lightbox-target="nextButton" data-action="click->image-lightbox#next">
+                            <%= "Next" %>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               <% end %>
