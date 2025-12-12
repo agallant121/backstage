@@ -82,6 +82,7 @@
                   <div class="small text-muted">
                     <% if child.age_display.present? %>
                       <span class="me-2"><%= "Age: " %><%= child.age_display %></span>
+                      <br>
                     <% end %>
                     <% if child.birthday.present? %>
                       <span><%= "Birthday: " %><%= child.birthday.strftime("%B %-d, %Y") %></span>
