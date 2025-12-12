@@ -14,7 +14,7 @@
     <div class="form-floating">
       <%= f.text_area :body, rows: 5, class: "form-control", placeholder: "What's going on?", style: "height: 150px" %>
       <%= f.label :body, "What's going on?" %>
-      <div class="form-text"><%= "Share a quick update to one group or everyone." %></div>
+      <div class="form-text"><%= "Share a quick update to one group or everyone. You can also upload photos or short videos." %></div>
     </div>
 
     <div>
@@ -29,10 +29,11 @@
     </div>
 
     <div>
-      <label class="form-label"><%= "Attach images" %></label>
-      <%= f.file_field :images, multiple: true, class: "form-control" %>
-      <div class="form-text"><%= "Images will resize to fit on mobile." %></div>
+      <label class="form-label"><%= "Attach media" %></label>
+      <%= f.file_field :attachments, accept: "image/*,video/*", multiple: true, class: "form-control" %>
+      <div class="form-text"><%= "Add photos or short videos. Keep it light; everyone sees the update at once." %></div>
     </div>
+
   </div>
   <div class="card-footer bg-white d-flex justify-content-between">
     <%= link_to "Cancel", root_path, class: "btn btn-outline-secondary" %>

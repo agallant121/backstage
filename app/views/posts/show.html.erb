@@ -11,11 +11,11 @@
 
 <div class="card shadow-sm mb-3 post-card">
   <div class="card-body d-flex flex-column gap-3">
-    <div>
-      <p class="text-muted small mb-1"><%= "Posted " + @post.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
-      <div class="fs-5">
-        <%= simple_format(@post.body) %>
-      </div>
+  <div>
+    <p class="text-muted small mb-1"><%= "Shared " + @post.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    <div class="fs-5">
+      <%= simple_format(@post.body) %>
+    </div>
     </div>
 
     <% groups = @post.groups.order(:name) %>
@@ -30,15 +30,37 @@
   </div>
 </div>
 
-<% if @post.images.attached? %>
-  <% single_image = @post.images.one? %>
+<% image_attachments = @post.media_attachments.select { |att| att.content_type&.start_with?("image") } %>
+<% video_attachments = @post.media_attachments.select { |att| att.content_type&.start_with?("video") } %>
+
+<% if image_attachments.any? %>
+  <% single_image = image_attachments.one? %>
   <div class="card shadow-sm post-card">
     <div class="card-body d-flex flex-column gap-2">
       <h2 class="h5 mb-1"><%= "Images" %></h2>
       <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_image %>">
-        <% @post.images.each do |image| %>
+        <% image_attachments.each do |image| %>
           <div class="post-attachment <%= "post-attachment-single" if single_image %>">
             <%= image_tag(image, class: "img-fluid w-100 h-auto", loading: "lazy", decoding: "async") %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if video_attachments.any? %>
+  <div class="card shadow-sm post-card mt-3">
+    <div class="card-body d-flex flex-column gap-2">
+      <h2 class="h5 mb-1"><%= "Videos" %></h2>
+      <% single_video = video_attachments.one? %>
+      <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_video %>">
+        <% video_attachments.each_with_index do |video, idx| %>
+          <div class="post-attachment <%= "post-attachment-single" if single_video %> d-flex flex-column gap-2">
+            <span class="small text-muted"><%= "Video ##{idx + 1}" %></span>
+            <div class="ratio ratio-16x9">
+              <%= video_tag(video, controls: true, preload: "metadata", class: "w-100 h-100 rounded-3", playsinline: true) %>
+            </div>
           </div>
         <% end %>
       </div>

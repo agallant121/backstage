@@ -197,6 +197,19 @@ body {
   border-radius: 14px;
 }
 
+.post-attachment video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  background: radial-gradient(circle, rgba(127, 209, 200, 0.08), rgba(200, 181, 244, 0.04));
+}
+
+.post-attachment-single video {
+  border-radius: 14px;
+}
+
 .badge-soft {
   color: var(--text);
   background: #f1f6f4;
