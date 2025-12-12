@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
     allowed_keys = [
       :first_name, :last_name, :birthday, :spouse_name, :spouse_birthday,
       :home_address, :contact_notes,
-      children_attributes: %i[id name birthday age notes _destroy]
+      children_attributes: %i[id name birthday notes _destroy]
     ]
 
     devise_parameter_sanitizer.permit(:sign_up, keys: allowed_keys)

@@ -82,11 +82,7 @@
                     <%= child_form.label :name, "Name", class: "form-label fw-semibold" %>
                     <%= child_form.text_field :name, class: "form-control" %>
                   </div>
-                  <div class="col-md-3">
-                    <%= child_form.label :age, "Age", class: "form-label fw-semibold" %>
-                    <%= child_form.number_field :age, class: "form-control" %>
-                  </div>
-                  <div class="col-md-3">
+                  <div class="col-md-6">
                     <%= child_form.label :birthday, "Birthday", class: "form-label fw-semibold" %>
                     <%= child_form.date_field :birthday, class: "form-control" %>
                   </div>
@@ -127,11 +123,6 @@
         </div>
       <% end %>
 
-      <div class="mt-4 p-3 rounded border border-danger-subtle bg-danger-subtle">
-        <h2 class="h6 fw-semibold text-danger mb-2"><%= "Need a reset?" %></h2>
-        <p class="text-muted small mb-3"><%= "You can cancel your account, but this cannot be undone." %></p>
-        <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: "btn btn-danger" %>
-      </div>
     </div>
   </div>
 </div>
