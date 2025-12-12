@@ -68,8 +68,7 @@ class PostsController < ApplicationController
     @group = current_user.groups.find(params[:group_id]) if params[:group_id]
   end
 
-  # ⬇️ group_id is no longer saved on the Post itself
   def post_params
-    params.require(:post).permit(:body, images: [])
+    params.require(:post).permit(:body, attachments: [])
   end
 end
