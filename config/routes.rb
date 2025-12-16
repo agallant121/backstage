@@ -8,5 +8,7 @@ Rails.application.routes.draw do
     resources :memberships, only: [ :create ]
   end
 
+  get "directory", to: "directory#index"
+
   root "home#index"
 end

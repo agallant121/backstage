@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "directory_list" do %>
+  <%= turbo_frame_tag "directory_list" do %>
+    <%= render partial: "people", locals: { people: @people, user_groups: @user_groups, query: @query } %>
+  <% end %>
+<% end %>

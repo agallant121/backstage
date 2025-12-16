@@ -134,7 +134,7 @@
           <p class="text-uppercase small mb-0 list-heading"><%= "People" %></p>
           <h2 class="h5 mb-0"><%= "Contacts" %></h2>
         </div>
-        <span class="badge text-bg-light border"><%= "Directory" %></span>
+        <%= link_to "Directory", directory_path, class: "badge text-bg-light border text-decoration-none" %>
       </div>
 
       <div class="list-group list-group-flush">
@@ -169,6 +169,12 @@
                 <% end %>
               </div>
             <% end %>
+          <% end %>
+          <% if @people_total.to_i > @people.size %>
+            <div class="list-group-item text-muted small bg-light">
+              <%= "Showing the first 15 contacts." %>
+              <%= link_to "View all", directory_path, class: "ms-1" %>
+            </div>
           <% end %>
         <% else %>
           <div class="list-group-item text-muted"><%= "No people to show yet." %></div>
