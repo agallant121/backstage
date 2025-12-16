@@ -16,6 +16,8 @@ gem "turbo-rails"
 gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+# Pagination for Active Record collections
+gem "kaminari"
 
 # Added by me
 gem "devise"
