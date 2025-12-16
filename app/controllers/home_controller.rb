@@ -3,6 +3,8 @@ class HomeController < ApplicationController
 
   def index
     @groups = current_user.groups.order(created_at: :desc)
-    @people = User.includes(:children).order(:last_name, :first_name, :email)
+    contacts_scope = related_contacts
+    @people_total = contacts_scope.count
+    @people = contacts_scope.includes(:children).order(:last_name, :first_name, :email).limit(15)
   end
 end
