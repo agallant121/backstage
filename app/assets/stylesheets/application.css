@@ -110,6 +110,50 @@ body {
   box-shadow: 0 10px 30px rgba(26, 34, 44, 0.08);
 }
 
+.directory-card {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.15s ease, background-color 0.2s ease;
+}
+
+.directory-card:hover,
+.directory-card:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(26, 34, 44, 0.14);
+  border-color: rgba(127, 209, 200, 0.55);
+  background-color: rgba(127, 209, 200, 0.06);
+}
+
+.pagination-soft .page-link {
+  color: var(--text);
+  border: 1px solid var(--border);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(26, 34, 44, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.pagination-soft .page-link:hover {
+  color: var(--text);
+  background-color: rgba(127, 209, 200, 0.08);
+  border-color: rgba(127, 209, 200, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(26, 34, 44, 0.12);
+}
+
+.pagination-soft .page-item.active .page-link {
+  color: #0f1216;
+  background-color: rgba(127, 209, 200, 0.2);
+  border-color: rgba(127, 209, 200, 0.75);
+  box-shadow: 0 12px 28px rgba(26, 34, 44, 0.12);
+  font-weight: 700;
+}
+
+.pagination-soft .page-item.disabled .page-link {
+  color: var(--muted);
+  background-color: #f7f8f6;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
 .btn-primary {
   --bs-btn-color: #ffffff;
   --bs-btn-bg: var(--primary);
