@@ -4,10 +4,7 @@ class PostsController < ApplicationController
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @posts = Post.joins(:groups)
-                 .where(groups: { id: current_user.groups.select(:id) })
-                 .distinct
-                 .order(created_at: :desc)
+    @posts = Post.visible_to(current_user).order(created_at: :desc)
 
     @view_mode = params[:view] == "full" ? :full : :compact
   end
@@ -61,7 +58,7 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = current_user.posts.find(params[:id])
+    @post = Post.visible_to(current_user).find(params[:id])
   end
 
   def set_group

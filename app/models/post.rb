@@ -7,6 +7,10 @@ class Post < ApplicationRecord
   has_many_attached :attachments
   has_many_attached :images
 
+  scope :visible_to, ->(user) {
+    joins(:groups).where(groups: { id: user.groups.select(:id) }).distinct
+  }
+
   validates :body, presence: true, unless: :attachments_attached?
   validate :body_or_attachment_present
   validate :attachments_are_media
