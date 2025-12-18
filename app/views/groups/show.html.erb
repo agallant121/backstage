@@ -1,4 +1,6 @@
-<% member = @group.users.include?(current_user) %>
+<% membership = current_user.memberships.find_by(group: @group) %>
+<% member = membership.present? %>
+<% admin = membership&.admin? %>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <div>
@@ -13,6 +15,9 @@
   <div class="d-flex gap-2 flex-wrap align-items-center">
     <% unless member %>
       <%= button_to "Join Group", group_memberships_path(@group), method: :post, class: "btn btn-outline-primary" %>
+    <% end %>
+    <% if admin %>
+      <%= link_to "Manage invites", group_invitations_path(@group), class: "btn btn-outline-secondary" %>
     <% end %>
     <%= link_to "Back to groups", groups_path, class: "btn btn-outline-secondary" %>
     <%= link_to "New post in this group", new_post_path(group_id: @group.id), class: "btn btn-primary" %>

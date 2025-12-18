@@ -31,6 +31,10 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
+  # Deliver emails through MailHog in development so invitations are viewable locally.
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = { address: "127.0.0.1", port: 1025 }
+
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
@@ -54,6 +58,9 @@ Rails.application.configure do
 
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
+
+  # Run background jobs inline so mailer deliveries work without a queue in development.
+  config.active_job.queue_adapter = :inline
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
