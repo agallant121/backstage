@@ -1,0 +1,41 @@
+class Users::RegistrationsController < Devise::RegistrationsController
+  def new
+    invitation = Invitation.find_by(token: params[:invite_token])
+    if invitation&.pending?
+      session[:invitation_token] = invitation.token
+      self.resource = build_resource(email: invitation.email)
+    else
+      self.resource = build_resource
+    end
+
+    set_minimum_password_length
+    respond_with resource
+  end
+
+  def create
+    invitation = Invitation.find_by(token: session[:invitation_token])
+    super do |resource|
+      if resource.persisted? && invitation&.pending?
+        invitation.accept!(resource)
+      end
+    end
+  end
+
+  private
+
+  def after_inactive_sign_up_path_for(resource)
+    invitation_redirect_path || super
+  end
+
+  def after_sign_up_path_for(resource)
+    invitation_redirect_path || super
+  end
+
+  def invitation_redirect_path
+    token = session.delete(:invitation_token)
+    return if token.blank?
+
+    invitation = Invitation.find_by(token: token)
+    invitation&.group
+  end
+end

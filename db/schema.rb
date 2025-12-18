@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_11_121000) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_12_001000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,10 +49,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_121000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "invitations", force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "inviter_id", null: false
+    t.bigint "invited_user_id"
+    t.string "email", null: false
+    t.string "token", null: false
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_invitations_on_email"
+    t.index ["group_id"], name: "index_invitations_on_group_id"
+    t.index ["invited_user_id"], name: "index_invitations_on_invited_user_id"
+    t.index ["inviter_id"], name: "index_invitations_on_inviter_id"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+  end
+
   create_table "memberships", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "group_id", null: false
-    t.integer "role"
+    t.integer "role", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_memberships_on_group_id"
@@ -109,6 +125,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_121000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "invitations", "groups"
+  add_foreign_key "invitations", "users", column: "invited_user_id"
+  add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "memberships", "groups"
   add_foreign_key "memberships", "users"
   add_foreign_key "post_groups", "groups"
