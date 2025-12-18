@@ -18,7 +18,9 @@ class GroupsController < ApplicationController
   def create
     @group = Group.new(group_params)
     if @group.save
-      current_user.memberships.find_or_create_by!(group: @group)
+      membership = current_user.memberships.find_or_initialize_by(group: @group)
+      membership.role = :admin
+      membership.save!
       redirect_to @group, notice: "Group was successfully created."
     else
       render :new, status: :unprocessable_entity
