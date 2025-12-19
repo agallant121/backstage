@@ -11,13 +11,13 @@
 <div class="card mb-4 shadow-sm">
   <div class="card-body">
     <h2 class="h5 mb-3"><%= "Invite people by email" %></h2>
-    <p class="text-muted small mb-3">People already in any of your groups will be skipped so that each person stays tied to a single circle.</p>
+    <p class="text-muted small mb-3"><%= "People already in any of your groups will be skipped so that each person stays tied to a single circle." %></p>
 
     <%= form_with url: group_invitations_path(@group), scope: :invitation, method: :post, local: true do |form| %>
       <div class="mb-3">
         <%= form.label :emails, "Email addresses", class: "form-label fw-semibold" %>
         <%= form.text_area :emails, rows: 3, class: "form-control", placeholder: "one@example.com, another@example.com" %>
-        <p class="text-muted small mb-0 mt-1">Separate addresses with commas, spaces, or new lines.</p>
+        <p class="text-muted small mb-0 mt-1"><%= "Separate addresses with commas, spaces, or new lines." %></p>
       </div>
 
       <%= form.submit "Create invite links", class: "btn btn-primary" %>
@@ -28,7 +28,7 @@
 <div class="card shadow-sm">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <h2 class="h6 mb-0 text-uppercase text-muted">Existing invites</h2>
+      <h2 class="h6 mb-0 text-uppercase text-muted"><%= "Existing invites" %></h2>
       <span class="badge text-bg-light border"><%= pluralize(@invitations.pending.count, "pending invite") %></span>
     </div>
 
@@ -37,11 +37,11 @@
         <table class="table align-middle">
           <thead>
             <tr>
-              <th scope="col">Email</th>
-              <th scope="col">Status</th>
-              <th scope="col">Link to share</th>
-              <th scope="col">Invited by</th>
-              <th scope="col">Invited on</th>
+              <th scope="col"><%= "Email" %></th>
+              <th scope="col"><%= "Status" %></th>
+              <th scope="col"><%= "Link to share" %></th>
+              <th scope="col"><%= "Invited by" %></th>
+              <th scope="col"><%= "Invited on" %></th>
             </tr>
           </thead>
           <tbody>
@@ -50,9 +50,9 @@
                 <td class="fw-semibold"><%= invitation.email %></td>
                 <td>
                   <% if invitation.pending? %>
-                    <span class="badge text-bg-warning">Pending</span>
+                    <span class="badge text-bg-warning"><%= "Pending" %></span>
                   <% else %>
-                    <span class="badge text-bg-success">Accepted</span>
+                    <span class="badge text-bg-success"><%= "Accepted" %></span>
                   <% end %>
                 </td>
                 <td>
@@ -61,7 +61,7 @@
                       <code class="small"><%= invitation_path(invitation.token) %></code>
                     </div>
                   <% else %>
-                    <span class="text-muted small">Used</span>
+                    <span class="text-muted small"><%= "Used" %></span>
                   <% end %>
                 </td>
                 <td><%= invitation.inviter.display_name %></td>
@@ -72,7 +72,7 @@
         </table>
       </div>
     <% else %>
-      <p class="text-muted mb-0">No invites yet. Add some emails above to generate invite links.</p>
+      <p class="text-muted mb-0"><%= "No invites yet. Add some emails above to generate invite links." %></p>
     <% end %>
   </div>
 </div>
