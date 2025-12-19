@@ -59,7 +59,7 @@
               <% end %>
 
               <div>
-                <span class="btn btn-sm btn-outline-primary w-100">View profile</span>
+                <span class="btn btn-sm btn-outline-primary w-100"><%= "View profile" %></span>
               </div>
             </div>
           </div>
@@ -75,7 +75,7 @@
           <% if people.prev_page %>
             <%= link_to "Previous", directory_path(page: people.prev_page, query: query.presence, format: :turbo_stream), class: "page-link", data: { turbo_stream: true } %>
           <% else %>
-            <span class="page-link">Previous</span>
+            <span class="page-link"><%= "Previous" %></span>
           <% end %>
         </li>
 
@@ -93,7 +93,7 @@
           <% if people.next_page %>
             <%= link_to "Next", directory_path(page: people.next_page, query: query.presence, format: :turbo_stream), class: "page-link", data: { turbo_stream: true } %>
           <% else %>
-            <span class="page-link">Next</span>
+            <span class="page-link"><%= "Next" %></span>
           <% end %>
         </li>
       </ul>

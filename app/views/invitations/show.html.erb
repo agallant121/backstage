@@ -1,10 +1,10 @@
 <div class="invitation">
-  <h1>Accept your invitation</h1>
+  <h1><%= "Accept your invitation" %></h1>
 
   <p>
-    You have been invited to join
+    <%= "You have been invited to join" %>
     <strong><%= @invitation.group.name %></strong>
-    with the email <strong><%= @invitation.email %></strong>.
+    <%= "with the email" %> <strong><%= @invitation.email %></strong><%= "." %>
   </p>
 
   <% if @invitation.pending? %>
@@ -12,6 +12,6 @@
       <%= submit_tag "Accept invitation", class: "button" %>
     <% end %>
   <% else %>
-    <p class="alert alert-warning">This invitation has already been used.</p>
+    <p class="alert alert-warning"><%= "This invitation has already been used." %></p>
   <% end %>
 </div>
