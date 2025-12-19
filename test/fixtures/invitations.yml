@@ -1,0 +1,13 @@
+pending:
+  group: pending_group
+  inviter: one
+  email: one@example.com
+  token: pending-token
+
+used:
+  group: pending_group
+  inviter: one
+  invited_user: one
+  email: one@example.com
+  token: used-token
+  accepted_at: <%= 1.day.ago %>

@@ -5,31 +5,44 @@ class InvitationsController < ApplicationController
     return if performed?
 
     if user_signed_in?
-      handle_signed_in_acceptance
+      if current_user.email.casecmp?(@invitation.email)
+        flash.now[:alert] = "This invitation has already been used." unless @invitation.pending?
+      else
+        sign_out(current_user)
+        redirect_to new_user_registration_path(invite_token: @invitation.token),
+                    alert: "Please sign up or sign in with #{@invitation.email} to accept this invitation."
+      end
     else
       session[:invitation_token] = @invitation.token
       redirect_to new_user_registration_path(invite_token: @invitation.token)
     end
   end
 
-  private
+  def accept
+    return if performed?
 
-  def handle_signed_in_acceptance
-    if current_user.email.casecmp?(@invitation.email)
-      if @invitation.pending?
-        @invitation.accept!(current_user)
-        flash[:notice] = "You have been added to #{@invitation.group.name}."
-      else
-        flash[:alert] = "This invitation has already been used."
-      end
+    unless user_signed_in?
+      session[:invitation_token] = @invitation.token
+      redirect_to new_user_registration_path(invite_token: @invitation.token)
+      return
+    end
 
-      redirect_to @invitation.group
-    else
+    unless current_user.email.casecmp?(@invitation.email)
       sign_out(current_user)
       redirect_to new_user_registration_path(invite_token: @invitation.token),
                   alert: "Please sign up or sign in with #{@invitation.email} to accept this invitation."
+      return
+    end
+
+    if @invitation.pending?
+      @invitation.accept!(current_user)
+      redirect_to @invitation.group, notice: "You have been added to #{@invitation.group.name}."
+    else
+      redirect_to @invitation.group, alert: "This invitation has already been used."
     end
   end
+
+  private
 
   def set_invitation
     @invitation = Invitation.find_by(token: params[:token])

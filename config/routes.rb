@@ -9,7 +9,9 @@ Rails.application.routes.draw do
     resources :invitations, only: [ :index, :create ], module: :groups
   end
 
-  resources :invitations, only: [ :show ], param: :token
+  resources :invitations, only: [ :show ], param: :token do
+    post :accept, on: :member
+  end
 
   get "directory", to: "directory#index"
 
