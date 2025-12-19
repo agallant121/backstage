@@ -2,12 +2,43 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      /* Email styles need to be inline */
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f0; color: #2d3035; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f0; background-image: linear-gradient(135deg, rgba(200, 181, 244, 0.18), rgba(249, 215, 165, 0.2)); padding: 40px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" background="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='%23f4f1fb'/><stop offset='45%' stop-color='%23f6fbfa'/><stop offset='100%' stop-color='%23fff7ea'/></linearGradient></defs><rect width='600' height='800' fill='url(%23g)'/></svg>" style="max-width: 600px; background-color: #f7faf9; background-image: linear-gradient(180deg, rgba(200, 181, 244, 0.16) 0%, rgba(127, 209, 200, 0.12) 45%, rgba(249, 215, 165, 0.16) 100%); background-size: cover; border: 1px solid #d7e3df; border-radius: 18px; box-shadow: 0 18px 40px rgba(26, 34, 44, 0.12); overflow: hidden;">
+            <tr>
+              <td style="padding: 0; background-color: #f1f6f4;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="height: 6px; background-image: linear-gradient(90deg, #7FD1C8, #C8B5F4, #F9D7A5); font-size: 0; line-height: 0;">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 20px 28px 18px; background-color: rgba(241, 246, 244, 0.8); border-bottom: 1px solid #d7e3df;">
+                      <div style="display: inline-block; padding: 6px 12px; border-radius: 999px; background-color: #ffffff; border: 1px solid #d7e3df; font-size: 12px; font-weight: 600; color: #4c5360; text-transform: uppercase; letter-spacing: 0.08em;">Backstage</div>
+                      <div style="margin-top: 8px; font-size: 18px; font-weight: 700; color: #1d2329; letter-spacing: -0.2px;">Keep your community in sync</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 28px;">
+                <%= yield %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 20px 28px; background-color: rgba(250, 250, 248, 0.85); border-top: 1px solid #d7e3df; font-size: 12px; color: #71757c;">
+                <div style="margin-bottom: 6px;">Need help? Reply to this email and we will get you sorted.</div>
+                <div>&copy; <%= Time.zone.now.year %> Backstage. All rights reserved.</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
