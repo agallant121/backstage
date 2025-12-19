@@ -103,15 +103,16 @@
           <div class="col-md-6">
             <%= f.label :password, "Password", class: "form-label fw-semibold" %>
             <%= f.password_field :password, autocomplete: "new-password", class: "form-control form-control-lg" %>
-            <% if @minimum_password_length %>
-              <p class="form-text text-muted mt-2 mb-0"><%= "Minimum password length: #{@minimum_password_length} characters" %></p>
-            <% end %>
           </div>
 
           <div class="col-md-6">
             <%= f.label :password_confirmation, "Confirm password", class: "form-label fw-semibold" %>
             <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control form-control-lg" %>
           </div>
+          
+          <% if @minimum_password_length %>
+            <p class="form-text text-muted mt-2 mb-0"><%= "Minimum password length: #{@minimum_password_length} characters" %></p>
+          <% end %>
         </div>
 
         <div class="d-grid gap-3 mt-4">
