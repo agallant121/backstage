@@ -1,12 +1,14 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   def new
-    invitation = Invitation.find_by(token: params[:invite_token])
-    if invitation&.pending?
-      session[:invitation_token] = invitation.token
-      self.resource = build_resource(email: invitation.email)
-    else
-      self.resource = build_resource
+    invitation = Invitation.find_by(token: params[:invite_token] || session[:invitation_token])
+    unless invitation&.pending?
+      session.delete(:invitation_token)
+      redirect_to root_path, alert: "An invitation is required to sign up."
+      return
     end
+
+    session[:invitation_token] = invitation.token
+    self.resource = build_resource(email: invitation.email)
 
     set_minimum_password_length
     respond_with resource
@@ -14,6 +16,12 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     invitation = Invitation.find_by(token: session[:invitation_token])
+    unless invitation&.pending?
+      session.delete(:invitation_token)
+      redirect_to root_path, alert: "An invitation is required to sign up."
+      return
+    end
+
     super do |resource|
       if resource.persisted? && invitation&.pending?
         invitation.accept!(resource)
