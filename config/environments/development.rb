@@ -59,8 +59,8 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
-  # Run background jobs inline so mailer deliveries work without a queue in development.
-  config.active_job.queue_adapter = :inline
+  # Run background jobs asynchronously so expensive work (like video processing) doesn't block requests.
+  config.active_job.queue_adapter = :async
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
