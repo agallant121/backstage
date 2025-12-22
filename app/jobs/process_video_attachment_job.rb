@@ -1,8 +1,8 @@
 class ProcessVideoAttachmentJob < ApplicationJob
   queue_as :default
 
-  THUMBNAIL_SIZE = [800, 800].freeze
-  TRANSCODE_SIZE = [1280, 720].freeze
+  THUMBNAIL_SIZE = [ 800, 800 ].freeze
+  TRANSCODE_SIZE = [ 1280, 720 ].freeze
   TRANSCODE_FORMAT = "mp4"
 
   def perform(attachment_id)
