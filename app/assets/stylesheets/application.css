@@ -122,6 +122,59 @@ body {
   background-color: rgba(127, 209, 200, 0.06);
 }
 
+.groups-grid {
+  margin-bottom: 1rem;
+}
+
+.group-card {
+  overflow: hidden;
+  border: 1px solid rgba(127, 209, 200, 0.3);
+  background: linear-gradient(145deg, rgba(127, 209, 200, 0.08), rgba(255, 255, 255, 0.9) 45%);
+}
+
+.group-card .card-body {
+  min-height: 180px;
+}
+
+.group-card .badge {
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.group-card .btn {
+  font-weight: 600;
+}
+
+.group-card .group-meta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(127, 209, 200, 0.15);
+  color: #2d4b47;
+  font-weight: 600;
+}
+
+.group-card .stretched-link {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+.group-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(127, 209, 200, 0.9), rgba(160, 203, 255, 0.7));
+}
+
+.group-card:hover .group-meta,
+.group-card:focus .group-meta {
+  background: rgba(127, 209, 200, 0.25);
+}
+
 .pagination-soft .page-link {
   color: var(--text);
   border: 1px solid var(--border);
