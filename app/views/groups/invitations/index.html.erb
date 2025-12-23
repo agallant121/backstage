@@ -11,7 +11,8 @@
 <div class="card mb-4 shadow-sm">
   <div class="card-body">
     <h2 class="h5 mb-3"><%= "Invite people by email" %></h2>
-    <p class="text-muted small mb-3"><%= "People already in any of your groups will be skipped so that each person stays tied to a single circle." %></p>
+    <p class="text-muted small mb-1"><%= "People already in any of your groups will be skipped so that each person stays tied to a single circle." %></p>
+    <p class="text-muted small mb-3"><%= "You can send up to 25 invites at once, 100 per week, and 500 total." %></p>
 
     <%= form_with url: group_invitations_path(@group), scope: :invitation, method: :post, local: true do |form| %>
       <div class="mb-3">

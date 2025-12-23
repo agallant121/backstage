@@ -3,6 +3,10 @@ class Groups::InvitationsController < ApplicationController
   before_action :set_group
   before_action :require_group_admin!
 
+  MAX_INVITES_PER_REQUEST = 25
+  MAX_INVITES_PER_WEEK = 100
+  MAX_INVITES_TOTAL = 500
+
   def index
     @invitations = @group.invitations.order(created_at: :desc)
   end
@@ -13,6 +17,24 @@ class Groups::InvitationsController < ApplicationController
     emails = extract_emails
     if emails.empty?
       redirect_to group_invitations_path(@group), alert: "Please provide at least one email address."
+      return
+    end
+
+    if emails.size > MAX_INVITES_PER_REQUEST
+      redirect_to group_invitations_path(@group),
+                  alert: "Please limit invites to #{MAX_INVITES_PER_REQUEST} emails at a time."
+      return
+    end
+
+    if invites_week_count + emails.size > MAX_INVITES_PER_WEEK
+      redirect_to group_invitations_path(@group),
+                  alert: "You have reached the weekly invite limit (#{MAX_INVITES_PER_WEEK}). Try again next week."
+      return
+    end
+
+    if invites_total_count + emails.size > MAX_INVITES_TOTAL
+      redirect_to group_invitations_path(@group),
+                  alert: "You have reached the total invite limit (#{MAX_INVITES_TOTAL})."
       return
     end
 
@@ -76,5 +98,13 @@ class Groups::InvitationsController < ApplicationController
     return false if user.nil?
 
     (user.group_ids & current_user.group_ids).any?
+  end
+
+  def invites_week_count
+    current_user.sent_invitations.where("created_at >= ?", Time.zone.now.beginning_of_week).count
+  end
+
+  def invites_total_count
+    current_user.sent_invitations.count
   end
 end
