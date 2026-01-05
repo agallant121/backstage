@@ -9,12 +9,5 @@
 </div>
 
 <%= turbo_frame_tag "posts_list" do %>
-  <% toggle_path = @view_mode == :full ? posts_path : posts_path(view: "full") %>
-  <%= render "post_list",
-             posts: @posts,
-             view_mode: @view_mode,
-             toggle_path: toggle_path,
-             show_group_badges: true,
-             show_actions: true,
-             empty_state_message: "No posts yet. Share something to kick things off!" %>
+  <%= render "posts_index_list", posts: @posts, view_mode: @view_mode %>
 <% end %>

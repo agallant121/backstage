@@ -1,0 +1,15 @@
+<% toggle_path = view_mode == :full ? posts_path : posts_path(view: "full") %>
+<% view_param = view_mode == :full ? "full" : nil %>
+
+<%= render "post_list",
+           posts: posts,
+           view_mode: view_mode,
+           toggle_path: toggle_path,
+           show_group_badges: true,
+           show_actions: true,
+           empty_state_message: "No posts yet. Share something to kick things off!" %>
+
+<%= render "shared/pagination",
+           collection: posts,
+           label: "Posts pagination",
+           path_for_page: ->(page) { posts_path(page: page, view: view_param, format: :turbo_stream) } %>
