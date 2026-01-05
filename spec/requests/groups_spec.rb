@@ -1,10 +1,10 @@
 require "rails_helper"
 
-RSpec.describe "Groups" do
+RSpec.describe "Groups", type: :request do
   it "creates a group and assigns the creator as admin" do
     user = User.create!(email: "owner@example.com", password: "password")
 
-    sign_in user, scope: :user
+    post user_session_path, params: { user: { email: user.email, password: "password" } }
 
     post groups_path, params: { group: { name: "New Group", description: "About" } }
 

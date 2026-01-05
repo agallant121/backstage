@@ -8,7 +8,7 @@ RSpec.describe "Invitations" do
     invitation = Invitation.create!(group: group, inviter: inviter, email: "guest@example.com")
     invited_user = User.create!(email: "guest@example.com", password: "password")
 
-    sign_in invited_user, scope: :user
+    sign_in invited_user
 
     post accept_invitation_path(invitation.token)
 
