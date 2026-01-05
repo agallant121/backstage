@@ -86,13 +86,13 @@ production:
     password: <%= ENV["BACKSTAGE_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
-    database: backstage_production_cache
+    database: backstage_production
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: backstage_production_queue
+    database: backstage_production
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: backstage_production_cable
+    database: backstage_production
     migrations_paths: db/cable_migrate
