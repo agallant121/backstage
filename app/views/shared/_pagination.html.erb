@@ -1,0 +1,50 @@
+<% total_pages = collection.total_pages %>
+<% current_page = collection.current_page %>
+<% return if total_pages <= 1 %>
+
+<% window = 2 %>
+<% pages = ([1, total_pages] + ((current_page - window)..(current_page + window)).to_a)
+  .select { |page| page.between?(1, total_pages) }
+  .uniq
+  .sort %>
+
+<div class="mt-4">
+  <nav aria-label="<%= label %>">
+    <ul class="pagination pagination-soft justify-content-center mb-0">
+      <li class="page-item <%= collection.prev_page ? "" : "disabled" %>">
+        <% if collection.prev_page %>
+          <%= link_to "Previous", path_for_page.call(collection.prev_page), class: "page-link", data: { turbo_stream: true } %>
+        <% else %>
+          <span class="page-link"><%= "Previous" %></span>
+        <% end %>
+      </li>
+
+      <% previous_page = nil %>
+      <% pages.each do |page| %>
+        <% if previous_page && page > previous_page + 1 %>
+          <li class="page-item disabled">
+            <span class="page-link" aria-hidden="true">…</span>
+          </li>
+        <% end %>
+
+        <li class="page-item <%= page == current_page ? "active" : "" %>">
+          <% if page == current_page %>
+            <span class="page-link"><%= page %></span>
+          <% else %>
+            <%= link_to page, path_for_page.call(page), class: "page-link", data: { turbo_stream: true } %>
+          <% end %>
+        </li>
+
+        <% previous_page = page %>
+      <% end %>
+
+      <li class="page-item <%= collection.next_page ? "" : "disabled" %>">
+        <% if collection.next_page %>
+          <%= link_to "Next", path_for_page.call(collection.next_page), class: "page-link", data: { turbo_stream: true } %>
+        <% else %>
+          <span class="page-link"><%= "Next" %></span>
+        <% end %>
+      </li>
+    </ul>
+  </nav>
+</div>

@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "groups_list" do %>
+  <%= turbo_frame_tag "groups_list" do %>
+    <%= render "groups_list", groups: @groups %>
+  <% end %>
+<% end %>

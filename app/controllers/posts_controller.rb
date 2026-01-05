@@ -4,9 +4,17 @@ class PostsController < ApplicationController
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @posts = Post.visible_to(current_user).order(created_at: :desc)
+    @posts = Post.visible_to(current_user)
+      .order(created_at: :desc)
+      .page(params[:page])
+      .per(10)
 
     @view_mode = params[:view] == "full" ? :full : :compact
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def show

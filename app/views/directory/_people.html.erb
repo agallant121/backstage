@@ -68,37 +68,10 @@
     <% end %>
   </div>
 
-  <div class="mt-4">
-    <nav aria-label="Directory pagination">
-      <ul class="pagination pagination-soft justify-content-center mb-0">
-        <li class="page-item <%= people.prev_page ? "" : "disabled" %>">
-          <% if people.prev_page %>
-            <%= link_to "Previous", directory_path(page: people.prev_page, query: query.presence, format: :turbo_stream), class: "page-link", data: { turbo_stream: true } %>
-          <% else %>
-            <span class="page-link"><%= "Previous" %></span>
-          <% end %>
-        </li>
-
-        <% (1..people.total_pages).each do |page| %>
-          <li class="page-item <%= page == people.current_page ? "active" : "" %>">
-            <% if page == people.current_page %>
-              <span class="page-link"><%= page %></span>
-            <% else %>
-              <%= link_to page, directory_path(page: page, query: query.presence, format: :turbo_stream), class: "page-link", data: { turbo_stream: true } %>
-            <% end %>
-          </li>
-        <% end %>
-
-        <li class="page-item <%= people.next_page ? "" : "disabled" %>">
-          <% if people.next_page %>
-            <%= link_to "Next", directory_path(page: people.next_page, query: query.presence, format: :turbo_stream), class: "page-link", data: { turbo_stream: true } %>
-          <% else %>
-            <span class="page-link"><%= "Next" %></span>
-          <% end %>
-        </li>
-      </ul>
-    </nav>
-  </div>
+  <%= render "shared/pagination",
+             collection: people,
+             label: "Directory pagination",
+             path_for_page: ->(page) { directory_path(page: page, query: query.presence, format: :turbo_stream) } %>
 <% else %>
   <div class="alert alert-secondary" role="alert">
     <% if query.present? %>

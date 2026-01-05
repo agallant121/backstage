@@ -3,7 +3,15 @@ class GroupsController < ApplicationController
   before_action :set_group, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @groups = current_user.groups.all
+    @groups = current_user.groups
+      .order(:name)
+      .page(params[:page])
+      .per(12)
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def show

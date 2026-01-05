@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "posts_list" do %>
+  <%= turbo_frame_tag "posts_list" do %>
+    <%= render "posts_index_list", posts: @posts, view_mode: @view_mode %>
+  <% end %>
+<% end %>
