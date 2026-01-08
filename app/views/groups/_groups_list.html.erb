@@ -18,10 +18,14 @@
             <div class="d-flex gap-2 flex-wrap mt-auto position-relative z-1 align-items-center">
               <div class="group-meta text-muted small"><%= "#{group.users.count} members" %></div>
               <% if group.memberships.find_by(user: current_user)&.admin? %>
-                <%= link_to "Edit", edit_group_path(group), class: "btn btn-sm btn-outline-secondary" %>
+                <%= link_to "Edit", edit_group_path(group), class: "btn btn-sm btn-outline-secondary", data: { turbo_frame: "_top" } %>
               <% end %>
             </div>
-            <%= link_to "", group_path(group), class: "stretched-link", aria: { label: "View #{group.name}" } %>
+            <%= link_to "",
+                        group_path(group),
+                        class: "stretched-link",
+                        aria: { label: "View #{group.name}" },
+                        data: { turbo_frame: "_top" } %>
           </div>
         </div>
       </div>
