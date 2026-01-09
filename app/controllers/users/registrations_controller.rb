@@ -1,4 +1,6 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  before_action :ensure_devise_mapping
+
   def new
     invitation = Invitation.find_by(token: params[:invite_token] || session[:invitation_token])
     unless invitation&.pending?
@@ -45,5 +47,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     invitation = Invitation.find_by(token: token)
     invitation&.group
+  end
+
+  def ensure_devise_mapping
+    request.env["devise.mapping"] ||= Devise.mappings[:user]
   end
 end
