@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   end
 
   resources :posts
-  resources :users, only: [ :show ]
+  resources :users, only: [ :show ], constraints: { id: /\d+/ }
 
   resources :groups do
     resources :memberships, only: [ :create ]
