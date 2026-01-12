@@ -1,5 +1,5 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-  before_action :ensure_devise_mapping
+  prepend_before_action :ensure_devise_mapping
 
   def new
     invitation = Invitation.find_by(token: params[:invite_token] || session[:invitation_token])
