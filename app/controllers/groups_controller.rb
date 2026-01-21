@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_group, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_group, only: [ :show, :edit, :update, :destroy, :members ]
 
   def index
     @groups = current_user.groups
@@ -17,6 +17,11 @@ class GroupsController < ApplicationController
   def show
     @posts = @group.posts.order(created_at: :desc)
     @view_mode = params[:view] == "full" ? :full : :compact
+  end
+
+  def members
+    @memberships = @group.memberships.includes(:user).joins(:user).order("users.email")
+    @admin = current_user.memberships.find_by(group: @group)&.admin?
   end
 
   def new

@@ -23,8 +23,9 @@ Rails.application.routes.draw do
   resources :users, only: [ :show ], constraints: { id: /\d+/ }
 
   resources :groups do
-    resources :memberships, only: [ :create ]
+    resources :memberships, only: [ :create, :destroy ]
     resources :invitations, only: [ :index, :create ], module: :groups
+    get :members, on: :member
   end
 
   resources :invitations, only: [ :show ], param: :token do

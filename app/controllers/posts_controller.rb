@@ -2,6 +2,7 @@ class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [ :new, :create ]
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
+  before_action :authorize_post_owner!, only: [ :edit, :update, :destroy ]
 
   def index
     @posts = Post.visible_to(current_user)
@@ -71,6 +72,12 @@ class PostsController < ApplicationController
 
   def set_group
     @group = current_user.groups.find(params[:group_id]) if params[:group_id]
+  end
+
+  def authorize_post_owner!
+    return if @post.user_id == current_user.id
+
+    redirect_to @post, alert: "You are not allowed to manage this post."
   end
 
   def post_params

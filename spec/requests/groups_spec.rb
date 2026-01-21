@@ -14,4 +14,31 @@ RSpec.describe "Groups", type: :request do
     expect(response).to redirect_to(group)
     expect(membership).to be_admin
   end
+
+  it "allows members to view the group members page" do
+    user = User.create!(email: "member@example.com", password: "password")
+    group = Group.create!(name: "Crew")
+    Membership.create!(user: user, group: group)
+
+    sign_in user
+
+    get members_group_path(group)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Group members")
+    expect(response.body).to include("member@example.com")
+  end
+
+  it "blocks non-members from viewing the members page" do
+    user = User.create!(email: "member@example.com", password: "password")
+    outsider = User.create!(email: "outsider@example.com", password: "password")
+    group = Group.create!(name: "Crew")
+    Membership.create!(user: user, group: group)
+
+    sign_in outsider
+
+    expect do
+      get members_group_path(group)
+    end.to raise_error(ActiveRecord::RecordNotFound)
+  end
 end

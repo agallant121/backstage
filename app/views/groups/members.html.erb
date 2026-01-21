@@ -1,0 +1,67 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <p class="text-uppercase text-muted small mb-1"><%= "Group members" %></p>
+    <h1 class="h4 mb-0"><%= @group.name %></h1>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <% if @admin %>
+      <%= link_to "Manage invites", group_invitations_path(@group), class: "btn btn-outline-secondary" %>
+    <% end %>
+    <%= link_to "Back to group", @group, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h6 mb-0 text-uppercase text-muted"><%= "Members" %></h2>
+      <span class="badge text-bg-light border"><%= pluralize(@memberships.size, "member") %></span>
+    </div>
+
+    <% if @memberships.any? %>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th scope="col"><%= "Name" %></th>
+              <th scope="col"><%= "Email" %></th>
+              <th scope="col"><%= "Role" %></th>
+              <% if @admin %>
+                <th scope="col"></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @memberships.each do |membership| %>
+              <% user = membership.user %>
+              <tr>
+                <td class="fw-semibold"><%= user.display_name.presence || user.email %></td>
+                <td class="text-muted"><%= user.email %></td>
+                <td>
+                  <% if membership.admin? %>
+                    <span class="badge text-bg-light border"><%= "Admin" %></span>
+                  <% else %>
+                    <span class="text-muted small"><%= "Member" %></span>
+                  <% end %>
+                </td>
+                <% if @admin %>
+                  <td class="text-end">
+                    <% if user.id != current_user.id %>
+                      <%= button_to "Remove",
+                                    group_membership_path(@group, membership),
+                                    method: :delete,
+                                    data: { turbo_confirm: "Remove this member?" },
+                                    class: "btn btn-outline-danger btn-sm" %>
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-muted mb-0"><%= "No members yet." %></p>
+    <% end %>
+  </div>
+</div>
