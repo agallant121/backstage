@@ -25,14 +25,20 @@
 </div>
 
 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
-  <div class="d-flex flex-column gap-1">
-    <p class="text-uppercase text-muted small mb-0"><%= "About" %></p>
-    <% if @group.description.present? %>
-      <p class="mb-0 text-secondary"><%= @group.description %></p>
-    <% else %>
-      <p class="mb-0 text-secondary"><%= "No description added yet." %></p>
-    <% end %>
-  </div>
+<div class="d-flex flex-column gap-1">
+  <p class="text-uppercase text-muted small mb-0"><%= "About" %></p>
+  <% if @group.description.present? %>
+    <p class="mb-0 text-secondary"><%= @group.description %></p>
+  <% else %>
+    <p class="mb-0 text-secondary"><%= "No description added yet." %></p>
+  <% end %>
+</div>
+</div>
+
+<div class="d-flex align-items-center gap-2 flex-wrap text-muted mb-4">
+  <span class="text-uppercase small"><%= "Group members" %></span>
+  <span class="fw-semibold text-body"><%= pluralize(@group.users.count, "member") %></span>
+  <%= link_to "View members", members_group_path(@group), class: "btn btn-outline-secondary btn-sm" %>
 </div>
 
 <div class="d-flex justify-content-between align-items-center mb-2">

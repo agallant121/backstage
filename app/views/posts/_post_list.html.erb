@@ -11,13 +11,14 @@
   <div class="d-flex flex-column gap-3">
     <% posts.each do |post| %>
       <div class="card shadow-sm post-card">
-        <div class="card-body d-flex flex-column gap-3">
+        <div class="card-body d-flex flex-column gap-3 position-relative">
+          <%= link_to "Open post", post_path(post), data: { turbo: false }, class: "stretched-link visually-hidden" %>
           <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
             <div>
               <p class="post-meta small mb-1"><%= "Posted by " + (post.user&.email || "Unknown author") %></p>
               <p class="post-meta small mb-0"><%= "Shared " + time_ago_in_words(post.created_at) + " ago" %></p>
             </div>
-            <div class="d-flex align-items-start gap-3 flex-wrap">
+            <div class="d-flex align-items-start gap-3 flex-wrap position-relative z-2">
               <% if show_group_badges && post.groups.any? %>
                 <div class="d-flex flex-wrap gap-2">
                   <% post.groups.order(:name).each do |group| %>
@@ -35,11 +36,15 @@
                   <%= link_to post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold" do %>
                     <span class="text-primary" aria-hidden="true">↗</span> <span class="text-body-emphasis"><%= "Open" %></span>
                   <% end %>
-                  <%= link_to edit_post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1" do %>
-                    <span class="text-secondary" aria-hidden="true">✏️</span> <span class="text-body-emphasis"><%= "Edit" %></span>
-                  <% end %>
-                  <%= link_to post_path(post), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-decoration-none d-inline-flex align-items-center gap-1 text-danger" do %>
-                    <span aria-hidden="true">🗑️</span> <span class="text-body-emphasis"><%= "Delete" %></span>
+                  <% if can_manage_post?(post) %>
+                    <%= link_to edit_post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                      <span class="text-secondary" aria-hidden="true">✏️</span> <span class="text-body-emphasis"><%= "Edit" %></span>
+                    <% end %>
+                    <%= link_to post_path(post),
+                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?", turbo_frame: "_top" },
+                                class: "text-decoration-none d-inline-flex align-items-center gap-1 text-danger" do %>
+                      <span aria-hidden="true">🗑️</span> <span class="text-body-emphasis"><%= "Delete" %></span>
+                    <% end %>
                   <% end %>
                 </div>
               <% end %>
