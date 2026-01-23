@@ -1,67 +1,109 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <div>
-    <p class="text-uppercase text-muted small mb-1"><%= "Group members" %></p>
-    <h1 class="h4 mb-0"><%= @group.name %></h1>
-  </div>
-  <div class="d-flex gap-2 flex-wrap">
-    <% if @admin %>
-      <%= link_to "Manage invites", group_invitations_path(@group), class: "btn btn-outline-secondary" %>
-    <% end %>
-    <%= link_to "Back to group", @group, class: "btn btn-outline-secondary" %>
-  </div>
-</div>
-
-<div class="card shadow-sm">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="h6 mb-0 text-uppercase text-muted"><%= "Members" %></h2>
-      <span class="badge text-bg-light border"><%= pluralize(@memberships.size, "member") %></span>
+<div class="group-members-page" data-controller="member-profile-modal">
+  <div class="group-members-hero d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+      <p class="text-uppercase text-muted small mb-1"><%= "Group members" %></p>
+      <h1 class="h4 mb-1"><%= @group.name %></h1>
+      <p class="text-muted mb-0">Meet the people shaping this space together.</p>
     </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <% if @admin %>
+        <%= link_to "Manage invites", group_invitations_path(@group), class: "btn btn-outline-secondary" %>
+      <% end %>
+      <%= link_to "Back to group", @group, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
 
-    <% if @memberships.any? %>
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th scope="col"><%= "Name" %></th>
-              <th scope="col"><%= "Email" %></th>
-              <th scope="col"><%= "Role" %></th>
-              <% if @admin %>
-                <th scope="col"></th>
-              <% end %>
-            </tr>
-          </thead>
-          <tbody>
-            <% @memberships.each do |membership| %>
-              <% user = membership.user %>
+  <div class="card group-members-card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="h6 mb-1 text-uppercase text-muted"><%= "Members" %></h2>
+          <p class="text-muted mb-0">Stay connected with the latest faces in the group.</p>
+        </div>
+        <span class="badge group-members-count"><%= pluralize(@memberships.size, "member") %></span>
+      </div>
+
+      <% if @memberships.any? %>
+        <div class="table-responsive">
+          <table class="table member-table align-middle">
+            <thead>
               <tr>
-                <td class="fw-semibold"><%= user.display_name.presence || user.email %></td>
-                <td class="text-muted"><%= user.email %></td>
-                <td>
-                  <% if membership.admin? %>
-                    <span class="badge text-bg-light border"><%= "Admin" %></span>
-                  <% else %>
-                    <span class="text-muted small"><%= "Member" %></span>
-                  <% end %>
-                </td>
+                <th scope="col"><%= "Member" %></th>
+                <th scope="col"><%= "Email" %></th>
+                <th scope="col"><%= "Role" %></th>
                 <% if @admin %>
-                  <td class="text-end">
-                    <% if user.id != current_user.id %>
-                      <%= button_to "Remove",
-                                    group_membership_path(@group, membership),
-                                    method: :delete,
-                                    data: { turbo_confirm: "Remove this member?" },
-                                    class: "btn btn-outline-danger btn-sm" %>
-                    <% end %>
-                  </td>
+                  <th scope="col"></th>
                 <% end %>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% @memberships.each do |membership| %>
+                <% user = membership.user %>
+                <% display_name = user.display_name.presence || user.email %>
+                <tr class="member-row"
+                    role="button"
+                    tabindex="0"
+                    onclick="if (event.target.closest('button, form, a')) return; this.querySelector('a.member-link')?.click();"
+                    onkeydown="if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('button, form, a')) { event.preventDefault(); this.querySelector('a.member-link')?.click(); }">
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="member-avatar"><%= display_name.first&.upcase %></div>
+                      <div>
+                        <div class="fw-semibold">
+                          <%= link_to display_name,
+                                      user_path(user),
+                                      class: "member-link stretched-link text-decoration-none text-body",
+                                      data: { action: "click->member-profile-modal#open" } %>
+                        </div>
+                        <div class="text-muted small">Joined the conversation</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-muted"><%= user.email %></td>
+                  <td>
+                    <% if membership.admin? %>
+                      <span class="badge role-pill admin"><%= "Admin" %></span>
+                    <% else %>
+                      <span class="badge role-pill member"><%= "Member" %></span>
+                    <% end %>
+                  </td>
+                  <% if @admin %>
+                    <td class="text-end">
+                      <% if user.id != current_user.id %>
+                        <%= button_to "Remove",
+                                      group_membership_path(@group, membership),
+                                      method: :delete,
+                                      data: { turbo_confirm: "Remove this member?" },
+                                      class: "btn btn-outline-danger btn-sm" %>
+                      <% end %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0"><%= "No members yet." %></p>
+      <% end %>
+    </div>
+  </div>
+  <div class="modal fade" id="memberProfileModal" tabindex="-1" aria-hidden="true" data-member-profile-modal-target="modal">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content member-profile-modal">
+        <div class="modal-header">
+          <h5 class="modal-title"><%= "Member profile" %></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= turbo_frame_tag "member-profile", data: { member_profile_modal_target: "frame" } do %>
+            <div class="d-flex align-items-center gap-2 text-muted">
+              <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+              <span><%= "Loading profile..." %></span>
+            </div>
+          <% end %>
+        </div>
       </div>
-    <% else %>
-      <p class="text-muted mb-0"><%= "No members yet." %></p>
-    <% end %>
+    </div>
   </div>
 </div>
