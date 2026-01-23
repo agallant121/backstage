@@ -1,0 +1,25 @@
+<% panel_classes = ["card", "shadow-sm"] %>
+<% panel_classes << "profile-modal-card" if modal %>
+<% panel_classes << "home-panel home-panel--profile" unless modal %>
+<div class="<%= panel_classes.join(" ") %>">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <% unless modal %>
+        <p class="text-uppercase small mb-0 list-heading"><%= "Profile" %></p>
+      <% end %>
+      <h1 class="h4 mb-0 profile-name"><%= user.display_name %></h1>
+    </div>
+    <% if show_back_button %>
+      <%= link_to "Back to dashboard", root_path, class: "btn btn-sm btn-outline-secondary" %>
+    <% else %>
+      <%= link_to "View full profile",
+                  user_path(user),
+                  class: "btn btn-sm btn-outline-secondary",
+                  data: { turbo_frame: "_top", action: "click->member-profile-modal#close" } %>
+    <% end %>
+  </div>
+
+  <div class="card-body <%= "profile-details-body" if modal %>">
+    <%= render "profile_details", user: user %>
+  </div>
+</div>

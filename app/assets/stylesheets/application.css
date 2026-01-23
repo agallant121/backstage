@@ -586,6 +586,279 @@ body {
   box-shadow: 0 16px 32px rgba(22, 36, 48, 0.08);
 }
 
+.group-members-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.group-members-hero {
+  padding: 1.25rem 1.5rem;
+  border-radius: 18px;
+  background: linear-gradient(120deg, rgba(127, 209, 200, 0.18), rgba(200, 181, 244, 0.18), rgba(250, 250, 247, 0.85));
+  border: 1px solid rgba(127, 209, 200, 0.3);
+  box-shadow: 0 12px 30px rgba(24, 36, 46, 0.08);
+}
+
+.group-members-card {
+  border-radius: 18px;
+  border: 1px solid rgba(127, 209, 200, 0.28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 250, 247, 0.96));
+  box-shadow: 0 18px 40px rgba(28, 43, 56, 0.1);
+}
+
+.group-members-count {
+  padding: 0.35rem 0.85rem;
+  background: rgba(200, 181, 244, 0.2);
+  border: 1px solid rgba(127, 209, 200, 0.3);
+  color: #1d2329;
+}
+
+.member-table {
+  border-collapse: separate;
+  border-spacing: 0 0.75rem;
+}
+
+.member-table thead th {
+  border-bottom: none;
+  color: #4c5360;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.member-table thead tr {
+  background: linear-gradient(120deg, rgba(127, 209, 200, 0.12), rgba(200, 181, 244, 0.12));
+  border-radius: 12px;
+}
+
+.member-table thead tr th {
+  background: transparent;
+  padding: 0.75rem 1rem;
+}
+
+.member-table thead tr th:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.member-table thead tr th:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.member-table tbody tr {
+  background: linear-gradient(135deg, rgba(127, 209, 200, 0.1), rgba(200, 181, 244, 0.08));
+  box-shadow: 0 10px 24px rgba(24, 36, 46, 0.08);
+  border-radius: 14px;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.member-table tbody tr td {
+  background: transparent;
+  border-top: none;
+  border-bottom: none;
+  padding: 1rem;
+}
+
+.member-table tbody tr:hover {
+  box-shadow: 0 14px 30px rgba(24, 36, 46, 0.14);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(127, 209, 200, 0.18), rgba(200, 181, 244, 0.14));
+}
+
+.member-table tbody tr:hover .member-link {
+  color: #1b1f27;
+}
+
+.member-row {
+  cursor: pointer;
+}
+
+.member-table tbody tr td:first-child {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+.member-table tbody tr td:last-child {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #0f1c1a;
+  background: linear-gradient(135deg, rgba(127, 209, 200, 0.7), rgba(200, 181, 244, 0.6));
+  border: 1px solid rgba(127, 209, 200, 0.5);
+  text-transform: uppercase;
+}
+
+.member-avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1.25rem;
+}
+
+.member-link {
+  position: relative;
+  z-index: 1;
+}
+
+.member-table .btn {
+  position: relative;
+  z-index: 2;
+}
+
+.role-pill {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.role-pill.admin {
+  background: rgba(127, 209, 200, 0.2);
+  border: 1px solid rgba(127, 209, 200, 0.5);
+  color: #0f3b36;
+}
+
+.role-pill.member {
+  background: rgba(200, 181, 244, 0.2);
+  border: 1px solid rgba(200, 181, 244, 0.5);
+  color: #2b2455;
+}
+
+.member-profile-modal {
+  border-radius: 18px;
+  border: 1px solid rgba(127, 209, 200, 0.4);
+  background: linear-gradient(160deg, rgba(127, 209, 200, 0.16), rgba(200, 181, 244, 0.12), rgba(249, 215, 165, 0.12)),
+    #ffffff;
+  box-shadow: 0 28px 64px rgba(24, 36, 46, 0.22);
+  color: #1b1f27;
+  overflow: hidden;
+}
+
+.member-profile-modal .modal-header {
+  border-bottom: 1px solid rgba(127, 209, 200, 0.35);
+  background: linear-gradient(135deg, rgba(127, 209, 200, 0.18), rgba(200, 181, 244, 0.12));
+}
+
+.member-profile-modal .modal-body {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.member-profile-modal .profile-details-body {
+  background: linear-gradient(160deg, rgba(127, 209, 200, 0.16), rgba(200, 181, 244, 0.12), rgba(249, 215, 165, 0.12));
+  border-radius: 0 0 16px 16px;
+}
+
+.member-profile-modal .profile-name {
+  color: #152028;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.member-profile-modal .profile-field .fw-semibold {
+  color: #1f2a33;
+}
+
+.member-profile-modal .modal-title {
+  font-weight: 700;
+  color: #223038;
+}
+
+.member-profile-modal .btn-close {
+  filter: none;
+  opacity: 0.65;
+}
+
+.member-profile-modal .btn-close:hover {
+  opacity: 1;
+}
+
+.modal-backdrop {
+  background: radial-gradient(circle at top left, rgba(127, 209, 200, 0.45), rgba(200, 181, 244, 0.42), rgba(249, 215, 165, 0.4)),
+    rgba(25, 32, 40, 0.55);
+}
+
+.modal-backdrop.fade {
+  transition: opacity 0.2s ease;
+}
+
+.modal-backdrop.show {
+  opacity: 1;
+}
+
+.member-profile-content .profile-field {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: #f8fbfa;
+  border: 1px solid rgba(127, 209, 200, 0.2);
+}
+
+.profile-field {
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(127, 209, 200, 0.2);
+  box-shadow: 0 10px 20px rgba(24, 36, 46, 0.06);
+}
+
+.profile-children-list {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(127, 209, 200, 0.2);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 12px 22px rgba(24, 36, 46, 0.08);
+}
+
+.profile-children-list .list-group-item {
+  background: transparent;
+  border-color: rgba(127, 209, 200, 0.2);
+  padding: 0.85rem 1rem;
+}
+
+.profile-children-list .list-group-item + .list-group-item {
+  border-top: 1px solid rgba(127, 209, 200, 0.15);
+}
+
+.profile-modal-card {
+  border: 1px solid rgba(127, 209, 200, 0.25);
+  box-shadow: none;
+}
+
+.profile-modal-card .card-header {
+  background: linear-gradient(135deg, rgba(127, 209, 200, 0.16), rgba(200, 181, 244, 0.12), rgba(249, 215, 165, 0.12));
+  border-bottom: 1px solid rgba(127, 209, 200, 0.25);
+}
+
+.member-profile-modal .btn-outline-secondary {
+  border-color: rgba(127, 209, 200, 0.6);
+  color: #1f2a33;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.member-profile-modal .btn-outline-secondary:hover,
+.member-profile-modal .btn-outline-secondary:focus {
+  background: rgba(127, 209, 200, 0.18);
+  border-color: rgba(127, 209, 200, 0.85);
+  color: #1f2a33;
+}
+
+.member-profile-modal .btn-outline-secondary:active {
+  background: rgba(127, 209, 200, 0.28);
+  border-color: rgba(127, 209, 200, 0.95);
+  color: #1f2a33;
+}
+
 .group-list .list-group-item,
 .post-preview-list .list-group-item {
   background: linear-gradient(135deg, rgba(127, 209, 200, 0.1), rgba(200, 181, 244, 0.08)),
