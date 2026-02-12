@@ -10,8 +10,6 @@ class Groups::InvitationsController < ApplicationController
   def index
     @pending_invitations  = @group.invitations.pending.includes(:inviter).order(created_at: :desc)
     @accepted_invitations = @group.invitations.accepted.includes(:inviter).order(updated_at: :desc)
-
-    
   end
 
   def create
