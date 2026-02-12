@@ -35,10 +35,9 @@ RSpec.describe "Groups", type: :request do
     group = Group.create!(name: "Crew")
     Membership.create!(user: user, group: group)
 
-    sign_in outsider
+    sign_in outsider, scope: :user
+    get members_group_path(group)
 
-    expect do
-      get members_group_path(group)
-    end.to raise_error(ActiveRecord::RecordNotFound)
+    expect(response).to have_http_status(:not_found)
   end
 end
