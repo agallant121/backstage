@@ -1,0 +1,39 @@
+<%# Accepted invitations %>
+<div class="card shadow-sm mt-2">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h6 mb-0 text-uppercase text-muted"><%= "Accepted invites" %></h2>
+      <span class="badge text-bg-light border"><%= pluralize(@accepted_invitations&.count, "accepted invite") %></span>
+    </div>
+    <% cache [@group, "accepted_invitations_table", @accepted_invitations.maximum(:updated_at)], expires_in: 10.minutes do %>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th scope="col"><%= "Email" %></th>
+              <th scope="col"><%= "Status" %></th>
+              <th scope="col"><%= "Link to share" %></th>
+              <th scope="col"><%= "Invited by" %></th>
+              <th scope="col"><%= "Invited on" %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @accepted_invitations.each do |invitation| %>
+              <tr>
+                <td class="fw-semibold"><%= invitation.email %></td>
+                <td>
+                  <span class="badge text-bg-success"><%= "Accepted" %></span>
+                </td>
+                <td>
+                  <span class="text-muted small"><%= "Used" %></span>
+                </td>
+                <td><%= invitation.inviter.display_name %></td>
+                <td><%= l(invitation.created_at.to_date, format: :long) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
