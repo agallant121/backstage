@@ -5,7 +5,8 @@
       <h2 class="h6 mb-0 text-uppercase text-muted"><%= "Accepted invites" %></h2>
       <span class="badge text-bg-light border"><%= pluralize(@accepted_invitations&.count, "accepted invite") %></span>
     </div>
-    <% cache [@group, "accepted_invitations_table", @accepted_invitations.maximum(:updated_at)], expires_in: 10.minutes do %>
+
+    <% cache [@group, "accepted_invitations_table", @accepted_invitations.count, @accepted_invitations.maximum(:updated_at)], expires_in: 10.minutes do %>
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -35,5 +36,6 @@
         </table>
       </div>
     <% end %>
+    
   </div>
 </div>
