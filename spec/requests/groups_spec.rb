@@ -37,7 +37,7 @@ RSpec.describe "Groups", type: :request do
 
     sign_in outsider, scope: :user
     get members_group_path(group)
-    
+
     expect(response).to have_http_status(:not_found)
   end
 end
