@@ -29,6 +29,9 @@ RSpec:
 
 Layout/LineLength:
   Max: 120
+  Exclude:
+    - "config/**/*"
+    - "db/**/*"
 
 Style/Documentation:
   Enabled: false
