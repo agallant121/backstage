@@ -24,6 +24,7 @@ gem "devise"
 gem "pry"
 gem "sidekiq"
 gem "aws-sdk-s3", require: false
+gem "redis", ">= 4.0.1"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
