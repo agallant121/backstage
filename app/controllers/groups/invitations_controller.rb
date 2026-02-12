@@ -8,7 +8,8 @@ class Groups::InvitationsController < ApplicationController
   MAX_INVITES_TOTAL = 500
 
   def index
-    @invitations = @group.invitations.order(created_at: :desc)
+    @pending_invitations  = @group.invitations.pending.includes(:inviter).order(created_at: :desc)
+    @accepted_invitations = @group.invitations.accepted.includes(:inviter).order(updated_at: :desc)
   end
 
   def create
