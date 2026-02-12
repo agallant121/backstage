@@ -59,19 +59,21 @@
     </nav>
 
     <main class="container py-4">
-      <% flash.each do |type, message| %>
-        <% next if message.blank? %>
-        <% bootstrap_class = {
-          "notice" => "alert-primary",
-          "alert" => "alert-warning",
-          "error" => "alert-danger",
-          "success" => "alert-success"
-        }[type.to_s] || "alert-info" %>
-        <div class="alert <%= bootstrap_class %> alert-dismissible fade show" role="alert">
-          <%= message %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% end %>
+      <div class="flash-stack" aria-live="polite">
+        <% flash.each do |type, message| %>
+          <% next if message.blank? %>
+          <% flash_variant = {
+            "notice" => "flash-message--success",
+            "alert" => "flash-message--warning",
+            "error" => "flash-message--error",
+            "success" => "flash-message--success"
+          }[type.to_s] || "flash-message--info" %>
+          <div class="flash-message alert <%= flash_variant %> alert-dismissible fade show" role="alert">
+            <span class="flash-message__text"><%= message %></span>
+            <button type="button" class="btn-close flash-message__close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% end %>
+      </div>
 
       <%= yield %>
     </main>

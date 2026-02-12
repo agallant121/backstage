@@ -1,0 +1,6 @@
+<%= render "pending_invites_table" if @pending_invitations.any? %>
+<%= render "accepted_invites_table" if @accepted_invitations.any? %>
+
+<% unless @group.has_any_invitations? %>
+  <p class="text-muted mb-0"><%= "You have not invited anyone to join #{@group.name} yet." %></p>
+<% end %>

@@ -7,12 +7,17 @@ class Invitation < ApplicationRecord
   before_validation :generate_token, on: :create
 
   scope :pending, -> { where(accepted_at: nil) }
+  scope :accepted, -> { where.not(accepted_at: nil) }
 
   validates :email, presence: true
   validates :token, presence: true, uniqueness: true
 
   def pending?
     accepted_at.nil?
+  end
+
+  def accepted?
+    !accepted_at.nil?
   end
 
   def accept!(user)
