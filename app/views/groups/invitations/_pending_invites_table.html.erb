@@ -6,7 +6,7 @@
       <span class="badge text-bg-light border"><%= pluralize(@pending_invitations&.count, "pending invite") %></span>
     </div>
 
-    <% cache [@group, "pending_invitations_table", @pending_invitations.maximum(:updated_at)], expires_in: 10.minutes do %>
+    <% cache [@group, "pending_invitations_table", @pending_invitations.count, @pending_invitations.maximum(:updated_at)], expires_in: 10.minutes do %>
       <div class="table-responsive mb-4">
         <table class="table align-middle">
           <thead>
@@ -38,5 +38,6 @@
         </table>
       </div>
     <% end %>
+    
   </div>
 </div>
