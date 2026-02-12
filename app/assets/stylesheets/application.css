@@ -959,3 +959,74 @@ body {
   color: #0f1216;
   text-decoration: underline;
 }
+
+.flash-stack {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+
+.flash-message {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 2.8rem 0.9rem 1rem;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  box-shadow: 0 14px 30px rgba(26, 34, 44, 0.2);
+  backdrop-filter: blur(2px);
+  color: #1f2529;
+  background-color: var(--panel);
+  outline: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.flash-message__text {
+  flex: 1;
+  font-weight: 600;
+}
+
+.flash-message .flash-message__close {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.7;
+}
+
+.flash-message .flash-message__close:hover {
+  opacity: 1;
+}
+
+.flash-message--notice,
+.flash-message--info {
+  background: linear-gradient(130deg, rgba(127, 209, 200, 0.4), rgba(200, 181, 244, 0.32), rgba(255, 255, 255, 0.99));
+  border-color: rgba(84, 170, 160, 0.9);
+}
+
+.flash-message--success {
+  background: linear-gradient(140deg, rgba(124, 206, 122, 0.44), rgba(72, 170, 110, 0.33), rgba(255, 255, 255, 0.98));
+  border-color: rgba(58, 148, 84, 0.78);
+  color: #173721;
+  box-shadow: 0 14px 30px rgba(28, 92, 52, 0.24);
+}
+
+.flash-message--success .flash-message__close {
+  filter: none;
+  opacity: 0.78;
+}
+
+.flash-message--success .flash-message__close:hover {
+  opacity: 1;
+}
+
+.flash-message--warning {
+  background: linear-gradient(130deg, rgba(249, 215, 165, 0.45), rgba(247, 167, 166, 0.3), rgba(255, 255, 255, 0.99));
+  border-color: rgba(204, 140, 56, 0.88);
+}
+
+.flash-message--error {
+  background: linear-gradient(130deg, rgba(247, 167, 166, 0.5), rgba(200, 181, 244, 0.3), rgba(255, 255, 255, 0.99));
+  border-color: rgba(186, 72, 71, 0.9);
+}
