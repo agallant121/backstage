@@ -9,10 +9,15 @@ class DirectoryController < ApplicationController
 
     if @query.present?
       sanitized_query = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
-      scoped_people = scoped_people.where(
-        "users.first_name ILIKE :q OR users.last_name ILIKE :q OR CONCAT(users.first_name, ' ', users.last_name) ILIKE :q OR users.email ILIKE :q",
-        q: sanitized_query
-      )
+
+      search_sql = <<~SQL.squish
+        users.first_name ILIKE :q OR
+        users.last_name ILIKE :q OR
+        CONCAT(users.first_name, ' ', users.last_name) ILIKE :q OR
+        users.email ILIKE :q
+      SQL
+
+      scoped_people = scoped_people.where(search_sql, q: sanitized_query)
     end
 
     @people = scoped_people
