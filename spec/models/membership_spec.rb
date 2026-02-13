@@ -12,18 +12,32 @@ RSpec.describe Membership do
     expect(duplicate.errors[:user_id]).to include("has already been taken")
   end
 
+  # rubocop:disable RSpec/ExampleLength
   it "enforces uniqueness of user/group at the database level" do
     user = User.create!(email: "race-member@example.com", password: "password")
     group = Group.create!(name: "Race Group")
+
     # rubocop:disable Rails/SkipsModelValidations
     expect do
+      now = Time.current
       described_class.insert_all!([
-                                    { user_id: user.id, group_id: group.id, role: described_class.roles[:member], created_at: Time.current,
-                                      updated_at: Time.current },
-                                    { user_id: user.id, group_id: group.id, role: described_class.roles[:member], created_at: Time.current,
-                                      updated_at: Time.current }
+                                    {
+                                      user_id: user.id,
+                                      group_id: group.id,
+                                      role: described_class.roles[:member],
+                                      created_at: now,
+                                      updated_at: now
+                                    },
+                                    {
+                                      user_id: user.id,
+                                      group_id: group.id,
+                                      role: described_class.roles[:member],
+                                      created_at: now,
+                                      updated_at: now
+                                    }
                                   ])
     end.to raise_error(ActiveRecord::RecordNotUnique)
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:enable Rails/SkipsModelValidations
   end
+  # rubocop:enable RSpec/ExampleLength
 end
