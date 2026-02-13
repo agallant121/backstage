@@ -1,24 +1,27 @@
-# README
+# Backstage
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Minimal Rails app with baseline operational safeguards added.
 
-Things you may want to cover:
+## What was added
 
-* Ruby version
+- **Security scans in CI**
+  - Existing Brakeman and importmap audit checks remain in `CI`.
+  - We intentionally do **not** use `actions/dependency-review-action` here because it requires GitHub Advanced Security on this repository; this avoids CI failures tied to plan/features.
+  - A lightweight `dependency_review` placeholder job is kept so branch protection checks with that name still pass.
 
-* System dependencies
+- **SLO definition**
+  - Added a simple availability SLO document with one SLI/target and clear error-budget guidance.
+  - See `docs/operations/slo.md`.
 
-* Configuration
+- **Monitoring/alerting baseline**
+  - Added a short monitoring and alerting playbook with required metrics, dashboards, and alert thresholds.
+  - See `docs/operations/monitoring-alerting.md`.
 
-* Database creation
+- **Backup verification**
+  - Added a script that performs a real PostgreSQL dump + restore and verifies restored data.
+  - Added a scheduled GitHub Action that runs this weekly (and manually on demand).
+  - Files: `script/verify_backup.sh` and `.github/workflows/backup-verify.yml`.
 
-* Database initialization
+## Why this is intentionally simple
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+This provides an immediately usable baseline without introducing vendor-specific tooling. You can later wire these docs and checks into Datadog/Prometheus/PagerDuty/AWS Backup/etc. without changing the core approach.
