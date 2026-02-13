@@ -65,6 +65,7 @@ Rails.application.configure do
 
   # --- SendGrid (SMTP) ---
   app_host = ENV.fetch("APP_HOST", "backstage-prod-e9b13116de91.herokuapp.com")
+  allowed_hosts = ENV.fetch("APP_HOSTS", app_host).split(",").map(&:strip).reject(&:empty?)
 
   config.action_mailer.default_url_options = {
     host: app_host,
@@ -94,11 +95,8 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
+  config.hosts = allowed_hosts
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
