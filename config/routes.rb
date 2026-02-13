@@ -24,7 +24,9 @@ Rails.application.routes.draw do
 
   resources :groups do
     resources :memberships, only: [ :create, :destroy ]
-    resources :invitations, only: [ :index, :create ], module: :groups
+    resources :invitations, only: [ :index, :create ], module: :groups do
+      post :reissue, on: :member
+    end
     get :members, on: :member
   end
 
