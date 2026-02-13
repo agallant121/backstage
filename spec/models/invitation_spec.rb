@@ -34,4 +34,13 @@ RSpec.describe Invitation do
     expect(invitation.invited_user).to eq(user)
     expect(Membership.exists?(group: group, user: user)).to be(true)
   end
+
+  it "does not create a duplicate membership when one already exists" do
+    invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com")
+    user = User.create!(email: "friend@example.com", password: "password")
+    Membership.create!(group: group, user: user)
+
+    expect { invitation.accept!(user) }.not_to change(Membership, :count)
+    expect(invitation.reload.accepted_at).to be_present
+  end
 end
