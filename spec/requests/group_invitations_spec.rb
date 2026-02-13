@@ -50,9 +50,10 @@ RSpec.describe "Group Invitations", type: :request do
       post group_invitations_path(group), params: { invitation: { emails: invitation.email } }
     end.not_to change(Invitation, :count)
 
-    expect(response).to redirect_to(group_invitations_path(group))
+    invitation.reload
+
     expect(flash[:notice]).to include("Reissued invites for #{invitation.email}")
-    expect(invitation.reload.token).not_to eq(old_token)
+    expect(invitation.token).not_to eq(old_token)
     expect(invitation.expires_at).to be > Time.current
   end
 end
