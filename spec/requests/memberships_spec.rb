@@ -1,40 +1,31 @@
 require "rails_helper"
 
 RSpec.describe "Memberships", type: :request do
-  it "allows group admins to remove members" do
-    admin = User.create!(email: "admin@example.com", password: "password")
-    member = User.create!(email: "member@example.com", password: "password")
-    group = Group.create!(name: "Group One")
+  it "allows invited users to join a group" do
+    inviter = User.create!(email: "inviter@example.com", password: "password")
+    invited_user = User.create!(email: "guest@example.com", password: "password")
+    group = Group.create!(name: "Group")
+    Membership.create!(user: inviter, group: group, role: :admin)
+    Invitation.create!(group: group, inviter: inviter, email: invited_user.email)
 
-    admin_membership = Membership.create!(user: admin, group: group, role: :admin)
-    member_membership = Membership.create!(user: member, group: group, role: :member)
+    sign_in invited_user, scope: :user
 
-    sign_in admin
+    post group_memberships_path(group)
 
-    expect do
-      delete group_membership_path(group, member_membership)
-    end.to change(Membership, :count).by(-1)
-
-    expect(response).to redirect_to(group_path(group))
-    expect(Membership.where(id: member_membership.id)).not_to exist
-    expect(Membership.where(id: admin_membership.id)).to exist
+    expect(response).to redirect_to(group)
+    expect(Membership.exists?(user: invited_user, group: group)).to be(true)
   end
 
-  it "prevents non-admins from removing members" do
-    admin = User.create!(email: "admin@example.com", password: "password")
-    member = User.create!(email: "member@example.com", password: "password")
-    group = Group.create!(name: "Group Two")
+  it "blocks users without an invitation from joining a group" do
+    user = User.create!(email: "user@example.com", password: "password")
+    group = Group.create!(name: "Private Group")
 
-    Membership.create!(user: admin, group: group, role: :admin)
-    member_membership = Membership.create!(user: member, group: group, role: :member)
+    sign_in user, scope: :user
 
-    sign_in member
+    post group_memberships_path(group)
 
-    expect do
-      delete group_membership_path(group, member_membership)
-    end.not_to change(Membership, :count)
-
-    expect(response).to redirect_to(group_path(group))
-    expect(Membership.where(id: member_membership.id)).to exist
+    expect(response).to redirect_to(groups_path)
+    expect(flash[:alert]).to eq("You have not been invited to join this group.")
+    expect(Membership.exists?(user: user, group: group)).to be(false)
   end
 end
