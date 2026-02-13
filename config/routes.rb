@@ -19,6 +19,9 @@ Rails.application.routes.draw do
          constraints: invite_constraint
   end
 
+  get "up", to: "health#up"
+  get "ready", to: "health#ready"
+
   resources :posts
   resources :users, only: [ :show ], constraints: { id: /\d+/ }
 
