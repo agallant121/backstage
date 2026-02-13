@@ -38,7 +38,7 @@ class InvitationsController < ApplicationController
       @invitation.accept!(current_user)
       redirect_to @invitation.group, notice: "You have been added to #{@invitation.group.name}."
     else
-      redirect_to root_path, alert: unavailable_message
+      redirect_to @invitation.group, alert: unavailable_message
     end
   end
 

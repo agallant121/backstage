@@ -44,7 +44,7 @@ RSpec.describe "Invitations" do
 
     post accept_invitation_path(invitation.token)
 
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(group)
     expect(flash[:alert]).to eq("This invitation has expired. Please ask for a new invite link.")
     expect(invitation.reload.accepted_at).to be_nil
   end
