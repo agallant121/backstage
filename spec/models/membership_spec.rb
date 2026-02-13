@@ -11,4 +11,16 @@ RSpec.describe Membership do
     expect(duplicate).not_to be_valid
     expect(duplicate.errors[:user_id]).to include("has already been taken")
   end
+
+  it "enforces uniqueness of user/group at the database level" do
+    user = User.create!(email: "race-member@example.com", password: "password")
+    group = Group.create!(name: "Race Group")
+
+    expect {
+      described_class.insert_all!([
+        { user_id: user.id, group_id: group.id, role: Membership.roles[:member], created_at: Time.current, updated_at: Time.current },
+        { user_id: user.id, group_id: group.id, role: Membership.roles[:member], created_at: Time.current, updated_at: Time.current }
+      ])
+    }.to raise_error(ActiveRecord::RecordNotUnique)
+  end
 end
