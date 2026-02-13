@@ -40,6 +40,7 @@ class Groups::InvitationsController < ApplicationController
     end
 
     created = []
+    reissued = []
     skipped = []
 
     emails.each do |email|
@@ -48,8 +49,15 @@ class Groups::InvitationsController < ApplicationController
         next
       end
 
-      if @group.invitations.pending.exists?(email: email.downcase)
-        skipped << "Skipped #{email} because they already have a pending invite."
+      existing_invitation = @group.invitations.pending.find_by(email: email.downcase)
+      if existing_invitation
+        if existing_invitation.expired?
+          existing_invitation.reissue!
+          InvitationMailer.invite(existing_invitation).deliver_later
+          reissued << existing_invitation.email
+        else
+          skipped << "Skipped #{email} because they already have a pending invite."
+        end
         next
       end
 
@@ -68,10 +76,27 @@ class Groups::InvitationsController < ApplicationController
       end
     end
 
-    flash[:notice] = "Invited #{created.join(', ')}" if created.any?
+    flash[:notice] = [
+      ("Invited #{created.join(', ')}" if created.any?),
+      ("Reissued invites for #{reissued.join(', ')}" if reissued.any?)
+    ].compact.join("\n")
     flash[:alert] = skipped.join("\n") if skipped.any?
 
     redirect_to group_invitations_path(@group)
+  end
+
+  def reissue
+    invitation = @group.invitations.pending.find(params[:id])
+
+    unless invitation.expired?
+      redirect_to group_invitations_path(@group), alert: "This invite is still active and cannot be reissued yet."
+      return
+    end
+
+    invitation.reissue!
+    InvitationMailer.invite(invitation).deliver_later
+
+    redirect_to group_invitations_path(@group), notice: "Invite link reissued for #{invitation.email}."
   end
 
   private

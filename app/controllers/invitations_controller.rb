@@ -6,7 +6,7 @@ class InvitationsController < ApplicationController
 
     if user_signed_in?
       if current_user.email.casecmp?(@invitation.email)
-        flash.now[:alert] = "This invitation has already been used." unless @invitation.pending?
+        flash.now[:alert] = unavailable_message unless @invitation.active?
       else
         sign_out(current_user)
         redirect_to new_user_registration_path(invite_token: @invitation.token),
@@ -34,11 +34,11 @@ class InvitationsController < ApplicationController
       return
     end
 
-    if @invitation.pending?
+    if @invitation.active?
       @invitation.accept!(current_user)
       redirect_to @invitation.group, notice: "You have been added to #{@invitation.group.name}."
     else
-      redirect_to @invitation.group, alert: "This invitation has already been used."
+      redirect_to root_path, alert: unavailable_message
     end
   end
 
@@ -49,5 +49,9 @@ class InvitationsController < ApplicationController
     return if @invitation
 
     redirect_to root_path, alert: "Invitation not found."
+  end
+
+  def unavailable_message
+    @invitation.expired? ? "This invitation has expired. Please ask for a new invite link." : "This invitation has already been used."
   end
 end
