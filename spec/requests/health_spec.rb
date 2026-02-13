@@ -25,7 +25,7 @@ RSpec.describe "Health", type: :request do
     end
 
     it "returns service unavailable when a dependency check fails" do
-      allow_any_instance_of(HealthController).to receive(:cache_ready?).and_return(false)
+      allow(Rails.cache).to receive(:read).and_return(nil)
 
       get "/ready"
 
