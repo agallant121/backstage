@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe "Group Invitations", type: :request do
   it "blocks non-admin members from creating invitations" do
-    admin = User.create!(email: "admin@example.com", password: "password")
-    member = User.create!(email: "member@example.com", password: "password")
+    admin = User.create!(email: "admin@example.com", password: "password", confirmed_at: Time.current)
+    member = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
 
     Membership.create!(user: admin, group: group, role: :admin)
@@ -20,8 +20,8 @@ RSpec.describe "Group Invitations", type: :request do
   end
 
   it "blocks members from inviting users already in one of their groups" do
-    inviter = User.create!(email: "inviter@example.com", password: "password")
-    existing_user = User.create!(email: "existing@example.com", password: "password")
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
+    existing_user = User.create!(email: "existing@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
 
     Membership.create!(user: inviter, group: group, role: :admin)

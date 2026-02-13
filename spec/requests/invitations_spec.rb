@@ -2,11 +2,11 @@ require "rails_helper"
 
 RSpec.describe "Invitations" do
   it "adds the user to the group when accepting" do
-    inviter = User.create!(email: "inviter@example.com", password: "password")
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
     Membership.create!(user: inviter, group: group, role: :admin)
     invitation = Invitation.create!(group: group, inviter: inviter, email: "guest@example.com")
-    invited_user = User.create!(email: "guest@example.com", password: "password")
+    invited_user = User.create!(email: "guest@example.com", password: "password", confirmed_at: Time.current)
 
     sign_in invited_user, scope: :user
 
@@ -18,11 +18,11 @@ RSpec.describe "Invitations" do
   end
 
   it "forces a different signed-in user to re-authenticate as the invited email" do
-    inviter = User.create!(email: "inviter@example.com", password: "password")
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
     Membership.create!(user: inviter, group: group, role: :admin)
     invitation = Invitation.create!(group: group, inviter: inviter, email: "guest@example.com")
-    wrong_user = User.create!(email: "other@example.com", password: "password")
+    wrong_user = User.create!(email: "other@example.com", password: "password", confirmed_at: Time.current)
 
     sign_in wrong_user, scope: :user
 
