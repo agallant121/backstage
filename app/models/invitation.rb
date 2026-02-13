@@ -22,7 +22,12 @@ class Invitation < ApplicationRecord
 
   def accept!(user)
     transaction do
-      Membership.create_or_find_by!(group: group, user: user)
+      begin
+        Membership.find_or_create_by!(group: group, user: user)
+      rescue ActiveRecord::RecordNotUnique
+        Membership.find_by!(group: group, user: user)
+      end
+
       update!(accepted_at: Time.current, invited_user: user)
     end
   end
