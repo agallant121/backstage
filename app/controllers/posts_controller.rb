@@ -26,18 +26,12 @@ class PostsController < ApplicationController
   end
 
   def create
+    group_ids_to_attach = group_ids_for_new_post
+    return head :not_found if group_ids_to_attach.nil?
+
     @post = current_user.posts.build(post_params)
 
     if @post.save
-      selected_group_id = params.dig(:post, :group_id).presence
-
-      group_ids_to_attach =
-        if selected_group_id
-          [ selected_group_id.to_i ]
-        else
-          current_user.groups.pluck(:id)
-        end
-
       group_ids_to_attach.each do |gid|
         PostGroup.find_or_create_by!(post_id: @post.id, group_id: gid)
       end
@@ -72,6 +66,16 @@ class PostsController < ApplicationController
 
   def set_group
     @group = current_user.groups.find(params[:group_id]) if params[:group_id]
+  end
+
+  def group_ids_for_new_post
+    selected_group_id = params.dig(:post, :group_id).presence
+    return current_user.groups.pluck(:id) unless selected_group_id
+
+    selected_group_id = selected_group_id.to_i
+    return [ selected_group_id ] if current_user.groups.exists?(id: selected_group_id)
+
+    nil
   end
 
   def authorize_post_owner!

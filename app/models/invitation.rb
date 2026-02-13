@@ -22,7 +22,7 @@ class Invitation < ApplicationRecord
 
   def accept!(user)
     transaction do
-      Membership.create_or_find_by!(group: group, user: user)
+      Membership.find_or_create_by!(group: group, user: user)
       update!(accepted_at: Time.current, invited_user: user)
     end
   end
