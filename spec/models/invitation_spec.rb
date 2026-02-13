@@ -51,11 +51,15 @@ RSpec.describe Invitation do
   end
 
   it "does not accept an expired invitation" do
-    invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com",
-                                         expires_at: 1.day.ago)
+    invitation = described_class.create!(
+      group: group,
+      inviter: inviter,
+      email: "friend@example.com",
+      expires_at: 1.day.ago
+    )
     user = User.create!(email: "friend@example.com", password: "password", confirmed_at: Time.current)
 
-    expect { invitation.accept!(user) }.to raise_error(ActiveRecord::RecordInvalid)
+    expect(invitation.accept!(user)).to be(false)
     expect(invitation.reload.accepted_at).to be_nil
   end
 

@@ -34,7 +34,8 @@ class Invitation < ApplicationRecord
   end
 
   def accept!(user)
-    raise ActiveRecord::RecordInvalid, self if !pending? || expired?
+    return false unless pending?
+    return false if expired?
 
     transaction do
       begin
