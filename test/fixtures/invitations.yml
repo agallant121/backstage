@@ -3,6 +3,7 @@ pending:
   inviter: one
   email: one@example.com
   token: pending-token
+  expires_at: <%= 14.days.from_now %>
 
 used:
   group: pending_group
@@ -11,3 +12,4 @@ used:
   email: one@example.com
   token: used-token
   accepted_at: <%= 1.day.ago %>
+  expires_at: <%= 13.days.from_now %>

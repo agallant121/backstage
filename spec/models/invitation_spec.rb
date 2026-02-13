@@ -18,6 +18,12 @@ RSpec.describe Invitation do
     expect(invitation.token).to be_present
   end
 
+  it "sets an expiration on create" do
+    invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com")
+
+    expect(invitation.expires_at).to be_present
+  end
+
   it "is pending when accepted_at is nil" do
     invitation = described_class.new(group: group, inviter: inviter, email: "friend@example.com")
 
@@ -42,5 +48,29 @@ RSpec.describe Invitation do
 
     expect { invitation.accept!(user) }.not_to change(Membership, :count)
     expect(invitation.reload.accepted_at).to be_present
+  end
+
+  it "does not accept an expired invitation" do
+    invitation = described_class.create!(
+      group: group,
+      inviter: inviter,
+      email: "friend@example.com",
+      expires_at: 1.day.ago
+    )
+    user = User.create!(email: "friend@example.com", password: "password", confirmed_at: Time.current)
+
+    expect(invitation.accept!(user)).to be(false)
+    expect(invitation.reload.accepted_at).to be_nil
+  end
+
+  it "reissues token and expiration" do
+    invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com",
+                                         expires_at: 1.day.ago)
+    old_token = invitation.token
+
+    invitation.reissue!
+
+    expect(invitation.token).not_to eq(old_token)
+    expect(invitation.expires_at).to be > Time.current
   end
 end

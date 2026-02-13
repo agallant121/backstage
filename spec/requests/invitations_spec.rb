@@ -32,4 +32,20 @@ RSpec.describe "Invitations" do
     expect(flash[:alert]).to eq("Please sign up or sign in with #{invitation.email} to accept this invitation.")
     expect(Membership.exists?(user: wrong_user, group: group)).to be(false)
   end
+
+  it "rejects accepting expired invitations" do
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group")
+    Membership.create!(user: inviter, group: group, role: :admin)
+    invitation = Invitation.create!(group: group, inviter: inviter, email: "guest@example.com", expires_at: 1.day.ago)
+    invited_user = User.create!(email: "guest@example.com", password: "password", confirmed_at: Time.current)
+
+    sign_in invited_user, scope: :user
+
+    post accept_invitation_path(invitation.token)
+
+    expect(response).to redirect_to(group)
+    expect(flash[:alert]).to eq("This invitation has expired. Please ask for a new invite link.")
+    expect(invitation.reload.accepted_at).to be_nil
+  end
 end

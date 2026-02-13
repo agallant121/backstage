@@ -14,6 +14,7 @@
               <th scope="col"><%= "Email" %></th>
               <th scope="col"><%= "Status" %></th>
               <th scope="col"><%= "Link to share" %></th>
+              <th scope="col"><%= "Expires" %></th>
               <th scope="col"><%= "Invited by" %></th>
               <th scope="col"><%= "Invited on" %></th>
             </tr>
@@ -23,13 +24,25 @@
               <tr>
                 <td class="fw-semibold"><%= invitation.email %></td>
                 <td>
-                  <span class="badge text-bg-warning"><%= "Pending" %></span>
+                  <% if invitation.expired? %>
+                    <span class="badge text-bg-secondary"><%= "Expired" %></span>
+                  <% else %>
+                    <span class="badge text-bg-warning"><%= "Pending" %></span>
+                  <% end %>
                 </td>
                 <td>
                   <div class="d-flex align-items-center gap-2">
-                    <code class="small"><%= invitation_path(invitation.token) %></code>
+                    <% if invitation.expired? %>
+                      <%= button_to "Reissue",
+                                    reissue_group_invitation_path(@group, invitation),
+                                    method: :post,
+                                    class: "btn btn-sm btn-outline-primary" %>
+                    <% else %>
+                      <code class="small"><%= invitation_path(invitation.token) %></code>
+                    <% end %>
                   </div>
                 </td>
+                <td><%= l(invitation.expires_at.to_date, format: :long) %></td>
                 <td><%= invitation.inviter.display_name %></td>
                 <td><%= l(invitation.created_at.to_date, format: :long) %></td>
               </tr>
@@ -38,6 +51,6 @@
         </table>
       </div>
     <% end %>
-    
+
   </div>
 </div>

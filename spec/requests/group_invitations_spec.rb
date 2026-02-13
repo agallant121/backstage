@@ -36,4 +36,24 @@ RSpec.describe "Group Invitations", type: :request do
     expect(response).to redirect_to(group_invitations_path(group))
     expect(flash[:alert]).to include("Skipped #{existing_user.email} because they are already in one of your groups.")
   end
+
+  it "reissues an expired invitation token when invited again" do
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group")
+    Membership.create!(user: inviter, group: group, role: :admin)
+    invitation = Invitation.create!(group: group, inviter: inviter, email: "guest@example.com", expires_at: 1.day.ago)
+    old_token = invitation.token
+
+    sign_in inviter, scope: :user
+
+    expect do
+      post group_invitations_path(group), params: { invitation: { emails: invitation.email } }
+    end.not_to change(Invitation, :count)
+
+    invitation.reload
+
+    expect(flash[:notice]).to include("Reissued invites for #{invitation.email}")
+    expect(invitation.token).not_to eq(old_token)
+    expect(invitation.expires_at).to be > Time.current
+  end
 end
