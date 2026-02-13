@@ -7,6 +7,7 @@ Minimal Rails app with baseline operational safeguards added.
 - **Security scans in CI**
   - Existing Brakeman and importmap audit checks remain in `CI`.
   - We intentionally do **not** use `actions/dependency-review-action` here because it requires GitHub Advanced Security on this repository; this avoids CI failures tied to plan/features.
+  - A lightweight `dependency_review` placeholder job is kept so branch protection checks with that name still pass.
 
 - **SLO definition**
   - Added a simple availability SLO document with one SLI/target and clear error-budget guidance.
