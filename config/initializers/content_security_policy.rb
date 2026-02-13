@@ -25,6 +25,6 @@ Rails.application.configure do
   config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
   config.content_security_policy_nonce_directives = %w[script-src style-src]
 
-  # Enforce policy in production traffic.
-  config.content_security_policy_report_only = false
+  # Enforce policy in production traffic while keeping report-only behavior for non-production environments.
+  config.content_security_policy_report_only = !Rails.env.production?
 end
