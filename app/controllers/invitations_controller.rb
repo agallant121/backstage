@@ -52,6 +52,10 @@ class InvitationsController < ApplicationController
   end
 
   def unavailable_message
-    @invitation.expired? ? "This invitation has expired. Please ask for a new invite link." : "This invitation has already been used."
+    if @invitation.expired?
+      "This invitation has expired. Please ask for a new invite link."
+    else
+      "This invitation has already been used."
+    end
   end
 end
