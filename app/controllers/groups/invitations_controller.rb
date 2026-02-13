@@ -47,7 +47,7 @@ class Groups::InvitationsController < ApplicationController
   private
 
   def set_group
-    @group = current_user.groups.find(params[:group_id])
+    @group = Group.find(params[:group_id])
   end
 
   def require_group_admin!
