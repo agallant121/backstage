@@ -16,11 +16,13 @@ RSpec.describe Membership do
     user = User.create!(email: "race-member@example.com", password: "password")
     group = Group.create!(name: "Race Group")
 
-    expect {
+    expect do
       described_class.insert_all!([
-        { user_id: user.id, group_id: group.id, role: Membership.roles[:member], created_at: Time.current, updated_at: Time.current },
-        { user_id: user.id, group_id: group.id, role: Membership.roles[:member], created_at: Time.current, updated_at: Time.current }
-      ])
-    }.to raise_error(ActiveRecord::RecordNotUnique)
+                                    { user_id: user.id, group_id: group.id, role: described_class.roles[:member], created_at: Time.current,
+                                      updated_at: Time.current },
+                                    { user_id: user.id, group_id: group.id, role: described_class.roles[:member], created_at: Time.current,
+                                      updated_at: Time.current }
+                                  ])
+    end.to raise_error(ActiveRecord::RecordNotUnique)
   end
 end
