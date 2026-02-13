@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_13_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_13_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,9 +56,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_13_090000) do
     t.string "email", null: false
     t.string "token", null: false
     t.datetime "accepted_at"
+    t.datetime "expires_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_invitations_on_email"
+    t.index ["expires_at"], name: "index_invitations_on_expires_at"
     t.index ["group_id"], name: "index_invitations_on_group_id"
     t.index ["invited_user_id"], name: "index_invitations_on_invited_user_id"
     t.index ["inviter_id"], name: "index_invitations_on_inviter_id"
