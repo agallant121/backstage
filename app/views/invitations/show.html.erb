@@ -7,11 +7,11 @@
     <%= "with the email" %> <strong><%= @invitation.email %></strong><%= "." %>
   </p>
 
-  <% if @invitation.pending? %>
+  <% if @invitation.active? %>
     <%= form_with url: accept_invitation_path(@invitation.token), method: :post do %>
       <%= submit_tag "Accept invitation", class: "button" %>
     <% end %>
   <% else %>
-    <p class="alert alert-warning"><%= "This invitation has already been used." %></p>
+    <p class="alert alert-warning"><%= @invitation.expired? ? "This invitation has expired. Please ask for a new invite link." : "This invitation has already been used." %></p>
   <% end %>
 </div>
