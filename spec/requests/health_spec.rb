@@ -30,7 +30,21 @@ RSpec.describe "Health", type: :request do
       get "/ready"
 
       expect(response).to have_http_status(:service_unavailable)
+
       parsed = response.parsed_body
+      expect(parsed["status"]).to eq("degraded")
+      expect(parsed.dig("checks", "cache")).to be(false)
+    end
+
+    it "returns degraded readiness when cache delete raises during outage" do
+      allow(Rails.cache).to receive(:write).and_raise(StandardError.new("cache write failed"))
+      allow(Rails.cache).to receive(:delete).and_raise(StandardError.new("cache delete failed"))
+
+      get "/ready"
+
+      expect(response).to have_http_status(:service_unavailable)
+      parsed = response.parsed_body
+
       expect(parsed["status"]).to eq("degraded")
       expect(parsed.dig("checks", "cache")).to be(false)
     end

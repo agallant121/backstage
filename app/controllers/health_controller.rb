@@ -31,7 +31,11 @@ class HealthController < ApplicationController
   rescue StandardError
     false
   ensure
-    Rails.cache.delete(key) if key
+    begin
+      Rails.cache.delete(key) if key
+    rescue StandardError
+      nil
+    end
   end
 
   def queue_ready?
