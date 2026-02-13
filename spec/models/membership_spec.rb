@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Membership do
   it "enforces uniqueness of user within a group" do
-    user = User.create!(email: "member@example.com", password: "password")
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
 
     described_class.create!(user: user, group: group)
@@ -14,7 +14,7 @@ RSpec.describe Membership do
 
   # rubocop:disable RSpec/ExampleLength
   it "enforces uniqueness of user/group at the database level" do
-    user = User.create!(email: "race-member@example.com", password: "password")
+    user = User.create!(email: "race-member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Race Group")
 
     # rubocop:disable Rails/SkipsModelValidations

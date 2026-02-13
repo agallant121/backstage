@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Users", type: :request do
   it "allows viewing your own profile" do
-    user = User.create!(email: "self@example.com", password: "password")
+    user = User.create!(email: "self@example.com", password: "password", confirmed_at: Time.current)
 
     sign_in user
 
@@ -12,8 +12,8 @@ RSpec.describe "Users", type: :request do
   end
 
   it "allows viewing a shared-group contact profile" do
-    viewer = User.create!(email: "viewer@example.com", password: "password")
-    contact = User.create!(email: "contact@example.com", password: "password")
+    viewer = User.create!(email: "viewer@example.com", password: "password", confirmed_at: Time.current)
+    contact = User.create!(email: "contact@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Shared")
 
     Membership.create!(user: viewer, group: group)
@@ -27,8 +27,8 @@ RSpec.describe "Users", type: :request do
   end
 
   it "blocks viewing a user outside your groups" do
-    viewer = User.create!(email: "viewer2@example.com", password: "password")
-    outsider = User.create!(email: "outsider@example.com", password: "password")
+    viewer = User.create!(email: "viewer2@example.com", password: "password", confirmed_at: Time.current)
+    outsider = User.create!(email: "outsider@example.com", password: "password", confirmed_at: Time.current)
 
     sign_in viewer
 

@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Groups", type: :request do
   it "creates a group and assigns the creator as admin" do
-    user = User.create!(email: "owner@example.com", password: "password")
+    user = User.create!(email: "owner@example.com", password: "password", confirmed_at: Time.current)
 
     post user_session_path, params: { user: { email: user.email, password: "password" } }
 
@@ -16,7 +16,7 @@ RSpec.describe "Groups", type: :request do
   end
 
   it "allows members to view the group members page" do
-    user = User.create!(email: "member@example.com", password: "password")
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Crew")
     Membership.create!(user: user, group: group)
 
@@ -30,8 +30,8 @@ RSpec.describe "Groups", type: :request do
   end
 
   it "blocks non-members from viewing the members page" do
-    user = User.create!(email: "member@example.com", password: "password")
-    outsider = User.create!(email: "outsider@example.com", password: "password")
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
+    outsider = User.create!(email: "outsider@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Crew")
     Membership.create!(user: user, group: group)
 

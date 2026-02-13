@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe "Memberships", type: :request do
   it "allows invited users to join a group" do
-    inviter = User.create!(email: "inviter@example.com", password: "password")
-    invited_user = User.create!(email: "guest@example.com", password: "password")
+    inviter = User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current)
+    invited_user = User.create!(email: "guest@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group")
     Membership.create!(user: inviter, group: group, role: :admin)
     Invitation.create!(group: group, inviter: inviter, email: invited_user.email)
@@ -17,7 +17,7 @@ RSpec.describe "Memberships", type: :request do
   end
 
   it "blocks users without an invitation from joining a group" do
-    user = User.create!(email: "user@example.com", password: "password")
+    user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Private Group")
 
     sign_in user, scope: :user

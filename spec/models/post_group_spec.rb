@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe PostGroup do
   it "enforces uniqueness of post within a group" do
-    user = User.create!(email: "poster@example.com", password: "password")
+    user = User.create!(email: "poster@example.com", password: "password", confirmed_at: Time.current)
     post = Post.create!(user: user, body: "Hello")
     group = Group.create!(name: "Group")
 

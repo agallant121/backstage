@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Post do
-  let(:user) { User.create!(email: "author@example.com", password: "password") }
+  let(:user) { User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current) }
 
   describe "validations" do
     it "requires a body when no attachments are present" do
@@ -32,7 +32,7 @@ RSpec.describe Post do
 
       visible_post = described_class.create!(user: user, body: "Hello")
       hidden_post = described_class.create!(
-        user: User.create!(email: "other@example.com", password: "password"),
+        user: User.create!(email: "other@example.com", password: "password", confirmed_at: Time.current),
         body: "Hidden"
       )
 

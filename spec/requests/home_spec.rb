@@ -8,7 +8,7 @@ RSpec.describe "Home" do
   end
 
   it "renders the dashboard for signed-in users" do
-    user = User.create!(email: "user@example.com", password: "password")
+    user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
 
     sign_in user
     get root_path

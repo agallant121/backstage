@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Invitation do
   let(:group) { Group.create!(name: "Families") }
-  let(:inviter) { User.create!(email: "inviter@example.com", password: "password") }
+  let(:inviter) { User.create!(email: "inviter@example.com", password: "password", confirmed_at: Time.current) }
 
   it "normalizes the email before validation" do
     invitation = described_class.new(group: group, inviter: inviter, email: "  Friend@Example.COM ")
@@ -26,7 +26,7 @@ RSpec.describe Invitation do
 
   it "accepts the invitation and creates membership" do
     invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com")
-    user = User.create!(email: "friend@example.com", password: "password")
+    user = User.create!(email: "friend@example.com", password: "password", confirmed_at: Time.current)
 
     invitation.accept!(user)
 
@@ -37,7 +37,7 @@ RSpec.describe Invitation do
 
   it "does not create a duplicate membership when one already exists" do
     invitation = described_class.create!(group: group, inviter: inviter, email: "friend@example.com")
-    user = User.create!(email: "friend@example.com", password: "password")
+    user = User.create!(email: "friend@example.com", password: "password", confirmed_at: Time.current)
     Membership.create!(group: group, user: user)
 
     expect { invitation.accept!(user) }.not_to change(Membership, :count)

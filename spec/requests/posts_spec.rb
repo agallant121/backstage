@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Posts" do
   it "creates a post for all of the user's groups" do
-    user = User.create!(email: "author@example.com", password: "password")
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group_one = Group.create!(name: "Group One")
     group_two = Group.create!(name: "Group Two")
 
@@ -20,7 +20,7 @@ RSpec.describe "Posts" do
   end
 
   it "only allows creating a post in one of the author's groups" do
-    user = User.create!(email: "author@example.com", password: "password")
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     member_group = Group.create!(name: "Member Group")
     outsider_group = Group.create!(name: "Outsider Group")
 
@@ -36,8 +36,8 @@ RSpec.describe "Posts" do
   end
 
   it "prevents non-authors from updating or deleting posts" do
-    author = User.create!(email: "author@example.com", password: "password")
-    other_user = User.create!(email: "reader@example.com", password: "password")
+    author = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    other_user = User.create!(email: "reader@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group One")
 
     Membership.create!(user: author, group: group)
@@ -61,8 +61,8 @@ RSpec.describe "Posts" do
   end
 
   it "does not leak non-visible posts via show" do
-    author = User.create!(email: "author@example.com", password: "password")
-    outsider = User.create!(email: "outsider@example.com", password: "password")
+    author = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    outsider = User.create!(email: "outsider@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Private")
 
     Membership.create!(user: author, group: group)
