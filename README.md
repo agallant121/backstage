@@ -25,3 +25,17 @@ Minimal Rails app with baseline operational safeguards added.
 ## Why this is intentionally simple
 
 This provides an immediately usable baseline without introducing vendor-specific tooling. You can later wire these docs and checks into Datadog/Prometheus/PagerDuty/AWS Backup/etc. without changing the core approach.
+
+## Metrics and error tracking
+
+- **Prometheus metrics export**
+  - `GET /metrics` exports readiness gauges in Prometheus text format:
+    - `backstage_readiness_database`
+    - `backstage_readiness_cache`
+    - `backstage_readiness_queue`
+  - Set `METRICS_TOKEN` to require `X-Metrics-Token` header for scraping.
+
+- **Error tracking integration**
+  - Set `ERROR_TRACKING_WEBHOOK_URL` to enable automatic error event forwarding from `Rails.error`.
+  - Optional `ERROR_TRACKING_WEBHOOK_TOKEN` adds a bearer token in outbound requests.
+  - Payload includes error class/message, truncated backtrace, environment, severity, and context.
