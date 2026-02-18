@@ -1,6 +1,17 @@
 require "net/http"
 require "json"
 
+if ENV["SENTRY_DSN"].present?
+  Sentry.init do |config|
+    config.dsn = ENV.fetch("SENTRY_DSN")
+    config.environment = ENV.fetch("SENTRY_ENVIRONMENT", Rails.env)
+    config.enabled_environments = ENV.fetch("SENTRY_ENABLED_ENVIRONMENTS", "production").split(",").map(&:strip)
+    config.traces_sample_rate = ENV.fetch("SENTRY_TRACES_SAMPLE_RATE", "0.0").to_f
+    config.send_default_pii = ENV.fetch("SENTRY_SEND_DEFAULT_PII", "false") == "true"
+    config.release = ENV["SENTRY_RELEASE"] if ENV["SENTRY_RELEASE"].present?
+  end
+end
+
 if ENV["ERROR_TRACKING_WEBHOOK_URL"].present?
   webhook_uri = URI.parse(ENV.fetch("ERROR_TRACKING_WEBHOOK_URL"))
   webhook_headers = { "Content-Type" => "application/json" }
