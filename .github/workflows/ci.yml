@@ -7,12 +7,26 @@ on:
 
 jobs:
   dependency_review:
-    # Keep this check name for branch protection while avoiding GHAS-only actions.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
-      - name: Dependency review placeholder
-        run: echo "Dependency review action requires GitHub Advanced Security; using supported CI scans instead."
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Install bundler-audit
+        run: gem install bundler-audit --no-document
+
+      - name: Audit Ruby dependencies (fail on vulnerabilities)
+        run: bundle-audit check --update
 
   scan_ruby:
     runs-on: ubuntu-latest
