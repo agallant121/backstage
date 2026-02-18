@@ -13,8 +13,7 @@ class RateLimitMiddleware
 
     rule = matching_rule(request)
     return @app.call(env) unless rule
-
-    return throttled_response if throttled?(request, rule)
+    return throttled_response(rule) if throttled?(request, rule)
 
     @app.call(env)
   end
@@ -55,11 +54,7 @@ class RateLimitMiddleware
   end
 
   def throttled?(request, rule)
-    key = cache_key(rule.name, request.ip, rule.period)
-    count = Rails.cache.read(key).to_i + 1
-
-    Rails.cache.write(key, count, expires_in: rule.period)
-
+    count = increment_counter(cache_key(rule.name, request.ip, rule.period), rule.period)
     count > rule.limit
   end
 
@@ -72,15 +67,42 @@ class RateLimitMiddleware
     request.get? && ["/up", "/ready"].include?(request.path)
   end
 
-  def throttled_response
+  def throttled_response(rule)
     [
       429,
       {
         "Content-Type" => "text/plain",
-        "Retry-After" => "60"
+        "Retry-After" => retry_after(rule.period).to_s
       },
       ["Too many requests. Please try again later."]
     ]
+  end
+
+  def increment_counter(key, period)
+    count = Rails.cache.increment(key, 1, expires_in: period, initial: 0)
+
+    if count.nil?
+      Rails.cache.write(key, 0, expires_in: period, unless_exist: true)
+      count = Rails.cache.increment(key, 1, expires_in: period)
+    end
+
+    return count.to_i if count.present?
+
+    fallback_increment_counter(key, period)
+  rescue NotImplementedError, NoMethodError, ArgumentError
+    fallback_increment_counter(key, period)
+  end
+
+  def fallback_increment_counter(key, period)
+    count = Rails.cache.read(key).to_i + 1
+    Rails.cache.write(key, count, expires_in: period)
+    count
+  end
+
+  def retry_after(period)
+    seconds = period.to_i
+    remainder = Time.current.to_i % seconds
+    remainder.zero? ? seconds : seconds - remainder
   end
 
   def integer_env(key, default)
