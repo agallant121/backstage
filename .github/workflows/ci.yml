@@ -7,12 +7,19 @@ on:
 
 jobs:
   dependency_review:
-    # Keep this check name for branch protection while avoiding GHAS-only actions.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
-      - name: Dependency review placeholder
-        run: echo "Dependency review action requires GitHub Advanced Security; using supported CI scans instead."
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
 
   scan_ruby:
     runs-on: ubuntu-latest
