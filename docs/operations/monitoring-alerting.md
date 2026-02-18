@@ -24,3 +24,7 @@ This is a minimal baseline that can be implemented on any platform.
 3. Check database saturation and queue backlog.
 4. Communicate incident status and ETA.
 5. File post-incident follow-up tasks.
+
+## Error tracking
+- Configure `ERROR_TRACKING_WEBHOOK_URL` in production so unhandled exceptions from `Rails.error` are forwarded to your incident platform.
+- Route high-severity error events to on-call notifications and link to runbook steps below.
