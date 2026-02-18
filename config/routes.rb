@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   get "up", to: "health#up"
   get "ready", to: "health#ready"
+  get "metrics", to: "metrics#index"
 
   resources :posts
   resources :users, only: [ :show ], constraints: { id: /\d+/ }
