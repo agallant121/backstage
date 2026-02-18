@@ -61,6 +61,7 @@
     <main class="container py-4">
       <div class="flash-stack" aria-live="polite">
         <% flash.each do |type, message| %>
+          <% next if type.to_s == "timedout" %>
           <% next if message.blank? %>
           <% flash_variant = {
             "notice" => "flash-message--success",
