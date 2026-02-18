@@ -12,7 +12,7 @@ if ENV["ERROR_TRACKING_WEBHOOK_URL"].present?
   worker_count = 2
   shutdown_signal = Object.new
 
-  workers = worker_count.times.map do
+  workers = Array.new(worker_count) do
     Thread.new(webhook_uri, webhook_headers, webhook_queue, shutdown_signal) do |target_uri, request_headers, queue, signal|
       Thread.current.name = "error-tracking-webhook" if Thread.current.respond_to?(:name=)
 
