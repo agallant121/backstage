@@ -54,7 +54,7 @@ class RateLimitMiddleware
   end
 
   def throttled?(request, rule)
-    count = increment_counter(cache_key(rule.name, request.ip, rule.period), rule.period)
+    count = next_count(cache_key(rule.name, request.ip, rule.period), rule.period)
     count > rule.limit
   end
 
@@ -78,7 +78,7 @@ class RateLimitMiddleware
     ]
   end
 
-  def increment_counter(key, period)
+  def next_count(key, period)
     count = Rails.cache.increment(key, 1, expires_in: period, initial: 0)
 
     if count.nil?
