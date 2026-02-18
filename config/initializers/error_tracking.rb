@@ -10,26 +10,52 @@ if ENV["ERROR_TRACKING_WEBHOOK_URL"].present?
 
   webhook_queue = SizedQueue.new(100)
   worker_count = 2
+  shutdown_signal = Object.new
 
-  worker_count.times do
-    Thread.new(webhook_uri, webhook_headers, webhook_queue) do |target_uri, request_headers, queue|
+  workers = worker_count.times.map do
+    Thread.new(webhook_uri, webhook_headers, webhook_queue, shutdown_signal) do |target_uri, request_headers, queue, signal|
       Thread.current.name = "error-tracking-webhook" if Thread.current.respond_to?(:name=)
+
+      http = Net::HTTP.new(target_uri.host, target_uri.port)
+      http.use_ssl = target_uri.scheme == "https"
+      http.open_timeout = 2
+      http.read_timeout = 2
+
+      consecutive_failures = 0
 
       loop do
         body = queue.pop
-
-        http = Net::HTTP.new(target_uri.host, target_uri.port)
-        http.use_ssl = target_uri.scheme == "https"
-        http.open_timeout = 2
-        http.read_timeout = 2
+        break if body.equal?(signal)
 
         request = Net::HTTP::Post.new(target_uri.request_uri, request_headers)
         request.body = body
-        http.request(request)
+        response = http.request(request)
+        unless response.is_a?(Net::HTTPSuccess)
+          Rails.logger.warn(
+            "Error tracking webhook delivery received non-success response: #{response.code} #{response.message}"
+          )
+        end
+
+        consecutive_failures = 0
       rescue StandardError => e
-        Rails.logger.warn("Error tracking webhook delivery failed: #{e.class} #{e.message}")
+        consecutive_failures += 1
+        backoff = [0.25 * (2**(consecutive_failures - 1)), 5].min
+        Rails.logger.warn(
+          "Error tracking webhook delivery failed: #{e.class} #{e.message}; retrying in #{backoff}s"
+        )
+        sleep(backoff)
       end
     end
+  end
+
+  at_exit do
+    worker_count.times do
+      webhook_queue.push(shutdown_signal, true)
+    rescue ThreadError
+      # Queue full at shutdown; workers will terminate as process exits.
+    end
+
+    workers.each { |worker| worker.join(1) }
   end
 
   Rails.error.subscribe do |error, handled:, severity:, context:, source:|
