@@ -39,7 +39,7 @@ This provides an immediately usable baseline without introducing vendor-specific
   - Set `ERROR_TRACKING_WEBHOOK_URL` to enable automatic error event forwarding from `Rails.error`.
   - Optional `ERROR_TRACKING_WEBHOOK_TOKEN` adds a bearer token in outbound requests.
   - Payload includes error class/message, truncated backtrace, environment, severity, and context.
-  - `config/deploy.yml` injects `ERROR_TRACKING_WEBHOOK_URL` when provided; leaving it unset keeps webhook forwarding disabled.
+  - `config/deploy.yml` injects `ERROR_TRACKING_WEBHOOK_URL` and optional `ERROR_TRACKING_WEBHOOK_TOKEN`; leaving them unset keeps webhook forwarding disabled.
 
 ## Deployment environment variables
 

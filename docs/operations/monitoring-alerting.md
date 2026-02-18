@@ -27,4 +27,5 @@ This is a minimal baseline that can be implemented on any platform.
 
 ## Error tracking
 - Configure `ERROR_TRACKING_WEBHOOK_URL` in production so unhandled exceptions from `Rails.error` are forwarded to your incident platform.
+- If your incident platform requires auth, set `ERROR_TRACKING_WEBHOOK_TOKEN` and accept it as a bearer token on the receiving endpoint.
 - Route high-severity error events to on-call notifications and link to runbook steps below.
