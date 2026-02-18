@@ -89,7 +89,7 @@ builder:
 
 # Use a different ssh user than root
 ssh:
-  user: <%= ENV.fetch("KAMAL_SSH_USER", "deploy") %>
+  user: <%= ENV.fetch("KAMAL_SSH_USER", "root") %>
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:
