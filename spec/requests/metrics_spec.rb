@@ -5,11 +5,18 @@ RSpec.describe "Metrics", type: :request do
     it "exports prometheus formatted readiness metrics" do
       get "/metrics"
 
+      expected_inclusions = [
+        "# TYPE backstage_readiness_database gauge",
+        "# TYPE backstage_readiness_cache gauge",
+        "# TYPE backstage_readiness_queue gauge"
+      ]
+
       expect(response).to have_http_status(:ok)
       expect(response.media_type).to start_with("text/plain")
-      expect(response.body).to include("# TYPE backstage_readiness_database gauge")
-      expect(response.body).to include("# TYPE backstage_readiness_cache gauge")
-      expect(response.body).to include("# TYPE backstage_readiness_queue gauge")
+
+      expected_inclusions.each do |metric|
+        expect(response.body).to include(metric)
+      end
     end
 
     it "requires X-Metrics-Token when METRICS_TOKEN is configured" do
