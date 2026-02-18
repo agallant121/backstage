@@ -18,7 +18,7 @@ RSpec.describe RateLimitMiddleware do
     middleware.call(env)
 
     expect(cache).to have_received(:increment).with(
-      a_string_matching(%r{\Arate_limit:logins:127\.0\.0\.1:\d+\z}),
+      a_string_matching(/\Arate_limit:logins:127\.0\.0\.1:\d+\z/),
       1,
       expires_in: 1.minute,
       initial: 0
@@ -26,7 +26,7 @@ RSpec.describe RateLimitMiddleware do
   end
 
   it "sets retry-after based on the matched rule period" do
-    previous = ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"]
+    previous = ENV.fetch("RATE_LIMIT_GROUP_INVITES_PER_HOUR", nil)
     ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"] = "0"
 
     env = Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
