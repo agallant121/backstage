@@ -36,10 +36,10 @@ This provides an immediately usable baseline without introducing vendor-specific
   - Set `METRICS_TOKEN` to require `X-Metrics-Token` header for scraping.
 
 - **Error tracking integration**
-  - Set `ERROR_TRACKING_WEBHOOK_URL` to enable automatic error event forwarding from `Rails.error`.
-  - Optional `ERROR_TRACKING_WEBHOOK_TOKEN` adds a bearer token in outbound requests.
-  - Payload includes error class/message, truncated backtrace, environment, severity, and context.
-  - `config/deploy.yml` injects `ERROR_TRACKING_WEBHOOK_URL` and optional `ERROR_TRACKING_WEBHOOK_TOKEN`; leaving them unset keeps webhook forwarding disabled.
+  - Set `SENTRY_DSN` to enable Sentry (`sentry-ruby` + `sentry-rails`) exception and performance capture.
+  - Optional Sentry tuning env vars: `SENTRY_ENABLED_ENVIRONMENTS` (comma-separated, defaults to `production`), `SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE` (defaults to `0.0`), `SENTRY_SEND_DEFAULT_PII` (`true`/`false`), and `SENTRY_RELEASE`.
+  - Optional webhook forwarding remains available via `ERROR_TRACKING_WEBHOOK_URL` and optional `ERROR_TRACKING_WEBHOOK_TOKEN` for custom sinks.
+  - `config/deploy.yml` injects `SENTRY_DSN` plus the webhook variables; leaving them unset keeps each integration disabled.
 
 ## Deployment environment variables
 
