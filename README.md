@@ -39,3 +39,23 @@ This provides an immediately usable baseline without introducing vendor-specific
   - Set `ERROR_TRACKING_WEBHOOK_URL` to enable automatic error event forwarding from `Rails.error`.
   - Optional `ERROR_TRACKING_WEBHOOK_TOKEN` adds a bearer token in outbound requests.
   - Payload includes error class/message, truncated backtrace, environment, severity, and context.
+
+## Deployment environment variables
+
+`config/deploy.yml` is ERB-driven and expects deploy values from environment variables.
+
+- **Required**
+  - `KAMAL_IMAGE` (e.g. `ghcr.io/org/backstage`)
+  - `KAMAL_WEB_HOST` (primary app host/IP for `servers.web`)
+  - `KAMAL_APP_HOST` (public hostname for proxy/SSL)
+  - `KAMAL_REGISTRY_USERNAME` (registry user/account for pulls)
+  - `KAMAL_REGISTRY_PASSWORD` (set in environment and referenced from `.kamal/secrets`)
+
+- **Optional**
+  - `KAMAL_REGISTRY_SERVER` (defaults to `ghcr.io`)
+  - `KAMAL_SSH_USER` (defaults to `root`)
+  - `KAMAL_JOB_HOST` (used only in commented job example)
+  - `KAMAL_DB_HOST` (used only in commented DB example)
+  - `KAMAL_REDIS_HOST` (used only in commented Redis example)
+
+For Rails credentials, set `RAILS_MASTER_KEY`; if absent, `.kamal/secrets` falls back to `config/master.key` and fails with a clear error if neither source is available.
