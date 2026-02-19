@@ -2,7 +2,7 @@ class MembershipPolicy < ApplicationPolicy
   attr_reader :user, :group, :membership
 
   def initialize(user, group, membership: nil)
-    super
+    super(user, group)
     @group = group
     @membership = membership
   end
