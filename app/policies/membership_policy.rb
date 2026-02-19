@@ -10,7 +10,9 @@ class MembershipPolicy < ApplicationPolicy
   def create?
     return false unless user
 
-    group.invitations.pending.exists?(email: user.email.downcase)
+    group.invitations.pending
+         .where("expires_at > ?", Time.current)
+         .exists?(email: user.email.downcase)
   end
 
   def destroy?
