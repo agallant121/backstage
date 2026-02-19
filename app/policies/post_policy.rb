@@ -8,6 +8,7 @@ class PostPolicy < ApplicationPolicy
 
   def create?(group_ids:)
     return false unless user
+    return false if group_ids.blank?
 
     user_group_ids = user.groups.where(id: group_ids).pluck(:id)
     user_group_ids.sort == group_ids.sort
