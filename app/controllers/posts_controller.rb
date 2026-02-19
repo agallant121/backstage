@@ -2,7 +2,7 @@ class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [ :new, :create ]
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
-  before_action :authorize_post_mutation!, only: [ :update, :destroy ]
+  before_action :authorize_post_mutation!, only: [ :edit, :update, :destroy ]
 
   def index
     @posts = Post.visible_to(current_user)
@@ -44,7 +44,6 @@ class PostsController < ApplicationController
   end
 
   def edit
-    head :forbidden unless policy(@post).update?
   end
 
   def update
@@ -82,10 +81,20 @@ class PostsController < ApplicationController
 
   def authorize_post_mutation!
     policy = policy(@post)
-    return if action_name == "update" && policy.update?
-    return if action_name == "destroy" && policy.destroy?
 
-    redirect_to @post, alert: "You are not allowed to manage this post."
+    allowed =
+      case action_name
+      when "edit", "update" then policy.update?
+      when "destroy" then policy.destroy?
+      end
+
+    return if allowed
+
+    if action_name == "edit"
+      head :forbidden
+    else
+      redirect_to @post, alert: "You are not allowed to manage this post."
+    end
   end
 
   def post_params
