@@ -17,7 +17,7 @@ class MembershipPolicy < ApplicationPolicy
 
   def destroy?
     return false unless user
-
+    return false unless membership
     return false unless user.memberships.find_by(group: group)&.admin?
 
     membership.user_id != user.id
