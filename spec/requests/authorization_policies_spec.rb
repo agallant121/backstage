@@ -14,7 +14,8 @@ RSpec.describe "Authorization policy coverage", type: :request do
 
     get edit_post_path(post_record)
 
-    expect(response).to have_http_status(:forbidden)
+    expect(response).to redirect_to(post_record)
+    expect(flash[:alert]).to eq("You are not allowed to manage this post.")
   end
 
   it "blocks non-admin members from updating and deleting groups" do

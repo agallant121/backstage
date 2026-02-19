@@ -90,11 +90,7 @@ class PostsController < ApplicationController
 
     return if allowed
 
-    if action_name == "edit"
-      head :forbidden
-    else
-      redirect_to @post, alert: "You are not allowed to manage this post."
-    end
+    redirect_to @post, alert: "You are not allowed to manage this post."
   end
 
   def post_params
