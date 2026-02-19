@@ -2,7 +2,7 @@ class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [ :new, :create ]
   before_action :set_post, only: [ :show, :edit, :update, :destroy ]
-  before_action :authorize_post_owner!, only: [ :edit, :update, :destroy ]
+  before_action :authorize_post_mutation!, only: [ :update, :destroy ]
 
   def index
     @posts = Post.visible_to(current_user)
@@ -28,6 +28,7 @@ class PostsController < ApplicationController
   def create
     group_ids_to_attach = group_ids_for_new_post
     return head :not_found if group_ids_to_attach.nil?
+    return head :forbidden unless policy(Post).create?(group_ids: group_ids_to_attach)
 
     @post = current_user.posts.build(post_params)
 
@@ -43,6 +44,7 @@ class PostsController < ApplicationController
   end
 
   def edit
+    head :forbidden unless policy(@post).update?
   end
 
   def update
@@ -78,8 +80,10 @@ class PostsController < ApplicationController
     nil
   end
 
-  def authorize_post_owner!
-    return if @post.user_id == current_user.id
+  def authorize_post_mutation!
+    policy = policy(@post)
+    return if action_name == "update" && policy.update?
+    return if action_name == "destroy" && policy.destroy?
 
     redirect_to @post, alert: "You are not allowed to manage this post."
   end

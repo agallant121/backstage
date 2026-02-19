@@ -21,6 +21,7 @@ gem "kaminari"
 
 # Added by me
 gem "devise"
+gem "pundit"
 gem "pry"
 gem "sidekiq"
 gem "aws-sdk-s3", require: false

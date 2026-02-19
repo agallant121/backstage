@@ -51,7 +51,10 @@ class Groups::InvitationsController < ApplicationController
   end
 
   def require_group_admin!
-    membership = current_user.memberships.find_by(group: @group)
-    redirect_to @group, alert: "You must be a group admin to invite others." unless membership&.admin?
+    policy = GroupInvitationPolicy.new(current_user, @group)
+    allowed = action_name == "reissue" ? policy.reissue? : policy.create?
+    return if allowed
+
+    redirect_to @group, alert: "You must be a group admin to invite others."
   end
 end

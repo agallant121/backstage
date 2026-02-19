@@ -34,12 +34,13 @@ class InvitationsController < ApplicationController
       return
     end
 
-    if @invitation.active?
-      @invitation.accept!(current_user)
-      redirect_to @invitation.group, notice: "You have been added to #{@invitation.group.name}."
-    else
+    unless policy(@invitation).accept?
       redirect_to @invitation.group, alert: unavailable_message
+      return
     end
+
+    @invitation.accept!(current_user)
+    redirect_to @invitation.group, notice: "You have been added to #{@invitation.group.name}."
   end
 
   private
