@@ -1,6 +1,7 @@
 class GroupsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [ :show, :edit, :update, :destroy, :members ]
+  before_action :authorize_group_mutation!, only: [ :edit, :update, :destroy ]
 
   def index
     @groups = current_user.groups
@@ -30,6 +31,8 @@ class GroupsController < ApplicationController
 
   def create
     @group = Group.new(group_params)
+    return head :forbidden unless policy(@group).create?
+
     if @group.save
       membership = current_user.memberships.find_or_initialize_by(group: @group)
       membership.role = :admin
@@ -64,5 +67,14 @@ class GroupsController < ApplicationController
 
   def group_params
     params.require(:group).permit(:name, :description)
+  end
+
+  def authorize_group_mutation!
+    policy = policy(@group)
+    return if action_name == "edit" && policy.update?
+    return if action_name == "update" && policy.update?
+    return if action_name == "destroy" && policy.destroy?
+
+    redirect_to @group, alert: "You are not allowed to manage this group."
   end
 end
