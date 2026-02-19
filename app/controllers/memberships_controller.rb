@@ -14,8 +14,11 @@ class MembershipsController < ApplicationController
       return
     end
 
-    invitation.accept!(current_user)
-    redirect_to @group, notice: "Joined group"
+    if invitation.accept!(current_user)
+      redirect_to @group, notice: "Joined group"
+    else
+      redirect_to groups_path, alert: "Your invitation has expired or is no longer valid."
+    end
   end
 
   def destroy
