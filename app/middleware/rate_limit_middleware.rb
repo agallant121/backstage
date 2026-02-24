@@ -25,7 +25,7 @@ class RateLimitMiddleware
   def throttled_identifier(request, rule)
     identifiers(rule, request).find do |key_type, key_value|
       next false if key_value.blank?
-      next true if lockout_active?(rule, request, key_type, key_value)
+      return true if lockout_active?(rule, request, key_type, key_value)
 
       count = @store.next_count(rule.name, key_type, key_value, rule.period)
       next false if count <= rule.limit
