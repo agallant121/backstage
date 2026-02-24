@@ -26,7 +26,7 @@ RSpec.describe RateLimitMiddleware do
     )
   end
 
-  it "sets retry-after based on lockout period once lockout is active" do
+  it "sets retry-after based on remaining lockout period" do
     previous_limit = ENV.fetch("RATE_LIMIT_GROUP_INVITES_PER_HOUR", nil)
     previous_lockout = ENV.fetch("RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS", nil)
     ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"] = "0"
@@ -36,7 +36,7 @@ RSpec.describe RateLimitMiddleware do
     status, headers, = middleware.call(env)
 
     expect(status).to eq(429)
-    expect(headers["Retry-After"].to_i).to eq(120)
+    expect(headers["Retry-After"].to_i).to be_between(1, 120)
   ensure
     ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"] = previous_limit
     ENV["RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS"] = previous_lockout
@@ -64,5 +64,13 @@ RSpec.describe RateLimitMiddleware do
   ensure
     ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
     ENV["RATE_LIMIT_LOGIN_PER_MINUTE"] = previous_limit
+  end
+
+  it "extracts invitation token directly from request path" do
+    env = Rack::MockRequest.env_for("/invitations/abc123/accept", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
+    request = ActionDispatch::Request.new(env)
+    invitation_rule = middleware.send(:rules).find { |rule| rule.name == "invitation_acceptance" }
+
+    expect(middleware.send(:identifiers, invitation_rule, request)).to include(invitation_token: "abc123")
   end
 end
