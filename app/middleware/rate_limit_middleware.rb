@@ -51,8 +51,7 @@ class RateLimitMiddleware
       retry_after_seconds = remaining if remaining.positive?
     end
 
-    [429, { "Content-Type" => "text/plain", "Retry-After" => retry_after_seconds.to_s },
-     ["Too many requests. Please try again later."]]
+    [429, { "Content-Type" => "text/plain", "Retry-After" => retry_after_seconds.to_s }, ["Too many requests. Please try again later."]]
   end
 
   def identifiers(rule, request)
