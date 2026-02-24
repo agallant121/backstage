@@ -4,19 +4,23 @@ RSpec.describe RateLimitMiddleware do
   let(:app) { ->(_env) { [200, { "Content-Type" => "text/plain" }, ["ok"]] } }
   let(:middleware) { described_class.new(app) }
 
-  before do
-    Rails.cache.clear
-  end
+  before { Rails.cache.clear }
 
   it "uses cache increment for counter updates" do
     cache = instance_double(ActiveSupport::Cache::Store)
 
     allow(Rails).to receive(:cache).and_return(cache)
-    allow(cache).to receive_messages(increment: 1, read: 0)
+    allow(cache).to receive(:increment).and_return(1)
+    allow(cache).to receive(:read).and_return(0)
 
-    env = Rack::MockRequest.env_for("/users/sign_in", method: "POST", "REMOTE_ADDR" => "127.0.0.1",
-                                                      params: { user: { email: "person@example.com" } })
-    middleware.call(env)
+    env = Rack::MockRequest.env_for(
+      "/users/sign_in",
+      method: "POST",
+      "REMOTE_ADDR" => "127.0.0.1",
+      params: { user: { email: "person@example.com" } }
+    )
+
+    described_class.new(app, store: RateLimit::Store.new(cache: cache)).call(env)
 
     expect(cache).to have_received(:increment).with(
       a_string_matching(/\Arate_limit:logins:ip:127\.0\.0\.1:\d+\z/),
@@ -47,9 +51,8 @@ RSpec.describe RateLimitMiddleware do
     ENV["RATE_LIMIT_LOGIN_PER_MINUTE"] = "0"
 
     events = []
-    subscriber = ActiveSupport::Notifications.subscribe("security.rate_limit_triggered") do |_name, _start, _finish, _id, payload|
-      events << payload
-    end
+    callback = proc { |_name, _start, _finish, _id, payload| events << payload }
+    subscriber = ActiveSupport::Notifications.subscribe("security.rate_limit_triggered", &callback)
 
     env = Rack::MockRequest.env_for(
       "/users/sign_in",
@@ -57,9 +60,9 @@ RSpec.describe RateLimitMiddleware do
       "REMOTE_ADDR" => "127.0.0.1",
       params: { user: { email: "abuse@example.com" } }
     )
+
     middleware.call(env)
 
-    expect(events).not_to be_empty
     expect(events.last).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
   ensure
     ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
@@ -67,10 +70,12 @@ RSpec.describe RateLimitMiddleware do
   end
 
   it "extracts invitation token directly from request path" do
-    env = Rack::MockRequest.env_for("/invitations/abc123/accept", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
-    request = ActionDispatch::Request.new(env)
-    invitation_rule = middleware.send(:rules).find { |rule| rule.name == "invitation_acceptance" }
+    request = ActionDispatch::Request.new(
+      Rack::MockRequest.env_for("/invitations/abc123/accept", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
+    )
+    rule_set = RateLimit::RuleSet.new
+    rule = rule_set.matching_rule(request)
 
-    expect(middleware.send(:identifiers, invitation_rule, request)).to include(invitation_token: "abc123")
+    expect(rule.keys.call(request)).to include(invitation_token: "abc123")
   end
 end
