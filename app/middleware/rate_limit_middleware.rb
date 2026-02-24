@@ -63,7 +63,7 @@ class RateLimitMiddleware
         period: 1.hour,
         lockout_period: integer_env("RATE_LIMIT_INVITATION_ACCEPT_LOCKOUT_SECONDS", 0).seconds,
         match: ->(request) { request.post? && request.path.match?(%r{\A/invitations/[^/]+/accept\z}) },
-        keys: ->(request) { { ip: request.ip, invitation_token: request.path_parameters[:token] } }
+        keys: ->(request) { { ip: request.ip, invitation_token: invitation_token_from_path(request.path) } }
       )
     ]
   end
@@ -105,8 +105,8 @@ class RateLimitMiddleware
     retry_after_seconds = retry_after(rule.period)
     if throttle
       key_type, key_value = throttle
-      lockout = read_counter(lockout_cache_key(rule.name, key_type, key_value))
-      retry_after_seconds = lockout if lockout.positive?
+      remaining_lockout = remaining_lockout_seconds(lockout_cache_key(rule.name, key_type, key_value))
+      retry_after_seconds = remaining_lockout if remaining_lockout.positive?
     end
 
     [
@@ -128,13 +128,14 @@ class RateLimitMiddleware
   end
 
   def lockout_active?(lockout_key)
-    read_counter(lockout_key).positive?
+    remaining_lockout_seconds(lockout_key).positive?
   end
 
   def apply_lockout(lockout_key, lockout_period)
     return if lockout_period.blank? || lockout_period <= 0
 
-    Rails.cache.write(lockout_key, lockout_period.to_i, expires_in: lockout_period)
+    expires_at = Time.current.to_i + lockout_period.to_i
+    Rails.cache.write(lockout_key, expires_at, expires_in: lockout_period)
   end
 
   def emit_alert(rule, request, key_type, key_value, reason)
@@ -183,6 +184,17 @@ class RateLimitMiddleware
     Rails.cache.read(key).to_i
   rescue StandardError
     0
+  end
+
+  def remaining_lockout_seconds(lockout_key)
+    expires_at = read_counter(lockout_key)
+    return 0 if expires_at <= 0
+
+    [expires_at - Time.current.to_i, 0].max
+  end
+
+  def invitation_token_from_path(path)
+    path.match(%r{\A/invitations/([^/]+)/accept\z})&.captures&.first
   end
 
   def normalized_email(value)
