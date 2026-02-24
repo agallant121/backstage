@@ -52,17 +52,12 @@ module RateLimit
 
     def read_counter(key)
       @cache.read(key).to_i
-    rescue StandardError
+    rescue NotImplementedError, NoMethodError, ArgumentError
       0
     end
 
-    # NOTE: This fallback implementation is not guaranteed to be atomic across
-    # threads or processes. Some cache backends (for example, in-memory stores)
-    # do not support atomic increment operations. In those cases we accept that
-    # occasional lost increments may occur under high contention and that rate
-    # limits are therefore approximate.
     def fallback_increment_counter(key, period)
-      count = read_counter(key) + 1
+      count = @cache.read(key).to_i + 1
       @cache.write(key, count, expires_in: period)
       count
     end
