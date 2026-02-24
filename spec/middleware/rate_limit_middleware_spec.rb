@@ -55,8 +55,7 @@ RSpec.describe RateLimitMiddleware do
 
   def configure_cache_double(cache)
     allow(Rails).to receive(:cache).and_return(cache)
-    allow(cache).to receive(:increment).and_return(1)
-    allow(cache).to receive(:read).and_return(0)
+    allow(cache).to receive_messages(increment: 1, read: 0)
   end
 
   def sign_in_env(email:)
