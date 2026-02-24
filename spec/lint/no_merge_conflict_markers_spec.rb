@@ -1,6 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Repository hygiene" do
+class RepositoryHygieneSpec; end
+
+RSpec.describe RepositoryHygieneSpec do
   it "has no merge conflict markers in tracked source files" do
     files = Dir.glob("{app,config,spec}/**/*", File::FNM_DOTMATCH).select { |path| File.file?(path) }
 
