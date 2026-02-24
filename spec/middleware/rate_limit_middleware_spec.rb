@@ -10,8 +10,7 @@ RSpec.describe RateLimitMiddleware do
     cache = instance_double(ActiveSupport::Cache::Store)
 
     allow(Rails).to receive(:cache).and_return(cache)
-    allow(cache).to receive(:increment).and_return(1)
-    allow(cache).to receive(:read).and_return(0)
+    allow(cache).to receive_messages(increment: 1, read: 0)
 
     env = Rack::MockRequest.env_for(
       "/users/sign_in",
