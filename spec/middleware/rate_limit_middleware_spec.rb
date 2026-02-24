@@ -8,18 +8,9 @@ RSpec.describe RateLimitMiddleware do
 
   it "uses cache increment for counter updates" do
     cache = instance_double(ActiveSupport::Cache::Store)
+    configure_cache_double(cache)
 
-    allow(Rails).to receive(:cache).and_return(cache)
-    allow(cache).to receive_messages(increment: 1, read: 0)
-
-    env = Rack::MockRequest.env_for(
-      "/users/sign_in",
-      method: "POST",
-      "REMOTE_ADDR" => "127.0.0.1",
-      params: { user: { email: "person@example.com" } }
-    )
-
-    described_class.new(app, store: RateLimit::Store.new(cache: cache)).call(env)
+    described_class.new(app, store: RateLimit::Store.new(cache: cache)).call(sign_in_env(email: "person@example.com"))
 
     expect(cache).to have_received(:increment).with(
       a_string_matching(/\Arate_limit:logins:ip:127\.0\.0\.1:\d+\z/),
@@ -30,51 +21,64 @@ RSpec.describe RateLimitMiddleware do
   end
 
   it "sets retry-after based on remaining lockout period" do
-    previous_limit = ENV.fetch("RATE_LIMIT_GROUP_INVITES_PER_HOUR", nil)
-    previous_lockout = ENV.fetch("RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS", nil)
-    ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"] = "0"
-    ENV["RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS"] = "120"
+    with_env("RATE_LIMIT_GROUP_INVITES_PER_HOUR" => "0", "RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS" => "120") do
+      env = Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
+      status, headers, = middleware.call(env)
 
-    env = Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
-    status, headers, = middleware.call(env)
-
-    expect(status).to eq(429)
-    expect(headers["Retry-After"].to_i).to be_between(1, 120)
-  ensure
-    ENV["RATE_LIMIT_GROUP_INVITES_PER_HOUR"] = previous_limit
-    ENV["RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS"] = previous_lockout
+      expect(status).to eq(429)
+      expect(headers["Retry-After"].to_i).to be_between(1, 120)
+    end
   end
 
   it "emits a security notification when throttling occurs" do
-    previous_limit = ENV.fetch("RATE_LIMIT_LOGIN_PER_MINUTE", nil)
-    ENV["RATE_LIMIT_LOGIN_PER_MINUTE"] = "0"
+    with_env("RATE_LIMIT_LOGIN_PER_MINUTE" => "0") do
+      events = []
+      subscriber = subscribe_to_rate_limit_alerts(events)
 
-    events = []
-    callback = proc { |_name, _start, _finish, _id, payload| events << payload }
-    subscriber = ActiveSupport::Notifications.subscribe("security.rate_limit_triggered", &callback)
+      middleware.call(sign_in_env(email: "abuse@example.com"))
 
-    env = Rack::MockRequest.env_for(
-      "/users/sign_in",
-      method: "POST",
-      "REMOTE_ADDR" => "127.0.0.1",
-      params: { user: { email: "abuse@example.com" } }
-    )
-
-    middleware.call(env)
-
-    expect(events.last).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
-  ensure
-    ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
-    ENV["RATE_LIMIT_LOGIN_PER_MINUTE"] = previous_limit
+      expect(events.last).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
+    end
   end
 
   it "extracts invitation token directly from request path" do
     request = ActionDispatch::Request.new(
       Rack::MockRequest.env_for("/invitations/abc123/accept", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
     )
-    rule_set = RateLimit::RuleSet.new
-    rule = rule_set.matching_rule(request)
+
+    rule = RateLimit::RuleSet.new.matching_rule(request)
 
     expect(rule.keys.call(request)).to include(invitation_token: "abc123")
+  end
+
+  def configure_cache_double(cache)
+    allow(Rails).to receive(:cache).and_return(cache)
+    allow(cache).to receive(:increment).and_return(1)
+    allow(cache).to receive(:read).and_return(0)
+  end
+
+  def sign_in_env(email:)
+    Rack::MockRequest.env_for(
+      "/users/sign_in",
+      method: "POST",
+      "REMOTE_ADDR" => "127.0.0.1",
+      params: { user: { email: email } }
+    )
+  end
+
+  def subscribe_to_rate_limit_alerts(events)
+    ActiveSupport::Notifications.subscribe("security.rate_limit_triggered") do |_name, _start, _finish, _id, payload|
+      events << payload
+    end
+  end
+
+  def with_env(overrides)
+    previous = overrides.to_h { |key, _value| [key, ENV.fetch(key, nil)] }
+    overrides.each { |key, value| ENV[key] = value }
+    yield
+  ensure
+    previous.each { |key, value| ENV[key] = value }
   end
 end
