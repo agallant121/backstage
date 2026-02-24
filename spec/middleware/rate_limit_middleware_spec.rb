@@ -26,7 +26,7 @@ RSpec.describe RateLimitMiddleware do
       status, headers, = middleware.call(env)
 
       expect(status).to eq(429)
-      expect(headers["Retry-After"].to_i).to be_between(1, 120)
+      expect(headers["Retry-After"].to_i).to be_between(118, 120)
     end
   end
 
