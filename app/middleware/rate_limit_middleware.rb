@@ -1,113 +1,92 @@
 # frozen_string_literal: true
 
 class RateLimitMiddleware
-  Rule = Struct.new(:name, :limit, :period, :match, keyword_init: true)
-
-  def initialize(app)
+  def initialize(app, rule_set: RateLimit::RuleSet.new, store: RateLimit::Store.new)
     @app = app
+    @rule_set = rule_set
+    @store = store
   end
 
   def call(env)
     request = ActionDispatch::Request.new(env)
     return @app.call(env) if health_check?(request)
 
-    rule = matching_rule(request)
+    rule = @rule_set.matching_rule(request)
     return @app.call(env) unless rule
-    return throttled_response(rule) if throttled?(request, rule)
+
+    throttle = throttled_identifier(request, rule)
+    return throttled_response(rule, throttle) if throttle
 
     @app.call(env)
   end
 
   private
 
-  def matching_rule(request)
-    rules.find { |rule| rule.match.call(request) }
+  def throttled_identifier(request, rule)
+    identifiers(rule, request).find do |key_type, key_value|
+      next false if key_value.blank?
+      return true if lockout_active?(rule, request, key_type, key_value)
+
+      count = @store.next_count(rule.name, key_type, key_value, rule.period)
+      next false if count <= rule.limit
+
+      @store.apply_lockout(rule.name, key_type, key_value, rule.lockout_period)
+      emit_alert(rule, request, key_type, key_value, :threshold)
+      true
+    end
   end
 
-  def rules
-    @rules ||= [
-      Rule.new(
-        name: "logins",
-        limit: integer_env("RATE_LIMIT_LOGIN_PER_MINUTE", 10),
-        period: 1.minute,
-        match: ->(request) { request.post? && request.path == "/users/sign_in" }
-      ),
-      Rule.new(
-        name: "signups",
-        limit: integer_env("RATE_LIMIT_SIGNUP_PER_MINUTE", 10),
-        period: 1.minute,
-        match: ->(request) { request.post? && request.path == "/users" }
-      ),
-      Rule.new(
-        name: "group_invites",
-        limit: integer_env("RATE_LIMIT_GROUP_INVITES_PER_HOUR", 30),
-        period: 1.hour,
-        match: ->(request) { request.post? && request.path.match?(%r{\A/groups/\d+/invitations\z}) }
-      ),
-      Rule.new(
-        name: "invitation_acceptance",
-        limit: integer_env("RATE_LIMIT_INVITATION_ACCEPT_PER_HOUR", 60),
-        period: 1.hour,
-        match: ->(request) { request.post? && request.path.match?(%r{\A/invitations/[^/]+/accept\z}) }
-      )
+  def lockout_active?(rule, request, key_type, key_value)
+    return false unless @store.lockout_active?(rule.name, key_type, key_value)
+
+    emit_alert(rule, request, key_type, key_value, :lockout)
+    true
+  end
+
+  def throttled_response(rule, throttle)
+    retry_after_seconds = retry_after(rule.period)
+    if throttle
+      key_type, key_value = throttle
+      remaining = @store.remaining_lockout_seconds(rule.name, key_type, key_value)
+      retry_after_seconds = remaining if remaining.positive?
+    end
+
+    [
+      429,
+      { "Content-Type" => "text/plain", "Retry-After" => retry_after_seconds.to_s },
+      ["Too many requests. Please try again later."]
     ]
   end
 
-  def throttled?(request, rule)
-    count = next_count(cache_key(rule.name, request.ip, rule.period), rule.period)
-    count > rule.limit
+  def identifiers(rule, request)
+    return { ip: request.ip } unless rule.keys
+
+    rule.keys.call(request)
+  rescue ActionController::BadRequest, ActionDispatch::Http::Parameters::ParseError
+    { ip: request.ip }
   end
 
-  def cache_key(rule_name, ip, period)
-    window = Time.current.to_i / period.to_i
-    "rate_limit:#{rule_name}:#{ip}:#{window}"
+  def emit_alert(rule, request, key_type, key_value, reason)
+    payload = {
+      rule: rule.name,
+      request_path: request.path,
+      method: request.request_method,
+      source_ip: request.ip,
+      key_type: key_type,
+      key_value: key_value,
+      reason: reason
+    }
+    Rails.logger.warn("[security][rate_limit] #{payload}")
+    ActiveSupport::Notifications.instrument("security.rate_limit_triggered", payload)
   end
 
   def health_check?(request)
     request.get? && ["/up", "/ready"].include?(request.path)
   end
 
-  def throttled_response(rule)
-    [
-      429,
-      {
-        "Content-Type" => "text/plain",
-        "Retry-After" => retry_after(rule.period).to_s
-      },
-      ["Too many requests. Please try again later."]
-    ]
-  end
-
-  def next_count(key, period)
-    count = Rails.cache.increment(key, 1, expires_in: period, initial: 0)
-
-    if count.nil?
-      Rails.cache.write(key, 0, expires_in: period, unless_exist: true)
-      count = Rails.cache.increment(key, 1, expires_in: period)
-    end
-
-    return count.to_i if count.present?
-
-    fallback_increment_counter(key, period)
-  rescue NotImplementedError, NoMethodError, ArgumentError
-    fallback_increment_counter(key, period)
-  end
-
-  def fallback_increment_counter(key, period)
-    count = Rails.cache.read(key).to_i + 1
-    Rails.cache.write(key, count, expires_in: period)
-    count
-  end
-
   def retry_after(period)
     seconds = period.to_i
     remainder = Time.current.to_i % seconds
     remainder.zero? ? seconds : seconds - remainder
-  end
-
-  def integer_env(key, default)
-    Integer(ENV.fetch(key, default))
-  rescue ArgumentError, TypeError
-    default
   end
 end
