@@ -49,16 +49,24 @@ RSpec.describe RateLimitMiddleware do
   end
 
   it "falls back to ip-only keys when params parsing raises" do
-    broken_input = StringIO.new("{")
-    env = Rack::MockRequest.env_for(
-      "/users/sign_in",
-      method: "POST",
-      "REMOTE_ADDR" => "127.0.0.1",
-      "CONTENT_TYPE" => "application/json",
-      "rack.input" => broken_input
-    )
+    with_env("RATE_LIMIT_LOGIN_PER_MINUTE" => "0") do
+      events = []
+      subscriber = subscribe_to_rate_limit_alerts(events)
 
-    expect { middleware.call(env) }.not_to raise_error
+      broken_input = StringIO.new("{")
+      env = Rack::MockRequest.env_for(
+        "/users/sign_in",
+        method: "POST",
+        "REMOTE_ADDR" => "127.0.0.1",
+        "CONTENT_TYPE" => "application/json",
+        "rack.input" => broken_input
+      )
+
+      expect { middleware.call(env) }.not_to raise_error
+      expect(events.last).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
+    end
   end
 
   it "emits a security notification when throttling occurs" do
