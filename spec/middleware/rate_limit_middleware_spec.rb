@@ -39,12 +39,16 @@ RSpec.describe RateLimitMiddleware do
       locked_middleware = described_class.new(app, store: store)
       env = Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
 
-      first_status, = locked_middleware.call(env)
-      second_status, = locked_middleware.call(env)
+      first_status, first_headers, = locked_middleware.call(env)
+      second_status, second_headers, = locked_middleware.call(env)
 
       expect(first_status).to eq(429)
       expect(second_status).to eq(429)
       expect(store).to have_received(:next_count).once
+      first_retry_after = first_headers["Retry-After"].to_i
+      second_retry_after = second_headers["Retry-After"].to_i
+      expect(first_retry_after).to be >= 0
+      expect(second_retry_after).to be_between(0, first_retry_after)
     end
   end
 
