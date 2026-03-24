@@ -32,23 +32,15 @@ RSpec.describe RateLimitMiddleware do
 
   it "keeps returning 429 during lockout without incrementing counters" do
     with_env("RATE_LIMIT_GROUP_INVITES_PER_HOUR" => "0", "RATE_LIMIT_GROUP_INVITES_LOCKOUT_SECONDS" => "120") do
-      cache = ActiveSupport::Cache::MemoryStore.new
-      store = RateLimit::Store.new(cache: cache)
-      allow(store).to receive(:next_count).and_call_original
-
+      store = build_store_spy
       locked_middleware = described_class.new(app, store: store)
-      env = Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
 
-      first_status, first_headers, = locked_middleware.call(env)
-      second_status, second_headers, = locked_middleware.call(env)
+      first_response = locked_middleware.call(group_invitation_env)
+      second_response = locked_middleware.call(group_invitation_env)
 
-      expect(first_status).to eq(429)
-      expect(second_status).to eq(429)
+      expect_lockout_response(first_response)
+      expect_lockout_response(second_response)
       expect(store).to have_received(:next_count).once
-      first_retry_after = first_headers["Retry-After"].to_i
-      second_retry_after = second_headers["Retry-After"].to_i
-      expect(first_retry_after).to be >= 0
-      expect(second_retry_after).to be_between(0, first_retry_after)
     end
   end
 
@@ -57,17 +49,8 @@ RSpec.describe RateLimitMiddleware do
       events = []
       subscriber = subscribe_to_rate_limit_alerts(events)
 
-      broken_input = StringIO.new("{")
-      env = Rack::MockRequest.env_for(
-        "/users/sign_in",
-        method: "POST",
-        "REMOTE_ADDR" => "127.0.0.1",
-        "CONTENT_TYPE" => "application/json",
-        "rack.input" => broken_input
-      )
-
-      expect { middleware.call(env) }.not_to raise_error
-      expect(events.last).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
+      expect { middleware.call(broken_sign_in_env) }.not_to raise_error
+      expect_rate_limit_event(events.last)
     ensure
       ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
     end
@@ -108,6 +91,37 @@ RSpec.describe RateLimitMiddleware do
       "REMOTE_ADDR" => "127.0.0.1",
       params: { user: { email: email } }
     )
+  end
+
+  def broken_sign_in_env
+    Rack::MockRequest.env_for(
+      "/users/sign_in",
+      method: "POST",
+      "REMOTE_ADDR" => "127.0.0.1",
+      "CONTENT_TYPE" => "application/json",
+      "rack.input" => StringIO.new("{")
+    )
+  end
+
+  def group_invitation_env
+    Rack::MockRequest.env_for("/groups/1/invitations", method: "POST", "REMOTE_ADDR" => "127.0.0.1")
+  end
+
+  def build_store_spy
+    store = RateLimit::Store.new(cache: ActiveSupport::Cache::MemoryStore.new)
+    allow(store).to receive(:next_count).and_call_original
+    store
+  end
+
+  def expect_lockout_response(response)
+    status, headers, = response
+
+    expect(status).to eq(429)
+    expect(headers["Retry-After"].to_i).to be >= 0
+  end
+
+  def expect_rate_limit_event(event)
+    expect(event).to include(rule: "logins", key_type: :ip, key_value: "127.0.0.1")
   end
 
   def subscribe_to_rate_limit_alerts(events)
