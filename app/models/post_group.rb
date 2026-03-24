@@ -4,7 +4,7 @@ class PostGroup < ApplicationRecord
 
   validates :post_id, uniqueness: { scope: :group_id }
 
-  after_commit :refresh_group_summary, on: [ :create, :destroy ]
+  after_commit :refresh_group_summary, on: [:create, :destroy]
 
   private
 

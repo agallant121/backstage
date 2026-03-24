@@ -34,8 +34,8 @@ module Groups
         message_summary_generated_at: Time.current,
         message_summary_source: OPENAI_SOURCE
       )
-    rescue StandardError => error
-      Rails.logger.error("Group summary refresh failed for group #{@group.id}: #{error.class}: #{error.message}")
+    rescue StandardError => e
+      Rails.logger.error("Group summary refresh failed for group #{@group.id}: #{e.class}: #{e.message}")
 
       @group.update!(
         message_summary: nil,

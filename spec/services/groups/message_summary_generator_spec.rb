@@ -4,8 +4,10 @@ RSpec.describe Groups::MessageSummaryGenerator do
   describe "#call" do
     it "marks the summary unavailable when no OpenAI key is configured" do
       group = Group.create!(name: "Crew")
-      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current, first_name: "Jess")
-      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current, first_name: "Alex")
+      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current,
+                          first_name: "Jess")
+      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current,
+                          first_name: "Alex")
 
       Membership.create!(user: jess, group: group)
       Membership.create!(user: alex, group: group)
@@ -45,14 +47,21 @@ RSpec.describe Groups::MessageSummaryGenerator do
 
     it "stores an AI-generated natural-language summary when available" do
       group = Group.create!(name: "Crew")
-      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current, first_name: "Jess")
-      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current, first_name: "Alex")
+      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current,
+                          first_name: "Jess")
+      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current,
+                          first_name: "Alex")
 
       Membership.create!(user: jess, group: group)
       Membership.create!(user: alex, group: group)
 
-      PostGroup.create!(post: Post.create!(user: jess, body: "Wrapped up the school fundraiser and shared the numbers."), group: group)
-      PostGroup.create!(post: Post.create!(user: alex, body: "Booked flights for next month's trip and sent the itinerary."), group: group)
+      PostGroup.create!(
+        post: Post.create!(user: jess, body: "Wrapped up the school fundraiser and shared the numbers."), group: group
+      )
+      PostGroup.create!(
+        post: Post.create!(user: alex,
+                           body: "Booked flights for next month's trip and sent the itinerary."), group: group
+      )
 
       allow(Ai::ChatClient).to receive(:available?).and_return(true)
       allow_any_instance_of(Ai::ChatClient).to receive(:summarize).and_return(
