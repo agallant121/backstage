@@ -51,7 +51,8 @@ module Ai
         messages: [
           {
             role: "system",
-            content: "You summarize small private group updates. Be specific, concise, and grounded only in the supplied posts."
+            content: "You summarize small private group updates. " \
+                     "Be specific, concise, and grounded only in the supplied posts."
           },
           {
             role: "user",

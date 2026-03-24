@@ -1,22 +1,36 @@
 require "rails_helper"
 
 RSpec.describe Groups::MessageSummaryGenerator do
+  def create_member(email:, group:, first_name:)
+    user = User.create!(email: email, password: "password", confirmed_at: Time.current, first_name: first_name)
+    Membership.create!(user: user, group: group)
+    user
+  end
+
+  def create_group_post(group:, user:, body:)
+    PostGroup.create!(post: Post.create!(user: user, body: body), group: group)
+  end
+
+  def fundraiser_update
+    "Wrapped up the school fundraiser and shared the numbers."
+  end
+
+  def travel_update
+    "Booked flights for next month's trip and sent the itinerary."
+  end
+
+  def ai_summary
+    "Jess wrapped up the fundraiser, and Alex got next month's travel plans locked in, " \
+      "so the group now has both the final numbers and the itinerary."
+  end
+
   describe "#call" do
     it "marks the summary unavailable when no OpenAI key is configured" do
       group = Group.create!(name: "Crew")
-      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current,
-                          first_name: "Jess")
-      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current,
-                          first_name: "Alex")
-
-      Membership.create!(user: jess, group: group)
-      Membership.create!(user: alex, group: group)
-
-      first_post = Post.create!(user: jess, body: "Wrapped up the school fundraiser and shared the numbers.")
-      second_post = Post.create!(user: alex, body: "Booked flights for next month's trip and sent the itinerary.")
-
-      PostGroup.create!(post: first_post, group: group)
-      PostGroup.create!(post: second_post, group: group)
+      jess = create_member(email: "jess@example.com", group: group, first_name: "Jess")
+      alex = create_member(email: "alex@example.com", group: group, first_name: "Alex")
+      create_group_post(group: group, user: jess, body: fundraiser_update)
+      create_group_post(group: group, user: alex, body: travel_update)
 
       allow(Ai::ChatClient).to receive(:available?).and_return(false)
 
@@ -47,26 +61,13 @@ RSpec.describe Groups::MessageSummaryGenerator do
 
     it "stores an AI-generated natural-language summary when available" do
       group = Group.create!(name: "Crew")
-      jess = User.create!(email: "jess@example.com", password: "password", confirmed_at: Time.current,
-                          first_name: "Jess")
-      alex = User.create!(email: "alex@example.com", password: "password", confirmed_at: Time.current,
-                          first_name: "Alex")
+      jess = create_member(email: "jess@example.com", group: group, first_name: "Jess")
+      alex = create_member(email: "alex@example.com", group: group, first_name: "Alex")
+      create_group_post(group: group, user: jess, body: fundraiser_update)
+      create_group_post(group: group, user: alex, body: travel_update)
+      client = instance_double(Ai::ChatClient, summarize: ai_summary)
 
-      Membership.create!(user: jess, group: group)
-      Membership.create!(user: alex, group: group)
-
-      PostGroup.create!(
-        post: Post.create!(user: jess, body: "Wrapped up the school fundraiser and shared the numbers."), group: group
-      )
-      PostGroup.create!(
-        post: Post.create!(user: alex,
-                           body: "Booked flights for next month's trip and sent the itinerary."), group: group
-      )
-
-      allow(Ai::ChatClient).to receive(:available?).and_return(true)
-      allow_any_instance_of(Ai::ChatClient).to receive(:summarize).and_return(
-        "Jess wrapped up the fundraiser, and Alex got next month's travel plans locked in, so the group now has both the final numbers and the itinerary."
-      )
+      allow(Ai::ChatClient).to receive_messages(available?: true, new: client)
 
       described_class.new(group: group).call
 
