@@ -18,6 +18,7 @@ class GroupsController < ApplicationController
   def show
     @posts = @group.posts.order(created_at: :desc)
     @view_mode = params[:view] == "full" ? :full : :compact
+    @group.refresh_message_summary_later if @posts.exists? && @group.message_summary_generated_at.blank?
   end
 
   def members
