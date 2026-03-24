@@ -56,4 +56,21 @@ RSpec.describe "Group Invitations", type: :request do
     expect(invitation.token).not_to eq(old_token)
     expect(invitation.expires_at).to be > Time.current
   end
+
+  it "does not allow admins of a different group to create invitations" do
+    outsider_admin = User.create!(email: "outsider-admin@example.com", password: "password", confirmed_at: Time.current)
+    target_group = Group.create!(name: "Target Group")
+    outsider_group = Group.create!(name: "Outsider Group")
+
+    Membership.create!(user: outsider_admin, group: outsider_group, role: :admin)
+
+    sign_in outsider_admin, scope: :user
+
+    expect do
+      post group_invitations_path(target_group), params: { invitation: { emails: "guest@example.com" } }
+    end.not_to change(Invitation, :count)
+
+    expect(response).to redirect_to(group_path(target_group))
+    expect(flash[:alert]).to eq("You must be a group admin to invite others.")
+  end
 end
