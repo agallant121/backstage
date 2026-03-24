@@ -40,4 +40,41 @@ RSpec.describe "Groups", type: :request do
 
     expect(response).to have_http_status(:not_found)
   end
+
+  it "shows the cached group summary on the group page" do
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(
+      name: "Crew",
+      message_summary: "Jess wrapped the fundraiser.\nAlex booked flights for the trip.",
+      message_summary_generated_at: 5.minutes.ago,
+      message_summary_source: "openai"
+    )
+
+    Membership.create!(user: user, group: group)
+
+    post_record = Post.create!(user: user, body: "Latest update")
+    PostGroup.create!(post: post_record, group: group)
+
+    sign_in user, scope: :user
+    get group_path(group)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("AI recap")
+    expect(response.body).to include("Jess wrapped the fundraiser.")
+    expect(response.body).to include("Alex booked flights for the trip.")
+  end
+
+  it "shows an unavailable state when AI summaries are not configured" do
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Crew", message_summary_source: "unavailable")
+
+    Membership.create!(user: user, group: group)
+    PostGroup.create!(post: Post.create!(user: user, body: "Latest update"), group: group)
+
+    sign_in user, scope: :user
+    get group_path(group)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("AI summaries are not configured yet for this environment.")
+  end
 end
