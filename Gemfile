@@ -31,8 +31,8 @@ gem "sentry-ruby"
 gem "sentry-rails"
 gem 'json', '>= 2.19.2'
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+# Devise depends on bcrypt; pin a patched version for bundler-audit.
+gem "bcrypt", ">= 3.1.22"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
