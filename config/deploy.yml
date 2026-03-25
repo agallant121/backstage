@@ -35,6 +35,7 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - OPENAI_API_KEY
     - ERROR_TRACKING_WEBHOOK_URL
     - ERROR_TRACKING_WEBHOOK_TOKEN
     - SENTRY_DSN
