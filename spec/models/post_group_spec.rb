@@ -24,4 +24,17 @@ RSpec.describe PostGroup do
 
     expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
   end
+
+  it "refreshes the group's summary when a post is removed from the group" do
+    user = User.create!(email: "poster@example.com", password: "password", confirmed_at: Time.current)
+    post = Post.create!(user: user, body: "Hello")
+    group = Group.create!(name: "Group")
+    post_group = described_class.create!(post: post, group: group)
+
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    post_group.destroy!
+
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+  end
 end

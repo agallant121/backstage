@@ -22,9 +22,7 @@ class Post < ApplicationRecord
   validate :attachments_are_media
   validate :attachments_within_limits
 
-  before_destroy :store_group_ids_for_summary_refresh
   after_update_commit :refresh_group_summaries_if_body_changed
-  after_destroy_commit :refresh_group_summaries_after_destroy
 
   def media_attachments
     [ attachments.attachments, images.attachments ].flatten.compact
@@ -32,20 +30,10 @@ class Post < ApplicationRecord
 
   private
 
-  def store_group_ids_for_summary_refresh
-    @group_ids_for_summary_refresh = group_ids
-  end
-
   def refresh_group_summaries_if_body_changed
     return unless saved_change_to_body?
 
     group_ids.each do |group_id|
-      Group.find_by(id: group_id)&.refresh_message_summary_later
-    end
-  end
-
-  def refresh_group_summaries_after_destroy
-    Array(@group_ids_for_summary_refresh).each do |group_id|
       Group.find_by(id: group_id)&.refresh_message_summary_later
     end
   end
