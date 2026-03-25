@@ -79,4 +79,33 @@ RSpec.describe "Groups", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("AI summaries are not configured yet for this environment.")
   end
+
+  it "enqueues the initial summary backfill only when no summary state exists yet" do
+    group = Group.create!(name: "Crew")
+    user = create_member(email: "member@example.com", group: group)
+    PostGroup.create!(post: Post.create!(user: user, body: "Latest update"), group: group)
+
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    sign_in user, scope: :user
+    get group_path(group)
+
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+  end
+
+  it "does not re-enqueue summary generation for unavailable or error states" do
+    %w[unavailable error].each do |summary_source|
+      group = Group.create!(name: "Crew #{summary_source}", message_summary_source: summary_source)
+      user = create_member(email: "#{summary_source}@example.com", group: group)
+      PostGroup.create!(post: Post.create!(user: user, body: "Latest update"), group: group)
+
+      RSpec::Mocks.space.proxy_for(GroupMessageSummaryJob).reset
+      allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+      sign_in user, scope: :user
+      get group_path(group)
+
+      expect(GroupMessageSummaryJob).not_to have_received(:perform_later)
+    end
+  end
 end
