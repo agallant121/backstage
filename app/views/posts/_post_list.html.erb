@@ -2,6 +2,7 @@
 <% show_group_badges = local_assigns.fetch(:show_group_badges, true) %>
 <% header_badge_label = local_assigns.fetch(:header_badge_label, nil) %>
 <% empty_state_message = local_assigns.fetch(:empty_state_message, "No posts yet. Share something to kick things off!") %>
+<% group = local_assigns[:group] %>
 
 <div class="d-flex justify-content-end mb-3 post-list-toolbar">
   <%= link_to(view_mode == :full ? "Show summaries" : "Show full posts", toggle_path, class: "btn btn-outline-secondary btn-sm") %>
@@ -10,150 +11,13 @@
 <% if posts.any? %>
   <div class="d-flex flex-column gap-3">
     <% posts.each do |post| %>
-      <div class="card shadow-sm post-card">
-        <div class="card-body d-flex flex-column gap-3 position-relative">
-          <%= link_to "Open post", post_path(post), data: { turbo: false }, class: "stretched-link visually-hidden" %>
-          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-            <div>
-              <p class="post-meta small mb-1"><%= "Posted by " + (post.user&.email || "Unknown author") %></p>
-              <p class="post-meta small mb-0"><%= "Shared " + time_ago_in_words(post.created_at) + " ago" %></p>
-            </div>
-            <div class="d-flex align-items-start gap-3 flex-wrap position-relative z-2">
-              <% if show_group_badges && post.groups.any? %>
-                <div class="d-flex flex-wrap gap-2">
-                  <% post.groups.order(:name).each do |group| %>
-                    <span class="badge text-bg-light border"> <%= group.name %> </span>
-                  <% end %>
-                </div>
-              <% end %>
-
-              <% if header_badge_label.present? %>
-                <div class="badge text-bg-light border"><%= header_badge_label %></div>
-              <% end %>
-
-              <% if show_actions %>
-                <div class="d-flex align-items-center gap-3 small text-body">
-                  <%= link_to post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1 fw-semibold" do %>
-                    <span class="text-primary" aria-hidden="true">↗</span> <span class="text-body-emphasis"><%= "Open" %></span>
-                  <% end %>
-                  <% if can_manage_post?(post) %>
-                    <%= link_to edit_post_path(post), data: { turbo: false }, class: "text-decoration-none d-inline-flex align-items-center gap-1" do %>
-                      <span class="text-secondary" aria-hidden="true">✏️</span> <span class="text-body-emphasis"><%= "Edit" %></span>
-                    <% end %>
-                    <%= link_to post_path(post),
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?", turbo_frame: "_top" },
-                                class: "text-decoration-none d-inline-flex align-items-center gap-1 text-danger" do %>
-                      <span aria-hidden="true">🗑️</span> <span class="text-body-emphasis"><%= "Delete" %></span>
-                    <% end %>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
-          </div>
-
-          <% image_attachments = post.media_attachments.select { |att| att.content_type&.start_with?("image") } %>
-          <% video_attachments = post.media_attachments.select { |att| att.content_type&.start_with?("video") } %>
-
-          <div class="fs-6">
-            <% if view_mode == :full %>
-              <%= simple_format(post.body) %>
-            <% else %>
-              <% truncated_summary = post.body.to_s.length > 160 %>
-              <%= simple_format(truncate(post.body, length: 160)) %>
-
-              <% if truncated_summary || image_attachments.any? || video_attachments.any? %>
-                <div class="d-flex flex-wrap align-items-center gap-2 small mt-3">
-                  <% if truncated_summary %>
-                    <span class="badge rounded-pill text-bg-light border border-primary text-primary-emphasis d-inline-flex align-items-center gap-1 px-3 py-2">
-                      <span aria-hidden="true">📖</span>
-                      <span class="fw-semibold"><%= "More to read" %></span>
-                    </span>
-                  <% end %>
-                  <% if image_attachments.any? %>
-                    <span class="badge rounded-pill text-bg-light border border-success text-success-emphasis d-inline-flex align-items-center gap-1 px-3 py-2">
-                      <span aria-hidden="true">📷</span>
-                      <span class="fw-semibold"><%= "Includes photos" %></span>
-                    </span>
-                  <% end %>
-                  <% if video_attachments.any? %>
-                    <span class="badge rounded-pill text-bg-light border border-info text-info-emphasis d-inline-flex align-items-center gap-1 px-3 py-2">
-                      <span aria-hidden="true">🎬</span>
-                      <span class="fw-semibold"><%= "Includes videos" %></span>
-                    </span>
-                  <% end %>
-                </div>
-              <% end %>
-            <% end %>
-          </div>
-
-          <% if view_mode == :full && (image_attachments.any? || video_attachments.any?) %>
-            <hr class="muted-divider">
-            <div class="d-flex flex-column gap-3">
-              <% if image_attachments.any? %>
-                <% single_image = image_attachments.one? %>
-                <div class="d-flex flex-column gap-2" data-controller="image-lightbox">
-                  <p class="fw-semibold mb-1"><%= "Images" %></p>
-                  <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_image %>">
-                    <% image_attachments.each do |image| %>
-                      <div class="post-attachment <%= "post-attachment-single" if single_image %>">
-                        <%= image_tag(image,
-                                      class: "img-fluid w-100 h-auto cursor-pointer",
-                                      loading: "lazy",
-                                      decoding: "async",
-                                      data: {
-                                        image_lightbox_target: "thumbnail",
-                                        action: "click->image-lightbox#open",
-                                        image_lightbox_full_url: url_for(image),
-                                        image_lightbox_alt: image.filename.to_s
-                                      }) %>
-                      </div>
-                    <% end %>
-                  </div>
-
-                  <div class="modal fade" tabindex="-1" aria-hidden="true" data-image-lightbox-target="modal">
-                    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" data-image-lightbox-target="modalTitle"><%= "Image preview" %></h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                          <img class="img-fluid w-100 h-auto" alt="" data-image-lightbox-target="modalImage">
-                        </div>
-                        <div class="modal-footer d-flex justify-content-between">
-                          <button type="button" class="btn btn-outline-secondary" data-image-lightbox-target="prevButton" data-action="click->image-lightbox#previous">
-                            <%= "Previous" %>
-                          </button>
-                          <button type="button" class="btn btn-outline-primary" data-image-lightbox-target="nextButton" data-action="click->image-lightbox#next">
-                            <%= "Next" %>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-
-              <% if video_attachments.any? %>
-                <% single_video = video_attachments.one? %>
-                <div class="d-flex flex-column gap-2">
-                  <p class="fw-semibold mb-1"><%= "Videos" %></p>
-                  <div class="post-attachment-grid <%= "post-attachment-grid-single" if single_video %>">
-                    <% video_attachments.each_with_index do |video, idx| %>
-                      <div class="post-attachment <%= "post-attachment-single" if single_video %> d-flex flex-column gap-2">
-                        <span class="small text-muted"><%= "Video ##{idx + 1}" %></span>
-                        <div class="ratio ratio-16x9">
-                          <%= video_tag(video, controls: true, preload: "metadata", class: "w-100 h-100 rounded-3", playsinline: true) %>
-                        </div>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      </div>
+      <%= render "posts/post_card",
+                 post: post,
+                 view_mode: view_mode,
+                 group: group,
+                 show_actions: show_actions,
+                 show_group_badges: show_group_badges,
+                 header_badge_label: header_badge_label %>
     <% end %>
   </div>
 <% else %>
