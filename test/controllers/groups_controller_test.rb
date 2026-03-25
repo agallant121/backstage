@@ -11,13 +11,13 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     expandable_post = Post.create!(
       body: "Expanded post body " * 20,
       user: @user,
-      groups: [ @group ]
+      groups: [@group]
     )
 
     short_post = Post.create!(
       body: "Short body",
       user: @user,
-      groups: [ @group ]
+      groups: [@group]
     )
 
     get group_path(@group)

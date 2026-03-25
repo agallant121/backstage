@@ -10,13 +10,13 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     expandable_post = Post.create!(
       body: "Expanded post body " * 20,
       user: @user,
-      groups: [ groups(:one) ]
+      groups: [groups(:one)]
     )
 
     short_post = Post.create!(
       body: "Short body",
       user: @user,
-      groups: [ groups(:one) ]
+      groups: [groups(:one)]
     )
 
     get posts_path
