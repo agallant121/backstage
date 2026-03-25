@@ -29,6 +29,7 @@ gem "redis", ">= 4.0.1"
 gem "connection_pool", "~> 2.4"
 gem "sentry-ruby"
 gem "sentry-rails"
+gem 'json', '>= 2.19.2'
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
