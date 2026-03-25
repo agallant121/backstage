@@ -41,7 +41,7 @@
   <%= link_to "View members", members_group_path(@group), class: "btn btn-outline-secondary btn-sm" %>
 </div>
 
-<% if @posts.exists? %>
+<% if @has_posts %>
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
