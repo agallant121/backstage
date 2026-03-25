@@ -41,6 +41,34 @@
   <%= link_to "View members", members_group_path(@group), class: "btn btn-outline-secondary btn-sm" %>
 </div>
 
+<% if @has_posts %>
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex flex-column gap-2">
+      <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+        <div>
+          <p class="text-uppercase text-muted small mb-1"><%= "AI recap" %></p>
+          <h2 class="h6 mb-0"><%= "What everyone has shared lately" %>:</h2>
+        </div>
+        <% if @group.message_summary_generated_at.present? %>
+          <span class="small text-muted">
+            <%= "Updated " + time_ago_in_words(@group.message_summary_generated_at) + " ago" %>
+          </span>
+        <% end %>
+      </div>
+
+      <% if @group.message_summary.present? %>
+        <div class="mb-0 text-secondary"><%= simple_format(@group.message_summary) %></div>
+      <% elsif @group.message_summary_source == "unavailable" %>
+        <p class="mb-0 text-secondary"><%= "AI summaries are not configured yet for this environment." %></p>
+      <% elsif @group.message_summary_source == "error" %>
+        <p class="mb-0 text-secondary"><%= "The AI summary could not be generated from the latest updates yet." %></p>
+      <% else %>
+        <p class="mb-0 text-secondary"><%= "A summary will appear here after the latest group updates finish processing." %></p>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <div class="d-flex justify-content-between align-items-center mb-2">
   <h2 class="h5 mb-0"><%= "Posts in this group" %></h2>
   <%= link_to "Post an update", new_post_path(group_id: @group.id), class: "btn btn-sm btn-primary" %>

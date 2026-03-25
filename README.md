@@ -39,7 +39,7 @@ This provides an immediately usable baseline without introducing vendor-specific
   - Set `SENTRY_DSN` to enable Sentry (`sentry-ruby` + `sentry-rails`) exception and performance capture.
   - Optional Sentry tuning env vars: `SENTRY_ENABLED_ENVIRONMENTS` (comma-separated, defaults to `production`), `SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE` (defaults to `0.0`), `SENTRY_SEND_DEFAULT_PII` (`true`/`false`), and `SENTRY_RELEASE`.
   - Optional webhook forwarding remains available via `ERROR_TRACKING_WEBHOOK_URL` and optional `ERROR_TRACKING_WEBHOOK_TOKEN` for custom sinks.
-  - `config/deploy.yml` injects `SENTRY_DSN` plus the webhook variables; leaving them unset keeps each integration disabled.
+  - `config/deploy.yml` injects `SENTRY_DSN`, `OPENAI_API_KEY`, and the webhook variables; leaving them unset keeps each integration disabled.
 
 ## Deployment environment variables
 
@@ -58,5 +58,6 @@ This provides an immediately usable baseline without introducing vendor-specific
   - `KAMAL_JOB_HOST` (used only in commented job example)
   - `KAMAL_DB_HOST` (used only in commented DB example)
   - `KAMAL_REDIS_HOST` (used only in commented Redis example)
+  - `OPENAI_API_KEY` (enables AI-generated group summaries)
 
 For Rails credentials, set `RAILS_MASTER_KEY`; if absent, `.kamal/secrets` falls back to `config/master.key` and fails with a clear error if neither source is available.

@@ -17,7 +17,9 @@ class GroupsController < ApplicationController
 
   def show
     @posts = @group.posts.order(created_at: :desc)
+    @has_posts = @posts.exists?
     @view_mode = params[:view] == "full" ? :full : :compact
+    @group.refresh_message_summary_later if should_backfill_message_summary?
   end
 
   def members
@@ -67,6 +69,12 @@ class GroupsController < ApplicationController
 
   def group_params
     params.require(:group).permit(:name, :description)
+  end
+
+  def should_backfill_message_summary?
+    @has_posts &&
+      @group.message_summary_source.nil? &&
+      @group.message_summary_generated_at.blank?
   end
 
   def authorize_group_mutation!

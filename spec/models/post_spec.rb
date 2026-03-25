@@ -42,4 +42,19 @@ RSpec.describe Post do
       expect(described_class.visible_to(user)).to contain_exactly(visible_post)
     end
   end
+
+  describe "summary refresh callbacks" do
+    it "refreshes attached group summaries when the body changes" do
+      group = Group.create!(name: "Group A")
+      Membership.create!(group: group, user: user)
+      post = described_class.create!(user: user, body: "Original")
+      PostGroup.create!(post: post, group: group)
+
+      allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+      post.update!(body: "Updated")
+
+      expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+    end
+  end
 end

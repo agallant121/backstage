@@ -22,11 +22,19 @@ class Post < ApplicationRecord
   validate :attachments_are_media
   validate :attachments_within_limits
 
+  after_update_commit :refresh_group_summaries_if_body_changed
+
   def media_attachments
     [ attachments.attachments, images.attachments ].flatten.compact
   end
 
   private
+
+  def refresh_group_summaries_if_body_changed
+    return unless saved_change_to_body?
+
+    groups.find_each(&:refresh_message_summary_later)
+  end
 
   def attachments_attached?
     media_attachments.any?

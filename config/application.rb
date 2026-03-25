@@ -3,6 +3,19 @@ require_relative "../app/middleware/rate_limit_middleware"
 
 require "rails/all"
 
+env_file = File.expand_path("../.env.local", __dir__)
+
+if File.exist?(env_file)
+  File.foreach(env_file) do |line|
+    next if line.strip.empty? || line.lstrip.start_with?("#")
+
+    key, value = line.split("=", 2)
+    next if key.blank? || value.nil?
+
+    ENV[key.strip] ||= value.strip.gsub(/\A['"]|['"]\z/, "")
+  end
+end
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
