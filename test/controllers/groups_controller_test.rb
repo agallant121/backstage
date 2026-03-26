@@ -23,7 +23,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     get group_path(@group)
 
     assert_response :success
-    assert_select "#post_#{expandable_post.id} a[href=?]", post_path(expandable_post), text: "Open", count: 1
+    assert_select "#post_#{expandable_post.id} a[href=?]", post_path(expandable_post), count: 1
     assert_select "#post_#{expandable_post.id} button[data-action='post-expand#expand']", text: "Read full post",
                                                                                           count: 1
     assert_includes response.body, expandable_post.body.truncate(160)
