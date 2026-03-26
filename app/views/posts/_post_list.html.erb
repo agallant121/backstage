@@ -2,7 +2,6 @@
 <% show_group_badges = local_assigns.fetch(:show_group_badges, true) %>
 <% header_badge_label = local_assigns.fetch(:header_badge_label, nil) %>
 <% empty_state_message = local_assigns.fetch(:empty_state_message, "No posts yet. Share something to kick things off!") %>
-<% group = local_assigns[:group] %>
 
 <div class="d-flex justify-content-end mb-3 post-list-toolbar">
   <%= link_to(view_mode == :full ? "Show summaries" : "Show full posts", toggle_path, class: "btn btn-outline-secondary btn-sm") %>
@@ -14,7 +13,6 @@
       <%= render "posts/post_card",
                  post: post,
                  view_mode: view_mode,
-                 group: group,
                  show_actions: show_actions,
                  show_group_badges: show_group_badges,
                  header_badge_label: header_badge_label %>
