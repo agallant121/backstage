@@ -1,0 +1,6 @@
+---
+ignore:
+  # Rails' advisory marks affected 8.0 releases as < 8.0.4.1:
+  # https://github.com/rails/rails/security/advisories/GHSA-p9fm-f462-ggrg
+  # bundler-audit interprets ruby-advisory-db's "~> 8.0.4.1" patch range as excluding 8.0.5.
+  - CVE-2026-33658
