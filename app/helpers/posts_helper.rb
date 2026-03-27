@@ -4,6 +4,6 @@ module PostsHelper
   end
 
   def post_timestamp_label(post)
-    "Shared #{time_ago_in_words(post.created_at)} ago • #{post.created_at.strftime("%b %-d, %Y")}"
+    "Shared #{time_ago_in_words(post.created_at)} ago • #{post.created_at.strftime('%b %-d, %Y')}"
   end
 end
