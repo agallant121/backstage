@@ -14,7 +14,7 @@
 <div class="card shadow-sm mb-3 post-card">
   <div class="card-body d-flex flex-column gap-3">
   <div>
-    <p class="text-muted small mb-1"><%= "Shared " + @post.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+    <p class="text-muted small mb-1"><%= post_timestamp_label(@post) %></p>
     <div class="fs-5">
       <%= simple_format(@post.body) %>
     </div>
