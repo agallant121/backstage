@@ -100,3 +100,4 @@ You must require that the implementation is able to pass:
 
 ```bash
 bundle exec rspec
+```
