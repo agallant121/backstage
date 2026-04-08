@@ -8,7 +8,7 @@ Instead of repeating the same life update across a dozen text threads, you can s
 - Your family moved, got engaged, started a new job, or has a health update to share.
 - You want close friends, relatives, or other circles to stay connected without turning every update into a full conversation.
 
-Backstage gives each group its own private wall, so people can stay in touch, see photos and notes, and keep track of important life details in one place.
+Backstage gives each group its own private wall, so people can stay in touch, see photos and notes, keep track of important life details in one place, use the directory as a shared family record, and get an AI recap of recent group activity when summaries are enabled.
 
 ## What the app does
 
@@ -16,9 +16,10 @@ Backstage gives each group its own private wall, so people can stay in touch, se
 - Post updates to one group or broadcast the same update to all of your groups at once.
 - Share text, photos, and videos.
 - Invite people into groups with email-based invite links.
-- Keep a shared contact directory with family details like partners, children, birthdays, and addresses.
+- Keep a shared contact directory with family details like partners, children's names, birthdays, and home addresses.
+- Use the directory like a built-in Christmas card list so you can keep track of households, kids, milestones, and the details people always forget.
 - Browse recent updates from all of your groups in one dashboard.
-- Generate cached AI summaries of group activity when an OpenAI API key is configured.
+- Generate cached AI summaries of recent group posts when an `OPENAI_API_KEY` is configured.
 
 ## Stack
 
