@@ -7,6 +7,7 @@ end
 PASSWORD = "password123!".freeze
 ADMIN_EMAIL = "user@example.com".freeze
 ADMIN_PASSWORD = "asdfasdf123!".freeze
+ADMIN_CONTACT_NOTES = "Demo seed admin account.".freeze
 EMAIL_DOMAIN = "backstage.test".freeze
 SUMMARY_TEXT = "AI summaries can recap these group updates when OPENAI_API_KEY is configured.".freeze
 
@@ -305,11 +306,17 @@ end
 PostGroup.skip_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
 
 begin
-  admin_user = User.find_or_initialize_by(email: ADMIN_EMAIL)
+  admin_user = User.find_by(email: ADMIN_EMAIL)
+  if admin_user.present? && admin_user.contact_notes != ADMIN_CONTACT_NOTES
+    abort("Refusing to reuse #{ADMIN_EMAIL} because it already belongs to a non-demo user.")
+  end
+
+  admin_user ||= User.new(email: ADMIN_EMAIL)
   admin_user.update!(
     password: ADMIN_PASSWORD,
     password_confirmation: ADMIN_PASSWORD,
-    confirmed_at: Time.current
+    confirmed_at: Time.current,
+    contact_notes: ADMIN_CONTACT_NOTES
   )
 
   GROUP_DEFINITIONS.each_with_index do |definition, group_index|
