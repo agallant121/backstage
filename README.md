@@ -1,63 +1,87 @@
 # Backstage
 
-Minimal Rails app with baseline operational safeguards added.
+Backstage is a social media app for keeping up with the people in your life without the pressure to reply one-by-one.
 
-## What was added
+Instead of repeating the same life update across a dozen text threads, you can share one post with a specific group or with all of your groups at once. It is built for moments like:
 
-- **Security scans in CI**
-  - Existing Brakeman and importmap audit checks remain in `CI`.
-  - We intentionally do **not** use `actions/dependency-review-action` here because it requires GitHub Advanced Security on this repository; this avoids CI failures tied to plan/features.
-  - A lightweight `dependency_review` placeholder job is kept so branch protection checks with that name still pass.
+- You had a kid and do not want to have the same conversation with everyone in your life.
+- Your family moved, got engaged, started a new job, or has a health update to share.
+- You want close friends, relatives, or other circles to stay connected without turning every update into a full conversation.
 
-- **SLO definition**
-  - Added a simple availability SLO document with one SLI/target and clear error-budget guidance.
-  - See `docs/operations/slo.md`.
+Backstage gives each group its own private wall, so people can stay in touch, see photos and notes, keep track of important life details in one place, use the directory as a shared family record, and get an AI recap of recent group activity when summaries are enabled.
 
-- **Monitoring/alerting baseline**
-  - Added a short monitoring and alerting playbook with required metrics, dashboards, and alert thresholds.
-  - See `docs/operations/monitoring-alerting.md`.
+## What the app does
 
-- **Backup verification**
-  - Added a script that performs a real PostgreSQL dump + restore and verifies restored data.
-  - Added a scheduled GitHub Action that runs this weekly (and manually on demand).
-  - Files: `script/verify_backup.sh` and `.github/workflows/backup-verify.yml`.
+- Create private groups for different circles in your life.
+- Post updates to one group or broadcast the same update to all of your groups at once.
+- Share text, photos, and videos.
+- Invite people into groups with email-based invite links.
+- Keep a shared contact directory with family details like partners, children's names, birthdays, and home addresses.
+- Use the directory like a built-in Christmas card list so you can keep track of households, kids, milestones, and the details people always forget.
+- Browse recent updates from all of your groups in one dashboard.
+- Generate cached AI summaries of recent group posts when an `OPENAI_API_KEY` is configured.
 
-## Why this is intentionally simple
+## Stack
 
-This provides an immediately usable baseline without introducing vendor-specific tooling. You can later wire these docs and checks into Datadog/Prometheus/PagerDuty/AWS Backup/etc. without changing the core approach.
+- Ruby 3.4.2
+- Rails 8.0.5
+- PostgreSQL
+- Hotwire (`turbo-rails` and `stimulus-rails`)
+- Propshaft
+- Devise for authentication
+- Pundit for authorization
+- Kaminari for pagination
+- Active Storage for media uploads
+- Solid Queue and Solid Cable
+- Sidekiq and Redis are available for background processing/infrastructure integrations
 
-## Metrics and error tracking
+## Local setup
 
-- **Prometheus metrics export**
-  - `GET /metrics` exports readiness gauges in Prometheus text format:
-    - `backstage_readiness_database`
-    - `backstage_readiness_cache`
-    - `backstage_readiness_queue`
-  - Set `METRICS_TOKEN` to require `X-Metrics-Token` header for scraping.
+1. Install Ruby 3.4.2 and PostgreSQL.
+2. Install gems:
 
-- **Error tracking integration**
-  - Set `SENTRY_DSN` to enable Sentry (`sentry-ruby` + `sentry-rails`) exception and performance capture.
-  - Optional Sentry tuning env vars: `SENTRY_ENABLED_ENVIRONMENTS` (comma-separated, defaults to `production`), `SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE` (defaults to `0.0`), `SENTRY_SEND_DEFAULT_PII` (`true`/`false`), and `SENTRY_RELEASE`.
-  - Optional webhook forwarding remains available via `ERROR_TRACKING_WEBHOOK_URL` and optional `ERROR_TRACKING_WEBHOOK_TOKEN` for custom sinks.
-  - `config/deploy.yml` injects `SENTRY_DSN`, `OPENAI_API_KEY`, and the webhook variables; leaving them unset keeps each integration disabled.
+```sh
+bundle install
+```
 
-## Deployment environment variables
+3. Create and prepare the database:
 
-`config/deploy.yml` is ERB-driven and expects deploy values from environment variables.
+```sh
+bin/rails db:prepare
+```
 
-- **Required**
-  - `KAMAL_IMAGE` (e.g. `ghcr.io/org/backstage`)
-  - `KAMAL_WEB_HOST` (primary app host/IP for `servers.web`)
-  - `KAMAL_APP_HOST` (public hostname for proxy/SSL)
-  - `KAMAL_REGISTRY_USERNAME` (registry user/account for pulls)
-  - `KAMAL_REGISTRY_PASSWORD` (set in environment and referenced from `.kamal/secrets`)
+4. Start the app:
 
-- **Optional**
-  - `KAMAL_REGISTRY_SERVER` (defaults to `ghcr.io`)
-  - `KAMAL_SSH_USER` (defaults to `root`)
-  - `KAMAL_JOB_HOST` (used only in commented job example)
-  - `KAMAL_DB_HOST` (used only in commented DB example)
-  - `KAMAL_REDIS_HOST` (used only in commented Redis example)
-  - `OPENAI_API_KEY` (enables AI-generated group summaries)
+```sh
+bin/dev
+```
 
-For Rails credentials, set `RAILS_MASTER_KEY`; if absent, `.kamal/secrets` falls back to `config/master.key` and fails with a clear error if neither source is available.
+The default local app URL is `http://localhost:3000`.
+
+You can also run the repo's setup script, which installs gems, prepares the database, clears old logs/temp files, and starts the server:
+
+```sh
+bin/setup
+```
+
+## Local development notes
+
+- Development uses PostgreSQL databases named `backstage_development` and `backstage_test`.
+- In development, uploaded files are stored locally with Active Storage.
+- Email is configured for MailHog on `127.0.0.1:1025`, which makes local invitation flows easier to test.
+- The app includes a `Procfile` with `web` and `worker` process definitions.
+
+## Optional environment variables
+
+- `OPENAI_API_KEY`: enables AI-generated group summaries.
+- `SENTRY_DSN`: enables Sentry error tracking.
+- `METRICS_TOKEN`: protects the `/metrics` endpoint with an `X-Metrics-Token` header.
+- `DATABASE_URL`: used for production database configuration.
+
+## Test
+
+Run the same test command used in CI:
+
+```sh
+bin/rails db:prepare test test:system
+```
