@@ -1,7 +1,7 @@
 # This file contains repeatable demo content for local development.
 
-unless Rails.env.development? || ENV["ALLOW_DEMO_SEEDS"] == "true"
-  abort("Demo seeds are disabled outside development. Set ALLOW_DEMO_SEEDS=true to run intentionally.")
+unless Rails.env.development? || Rails.env.test? || ENV["ALLOW_DEMO_SEEDS"] == "true"
+  abort("Demo seeds are disabled outside development and test. Set ALLOW_DEMO_SEEDS=true to run intentionally.")
 end
 
 PASSWORD = "password123!".freeze
