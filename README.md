@@ -32,7 +32,7 @@ Backstage gives each group its own private wall, so people can stay in touch, se
 - Pundit for authorization
 - Kaminari for pagination
 - Active Storage for media uploads
-- Solid Cache, Solid Queue, and Solid Cable
+- Solid Queue and Solid Cable
 - Sidekiq and Redis are available for background processing/infrastructure integrations
 
 ## Local setup
