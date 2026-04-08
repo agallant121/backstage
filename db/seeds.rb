@@ -10,21 +10,21 @@ GROUP_DEFINITIONS = [
     name: "Sunday Family Loop",
     description: "Parents, siblings, cousins, and the steady stream of weekend family updates.",
     member_names: [
-      [ "Maggie", "Reynolds" ],
-      [ "Evan", "Reynolds" ],
-      [ "Tara", "Nguyen" ],
-      [ "Chris", "Nguyen" ],
-      [ "Leah", "Patel" ],
-      [ "Jon", "Patel" ],
-      [ "Erin", "Walker" ],
-      [ "Miles", "Walker" ],
-      [ "Dana", "Lopez" ],
-      [ "Sam", "Lopez" ],
-      [ "Noelle", "Brooks" ],
-      [ "Gabe", "Brooks" ],
-      [ "Sophie", "Reed" ],
-      [ "Caleb", "Reed" ],
-      [ "Nina", "Foster" ]
+      ["Maggie", "Reynolds"],
+      ["Evan", "Reynolds"],
+      ["Tara", "Nguyen"],
+      ["Chris", "Nguyen"],
+      ["Leah", "Patel"],
+      ["Jon", "Patel"],
+      ["Erin", "Walker"],
+      ["Miles", "Walker"],
+      ["Dana", "Lopez"],
+      ["Sam", "Lopez"],
+      ["Noelle", "Brooks"],
+      ["Gabe", "Brooks"],
+      ["Sophie", "Reed"],
+      ["Caleb", "Reed"],
+      ["Nina", "Foster"]
     ],
     body_templates: [
       "Quick family update: we finally brought the baby home, everyone is healthy, and we are running almost entirely on frozen lasagna and coffee. We are tired, happy, and grateful.",
@@ -39,21 +39,21 @@ GROUP_DEFINITIONS = [
     name: "College Crew",
     description: "Old roommates and close friends keeping up with jobs, weddings, babies, and long-distance life.",
     member_names: [
-      [ "Alyssa", "Morgan" ],
-      [ "Ben", "Morrison" ],
-      [ "Priya", "Shah" ],
-      [ "Jordan", "Lee" ],
-      [ "Marcus", "Chen" ],
-      [ "Tessa", "Howard" ],
-      [ "Devon", "Clark" ],
-      [ "Rachel", "Kim" ],
-      [ "Nate", "Sullivan" ],
-      [ "Hannah", "Price" ],
-      [ "Luis", "Ortega" ],
-      [ "Carly", "Dixon" ],
-      [ "Zoe", "Barnes" ],
-      [ "Theo", "Miller" ],
-      [ "Maya", "Russell" ]
+      ["Alyssa", "Morgan"],
+      ["Ben", "Morrison"],
+      ["Priya", "Shah"],
+      ["Jordan", "Lee"],
+      ["Marcus", "Chen"],
+      ["Tessa", "Howard"],
+      ["Devon", "Clark"],
+      ["Rachel", "Kim"],
+      ["Nate", "Sullivan"],
+      ["Hannah", "Price"],
+      ["Luis", "Ortega"],
+      ["Carly", "Dixon"],
+      ["Zoe", "Barnes"],
+      ["Theo", "Miller"],
+      ["Maya", "Russell"]
     ],
     body_templates: [
       "Life update from our side: we signed a lease in Chicago and somehow managed to pack an entire apartment without ending the relationship. Move-in day is next Friday.",
@@ -68,21 +68,21 @@ GROUP_DEFINITIONS = [
     name: "Maple Street Neighbors",
     description: "The block chat for porch concerts, lost packages, school pickups, and neighborhood events.",
     member_names: [
-      [ "Jenna", "Torres" ],
-      [ "Mark", "Torres" ],
-      [ "Olivia", "Grant" ],
-      [ "Peter", "Grant" ],
-      [ "Shelby", "Diaz" ],
-      [ "Isaac", "Diaz" ],
-      [ "Molly", "Hughes" ],
-      [ "Derrick", "Hughes" ],
-      [ "Paige", "Stewart" ],
-      [ "Connor", "Stewart" ],
-      [ "Rina", "Das" ],
-      [ "Joel", "Das" ],
-      [ "Katie", "Bell" ],
-      [ "Aaron", "Bell" ],
-      [ "Vivian", "Cole" ]
+      ["Jenna", "Torres"],
+      ["Mark", "Torres"],
+      ["Olivia", "Grant"],
+      ["Peter", "Grant"],
+      ["Shelby", "Diaz"],
+      ["Isaac", "Diaz"],
+      ["Molly", "Hughes"],
+      ["Derrick", "Hughes"],
+      ["Paige", "Stewart"],
+      ["Connor", "Stewart"],
+      ["Rina", "Das"],
+      ["Joel", "Das"],
+      ["Katie", "Bell"],
+      ["Aaron", "Bell"],
+      ["Vivian", "Cole"]
     ],
     body_templates: [
       "Neighborhood heads-up: the city finally marked Maple for paving next Tuesday, so they asked everyone to keep cars off the street by 7 a.m.",
@@ -97,21 +97,21 @@ GROUP_DEFINITIONS = [
     name: "Northside Soccer Parents",
     description: "Team parents coordinating rides, snack duty, tournaments, and every muddy Saturday.",
     member_names: [
-      [ "Katie", "Mendez" ],
-      [ "Rob", "Mendez" ],
-      [ "Allison", "Wright" ],
-      [ "Darnell", "Wright" ],
-      [ "Becca", "Holmes" ],
-      [ "Sean", "Holmes" ],
-      [ "Mina", "Park" ],
-      [ "Owen", "Park" ],
-      [ "Laura", "Bailey" ],
-      [ "Tom", "Bailey" ],
-      [ "Keisha", "Young" ],
-      [ "Andre", "Young" ],
-      [ "Megan", "Fitzpatrick" ],
-      [ "Eric", "Fitzpatrick" ],
-      [ "Sara", "Donovan" ]
+      ["Katie", "Mendez"],
+      ["Rob", "Mendez"],
+      ["Allison", "Wright"],
+      ["Darnell", "Wright"],
+      ["Becca", "Holmes"],
+      ["Sean", "Holmes"],
+      ["Mina", "Park"],
+      ["Owen", "Park"],
+      ["Laura", "Bailey"],
+      ["Tom", "Bailey"],
+      ["Keisha", "Young"],
+      ["Andre", "Young"],
+      ["Megan", "Fitzpatrick"],
+      ["Eric", "Fitzpatrick"],
+      ["Sara", "Donovan"]
     ],
     body_templates: [
       "Game update: the kids looked sharp today and somehow kept their energy through both halves even with the heat. I posted the best goal clip because I know grandparents will want it.",
@@ -126,21 +126,21 @@ GROUP_DEFINITIONS = [
     name: "Design Team Offsite",
     description: "Coworkers sharing project updates, travel plans, launches, and behind-the-scenes team life.",
     member_names: [
-      [ "Claire", "Bennett" ],
-      [ "Omar", "Hassan" ],
-      [ "Jess", "Collins" ],
-      [ "Ryan", "Peters" ],
-      [ "Anika", "Mehta" ],
-      [ "Miles", "Harris" ],
-      [ "Tori", "Adams" ],
-      [ "Ben", "Alvarez" ],
-      [ "Kayla", "Turner" ],
-      [ "Wes", "Simmons" ],
-      [ "Monica", "Yu" ],
-      [ "Graham", "Ford" ],
-      [ "Elena", "Rossi" ],
-      [ "Noah", "Baker" ],
-      [ "Simone", "Carter" ]
+      ["Claire", "Bennett"],
+      ["Omar", "Hassan"],
+      ["Jess", "Collins"],
+      ["Ryan", "Peters"],
+      ["Anika", "Mehta"],
+      ["Miles", "Harris"],
+      ["Tori", "Adams"],
+      ["Ben", "Alvarez"],
+      ["Kayla", "Turner"],
+      ["Wes", "Simmons"],
+      ["Monica", "Yu"],
+      ["Graham", "Ford"],
+      ["Elena", "Rossi"],
+      ["Noah", "Baker"],
+      ["Simone", "Carter"]
     ],
     body_templates: [
       "Launch day update: the new onboarding flow is live, support volume stayed calm, and the bug we were bracing for never showed up. We are calling that a legitimate win.",
@@ -154,16 +154,16 @@ GROUP_DEFINITIONS = [
 ].freeze
 
 CHILD_POOL = [
-  [ "Ava", 7 ],
-  [ "Eli", 4 ],
-  [ "Nora", 2 ],
-  [ "Theo", 9 ],
-  [ "Lucy", 5 ],
-  [ "Mason", 3 ],
-  [ "Hazel", 6 ],
-  [ "Ivy", 1 ],
-  [ "Leo", 8 ],
-  [ "Ruby", 10 ]
+  ["Ava", 7],
+  ["Eli", 4],
+  ["Nora", 2],
+  ["Theo", 9],
+  ["Lucy", 5],
+  ["Mason", 3],
+  ["Hazel", 6],
+  ["Ivy", 1],
+  ["Leo", 8],
+  ["Ruby", 10]
 ].freeze
 
 STREET_NAMES = [
@@ -175,6 +175,12 @@ STREET_NAMES = [
   "Highland Road",
   "Oakview Terrace",
   "Summit Place"
+].freeze
+
+POST_TAGLINES = [
+  "sharing a few photos here",
+  "dropping this here for the group",
+  "wanted this in one place for everyone"
 ].freeze
 
 def sample_date(year_offset:, month:, day:)
@@ -225,25 +231,25 @@ def notes_for(group_name, index)
 end
 
 def spouse_name_for(index)
-  spouses = [
-    "Alex",
-    "Jamie",
-    "Taylor",
-    "Jordan",
-    "Morgan",
-    "Casey",
-    "Riley",
-    "Cameron"
+  spouses = %w[
+    Alex
+    Jamie
+    Taylor
+    Jordan
+    Morgan
+    Casey
+    Riley
+    Cameron
   ]
   spouses[index % spouses.length]
 end
 
 def create_children_for(user, index)
   child_count = case index % 5
-  when 0 then 2
-  when 1 then 1
-  else 0
-  end
+                when 0 then 2
+                when 1 then 1
+                else 0
+                end
 
   return if child_count.zero?
 
@@ -255,7 +261,7 @@ def create_children_for(user, index)
       name: name,
       age: age,
       birthday: birthday,
-      notes: [ "Loves dinosaurs.", "Currently into soccer.", "Never says no to popsicles." ][child_index % 3]
+      notes: ["Loves dinosaurs.", "Currently into soccer.", "Never says no to popsicles."][child_index % 3]
     )
   end
 end
@@ -275,7 +281,7 @@ def create_post_for(user:, group:, body:, created_at:)
   )
 end
 
-seed_group_names = GROUP_DEFINITIONS.map { |definition| definition[:name] }
+seed_group_names = GROUP_DEFINITIONS.pluck(:name)
 seed_emails = GROUP_DEFINITIONS.flat_map do |definition|
   definition[:member_names].map { |first_name, last_name| demo_email(first_name, last_name) }
 end
@@ -303,10 +309,10 @@ GROUP_DEFINITIONS.each_with_index do |definition, group_index|
       password_confirmation: PASSWORD,
       first_name: first_name,
       last_name: last_name,
-      birthday: sample_date(year_offset: 28 + ((group_index + member_index) % 12), month: ((member_index % 12) + 1), day: [ member_index + 1, 28 ].min),
+      birthday: sample_date(year_offset: 28 + ((group_index + member_index) % 12), month: ((member_index % 12) + 1), day: [member_index + 1, 28].min),
       spouse_name: member_index.even? ? spouse_name_for(group_index + member_index) : nil,
-      spouse_birthday: member_index.even? ? sample_date(year_offset: 27 + ((member_index + 2) % 10), month: (((member_index + 4) % 12) + 1), day: [ member_index + 3, 28 ].min) : nil,
-      home_address: address_for(group_index * 20 + member_index),
+      spouse_birthday: member_index.even? ? sample_date(year_offset: 27 + ((member_index + 2) % 10), month: (((member_index + 4) % 12) + 1), day: [member_index + 3, 28].min) : nil,
+      home_address: address_for((group_index * 20) + member_index),
       contact_notes: notes_for(group.name, member_index),
       confirmed_at: Time.current
     )
@@ -326,7 +332,7 @@ GROUP_DEFINITIONS.each_with_index do |definition, group_index|
 
       body = [
         body_template,
-        "From #{first_name}'s corner: #{[ 'sharing a few photos here', 'dropping this here for the group', 'wanted this in one place for everyone' ][post_index % 3]}.",
+        "From #{first_name}'s corner: #{POST_TAGLINES[post_index % POST_TAGLINES.length]}.",
         post_index == 2 ? "Looking forward to hearing how everyone else is doing when you have a minute." : nil
       ].compact.join(" ")
 
@@ -335,4 +341,4 @@ GROUP_DEFINITIONS.each_with_index do |definition, group_index|
   end
 end
 
-puts "Seeded #{Group.count} groups, #{User.count} users, #{Membership.count} memberships, and #{Post.count} posts."
+Rails.logger.debug { "Seeded #{Group.count} groups, #{User.count} users, #{Membership.count} memberships, and #{Post.count} posts." }
