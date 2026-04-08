@@ -80,8 +80,8 @@ bin/setup
 
 ## Test
 
-Run the test suite with:
+Run the same test command used in CI:
 
 ```sh
-bundle exec rspec
+bin/rails db:prepare test test:system
 ```
