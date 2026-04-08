@@ -1,5 +1,8 @@
-# This file should ensure the existence of records required to run the application in every environment.
-# The data here is deterministic demo content for local development.
+# This file contains repeatable demo content for local development.
+
+unless Rails.env.development? || ENV["ALLOW_DEMO_SEEDS"] == "true"
+  abort("Demo seeds are disabled outside development. Set ALLOW_DEMO_SEEDS=true to run intentionally.")
+end
 
 PASSWORD = "password123!".freeze
 EMAIL_DOMAIN = "backstage.test".freeze
@@ -273,9 +276,9 @@ def create_post_for(user:, group:, body:, created_at:)
     updated_at: created_at
   )
 
-  PostGroup.create!(
-    post: post,
-    group: group,
+  PostGroup.insert!(
+    post_id: post.id,
+    group_id: group.id,
     created_at: created_at,
     updated_at: created_at
   )
@@ -286,12 +289,14 @@ seed_emails = GROUP_DEFINITIONS.flat_map do |definition|
   definition[:member_names].map { |first_name, last_name| demo_email(first_name, last_name) }
 end
 
+Invitation.where(group: Group.where(name: seed_group_names)).delete_all
+Invitation.where(inviter: User.where(email: seed_emails)).delete_all
+Invitation.where(invited_user: User.where(email: seed_emails)).delete_all
 PostGroup.joins(:group).where(groups: { name: seed_group_names }).delete_all
-Post.joins(:user).where(users: { email: seed_emails }).delete_all
 Membership.joins(:group).where(groups: { name: seed_group_names }).delete_all
 Group.where(name: seed_group_names).delete_all
 User.where(email: seed_emails).find_each do |user|
-  user.children.delete_all
+  user.posts.find_each(&:destroy!)
   user.destroy!
 end
 
@@ -341,4 +346,9 @@ GROUP_DEFINITIONS.each_with_index do |definition, group_index|
   end
 end
 
-Rails.logger.debug { "Seeded #{Group.count} groups, #{User.count} users, #{Membership.count} memberships, and #{Post.count} posts." }
+seeded_group_count = Group.where(name: seed_group_names).count
+seeded_user_count = User.where(email: seed_emails).count
+seeded_membership_count = Membership.joins(:group).where(groups: { name: seed_group_names }).count
+seeded_post_count = Post.joins(:user).where(users: { email: seed_emails }).count
+
+puts "Seeded #{seeded_group_count} groups, #{seeded_user_count} users, #{seeded_membership_count} memberships, and #{seeded_post_count} posts."
