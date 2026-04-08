@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  name: Avery
+  birthday: 2019-05-14
+  age: 5
+  notes: Loves dinosaurs.
+
+two:
+  user: two
+  name: Lucy
+  birthday: 2017-09-02
+  age: 7
+  notes: Brings a book everywhere.
