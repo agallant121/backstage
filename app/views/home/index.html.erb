@@ -17,7 +17,7 @@
 
   <div class="col-12 col-lg-4 d-flex flex-column gap-3">
     <div class="card shadow-sm home-panel home-panel--profile">
-      <div class="card-header d-flex justify-content-between align-items-center home-panel__header">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Contact card" %></p>
           <h2 class="h5 mb-0"><%= "Your details" %></h2>
@@ -102,7 +102,7 @@
     </div>
 
     <div class="card shadow-sm home-panel home-panel--groups">
-      <div class="card-header d-flex justify-content-between align-items-center home-panel__header">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Groups" %></p>
           <h2 class="h5 mb-0"><%= "Your circles" %></h2>
@@ -129,7 +129,7 @@
     </div>
 
     <div class="card shadow-sm home-panel home-panel--people">
-      <div class="card-header d-flex justify-content-between align-items-center home-panel__header">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "People" %></p>
           <h2 class="h5 mb-0"><%= "Contacts" %></h2>
@@ -155,7 +155,7 @@
                   <% end %>
                 </div>
                 <% if person.children.any? %>
-                  <div class="small text-muted text-end home-dashboard__meta">
+                  <div class="small text-muted text-lg-end home-dashboard__meta">
                     <div class="fw-semibold text-body"><%= "Children" %></div>
                     <% person.children.each do |child| %>
                       <div>
@@ -186,7 +186,7 @@
 
   <div class="col-12 col-lg-8">
     <div class="card shadow-sm h-100 home-panel home-panel--wall">
-      <div class="card-header d-flex justify-content-between align-items-center home-panel__header">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Group walls" %></p>
           <h2 class="h5 mb-0"><%= "Latest updates" %></h2>
