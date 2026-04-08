@@ -946,6 +946,11 @@ body {
     width: 100%;
   }
 
+  .home-dashboard__hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .home-dashboard__hero-actions .btn,
   .home-panel__header-action.btn {
     width: 100%;
