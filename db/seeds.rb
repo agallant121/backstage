@@ -5,6 +5,8 @@ unless Rails.env.local? || ENV["ALLOW_DEMO_SEEDS"] == "true"
 end
 
 PASSWORD = "password123!".freeze
+ADMIN_EMAIL = "user@example.com".freeze
+ADMIN_PASSWORD = "asdfasdf123!".freeze
 EMAIL_DOMAIN = "backstage.test".freeze
 SUMMARY_TEXT = "AI summaries can recap these group updates when OPENAI_API_KEY is configured.".freeze
 
@@ -303,10 +305,23 @@ end
 PostGroup.skip_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
 
 begin
+  admin_user = User.find_or_initialize_by(email: ADMIN_EMAIL)
+  admin_user.update!(
+    password: ADMIN_PASSWORD,
+    password_confirmation: ADMIN_PASSWORD,
+    confirmed_at: Time.current
+  )
+
   GROUP_DEFINITIONS.each_with_index do |definition, group_index|
     group = Group.create!(
       name: definition[:name],
       description: "#{definition[:description]} #{SUMMARY_TEXT}"
+    )
+
+    Membership.create!(
+      user: admin_user,
+      group: group,
+      role: :admin
     )
 
     definition[:member_names].each_with_index do |(first_name, last_name), member_index|
@@ -330,7 +345,7 @@ begin
       Membership.create!(
         user: user,
         group: group,
-        role: member_index.zero? ? :admin : :member
+        role: :member
       )
 
       3.times do |post_index|
@@ -353,7 +368,7 @@ ensure
 end
 
 seeded_group_count = Group.where(name: seed_group_names).count
-seeded_user_count = User.where(email: seed_emails).count
+seeded_user_count = User.where(email: seed_emails + [ADMIN_EMAIL]).count
 seeded_membership_count = Membership.joins(:group).where(groups: { name: seed_group_names }).count
 seeded_post_count = Post.joins(:user).where(users: { email: seed_emails }).count
 
