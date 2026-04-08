@@ -113,7 +113,7 @@
         <% if @groups.any? %>
           <% @groups.each do |group| %>
             <%= link_to group_path(group), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-3 home-dashboard__split-item" do %>
-              <div class="me-3 flex-grow-1">
+              <div class="flex-grow-1">
                 <div class="fw-semibold group-name-strong"><%= group.name %></div>
                 <% if group.description.present? %>
                   <small class="text-muted"><%= truncate(group.description, length: 80) %></small>
