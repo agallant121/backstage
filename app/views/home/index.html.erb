@@ -1,13 +1,13 @@
-<div class="row g-4">
+<div class="row g-4 home-dashboard">
   <div class="col-12">
     <div class="card hero-card border-0">
-      <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 home-dashboard__hero">
         <div>
           <p class="text-uppercase small mb-1 list-heading"><%= "Dashboard" %></p>
           <h1 class="h3 mb-2"><%= "Keep your circles updated without the pressure to reply." %></h1>
           <p class="mb-0 list-subtitle"><%= "Share photos and notes to one group or everyone at once." %></p>
         </div>
-        <div class="d-flex flex-column flex-sm-row gap-2">
+        <div class="d-flex flex-column flex-sm-row gap-2 home-dashboard__hero-actions">
           <%= link_to "Share an update", new_post_path, class: "btn btn-primary fw-semibold" %>
           <%= link_to "Create a group", new_group_path, class: "btn btn-outline-light" %>
         </div>
@@ -17,12 +17,12 @@
 
   <div class="col-12 col-lg-4 d-flex flex-column gap-3">
     <div class="card shadow-sm home-panel home-panel--profile">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Contact card" %></p>
           <h2 class="h5 mb-0"><%= "Your details" %></h2>
         </div>
-        <%= link_to "Edit", edit_user_registration_path, class: "btn btn-sm btn-outline-primary" %>
+        <%= link_to "Edit", edit_user_registration_path, class: "btn btn-sm btn-outline-primary home-panel__header-action" %>
       </div>
       <div class="card-body">
         <div class="mb-2">
@@ -102,18 +102,18 @@
     </div>
 
     <div class="card shadow-sm home-panel home-panel--groups">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Groups" %></p>
           <h2 class="h5 mb-0"><%= "Your circles" %></h2>
         </div>
-        <%= link_to "New", new_group_path, class: "btn btn-sm btn-outline-primary" %>
+        <%= link_to "New", new_group_path, class: "btn btn-sm btn-outline-primary home-panel__header-action" %>
       </div>
       <div class="list-group list-group-flush group-list">
         <% if @groups.any? %>
           <% @groups.each do |group| %>
-            <%= link_to group_path(group), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-start" do %>
-              <div class="me-3">
+            <%= link_to group_path(group), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-start gap-3 home-dashboard__split-item" do %>
+              <div class="flex-grow-1">
                 <div class="fw-semibold group-name-strong"><%= group.name %></div>
                 <% if group.description.present? %>
                   <small class="text-muted"><%= truncate(group.description, length: 80) %></small>
@@ -129,19 +129,19 @@
     </div>
 
     <div class="card shadow-sm home-panel home-panel--people">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "People" %></p>
           <h2 class="h5 mb-0"><%= "Contacts" %></h2>
         </div>
-        <%= link_to "Directory", directory_path, class: "badge text-bg-light border text-decoration-none" %>
+        <%= link_to "Directory", directory_path, class: "badge text-bg-light border text-decoration-none home-panel__header-action" %>
       </div>
 
       <div class="list-group list-group-flush">
         <% if @people.any? %>
           <% @people.each do |person| %>
             <%= link_to user_path(person), class: "list-group-item list-group-item-action" do %>
-              <div class="d-flex justify-content-between align-items-start gap-3">
+              <div class="d-flex justify-content-between align-items-start gap-3 home-dashboard__split-item">
                 <div class="flex-grow-1">
                   <div class="fw-semibold"><%= person.display_name %></div>
                   <div class="small text-muted"><%= person.email %></div>
@@ -155,7 +155,7 @@
                   <% end %>
                 </div>
                 <% if person.children.any? %>
-                  <div class="small text-muted text-end">
+                  <div class="small text-muted text-lg-end home-dashboard__meta">
                     <div class="fw-semibold text-body"><%= "Children" %></div>
                     <% person.children.each do |child| %>
                       <div>
@@ -182,27 +182,16 @@
       </div>
     </div>
 
-    <div class="card shadow-sm home-panel home-panel--cta">
-      <div class="card-body">
-        <p class="text-uppercase text-muted small mb-1"><%= "Stay connected" %></p>
-        <h2 class="h5 mb-2"><%= "Share once, reach everyone" %></h2>
-        <p class="text-muted mb-3"><%= "Send a single update to every circle or spin up a new group when plans change." %></p>
-        <div class="d-flex flex-wrap gap-2">
-          <%= link_to "Post to all groups", new_post_path, class: "btn btn-primary btn-sm" %>
-          <%= link_to "Create a new circle", new_group_path, class: "btn btn-outline-primary btn-sm" %>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="col-12 col-lg-8">
     <div class="card shadow-sm h-100 home-panel home-panel--wall">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-lg-center home-panel__header">
         <div>
           <p class="text-uppercase small mb-0 list-heading"><%= "Group walls" %></p>
           <h2 class="h5 mb-0"><%= "Latest updates" %></h2>
         </div>
-        <%= link_to "Post to all", new_post_path, class: "btn btn-sm btn-primary" %>
+        <%= link_to "Post to all", new_post_path, class: "btn btn-sm btn-primary home-panel__header-action" %>
       </div>
       <div class="card-body">
         <% if @groups.any? %>
@@ -211,20 +200,20 @@
               <% posts = group.posts.order(created_at: :desc) %>
               <% if posts.present? %>
                 <div class="group-wall-preview rounded p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2 gap-3 home-dashboard__split-item">
                     <div>
                       <h3 class="h6 mb-0 group-name-strong"><%= group.name %></h3>
                       <small class="text-muted"><%= "Tap to view each wall" %></small>
                     </div>
-                    <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary" %>
+                    <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary home-dashboard__meta" %>
                   </div>
 
                   <% if posts.any? %>
                     <div class="list-group list-group-flush post-preview-list">
                       <% posts.first(3).each do |post| %>
                         <%= link_to post_path(post), class: "list-group-item list-group-item-action" do %>
-                          <div class="d-flex justify-content-between align-items-start">
-                            <div>
+                          <div class="d-flex justify-content-between align-items-start gap-3 home-dashboard__split-item">
+                            <div class="flex-grow-1">
                               <div class="fw-semibold text-body"><%= truncate(post.body, length: 80) %></div>
                               <small class="text-muted"><%= post_timestamp_label(post) %></small>
                             </div>

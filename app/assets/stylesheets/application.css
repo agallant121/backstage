@@ -940,6 +940,72 @@ body {
   --bs-btn-active-border-color: rgba(127, 209, 200, 0.6);
 }
 
+@media (max-width: 991.98px) {
+  .home-dashboard__hero-actions,
+  .home-panel__header-action {
+    width: 100%;
+  }
+
+  .home-dashboard__hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home-dashboard__hero-actions .btn,
+  .home-panel__header-action.btn {
+    width: 100%;
+  }
+
+  .home-panel__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .home-dashboard__split-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .home-dashboard__meta {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 575.98px) {
+  main.container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero-card .card-body,
+  .home-panel .card-body,
+  .home-panel .card-header {
+    padding: 1rem;
+  }
+
+  .home-dashboard__hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .group-list .list-group-item,
+  .post-preview-list .list-group-item {
+    padding: 0.875rem 1rem;
+  }
+
+  .group-list .badge,
+  .post-preview-list .badge {
+    white-space: normal;
+  }
+}
+
+.home-dashboard .list-group-item,
+.home-dashboard .card-body,
+.home-dashboard .card-header {
+  overflow-wrap: anywhere;
+}
+
 .auth-links {
   display: flex;
   flex-wrap: wrap;
