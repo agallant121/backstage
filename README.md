@@ -64,6 +64,8 @@ You can also run the repo's setup script, which installs gems, prepares the data
 bin/setup
 ```
 
+5. Sign in as the admin: `user@example.com`. Password: `asdfasdf123!`
+
 ## Local development notes
 
 - Development uses PostgreSQL databases named `backstage_development` and `backstage_test`.
