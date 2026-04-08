@@ -351,4 +351,4 @@ seeded_user_count = User.where(email: seed_emails).count
 seeded_membership_count = Membership.joins(:group).where(groups: { name: seed_group_names }).count
 seeded_post_count = Post.joins(:user).where(users: { email: seed_emails }).count
 
-puts "Seeded #{seeded_group_count} groups, #{seeded_user_count} users, #{seeded_membership_count} memberships, and #{seeded_post_count} posts."
+Rails.logger.debug { "Seeded #{seeded_group_count} groups, #{seeded_user_count} users, #{seeded_membership_count} memberships, and #{seeded_post_count} posts." }
