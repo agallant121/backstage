@@ -1000,6 +1000,12 @@ body {
   }
 }
 
+.home-dashboard .list-group-item,
+.home-dashboard .card-body,
+.home-dashboard .card-header {
+  overflow-wrap: anywhere;
+}
+
 .auth-links {
   display: flex;
   flex-wrap: wrap;
