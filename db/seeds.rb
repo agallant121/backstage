@@ -276,7 +276,7 @@ def create_post_for(user:, group:, body:, created_at:)
     updated_at: created_at
   )
 
-  PostGroup.insert!(
+  PostGroup.create!(
     post_id: post.id,
     group_id: group.id,
     created_at: created_at,
@@ -300,50 +300,56 @@ User.where(email: seed_emails).find_each do |user|
   user.destroy!
 end
 
-GROUP_DEFINITIONS.each_with_index do |definition, group_index|
-  group = Group.create!(
-    name: definition[:name],
-    description: "#{definition[:description]} #{SUMMARY_TEXT}"
-  )
+PostGroup.skip_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
 
-  definition[:member_names].each_with_index do |(first_name, last_name), member_index|
-    email = demo_email(first_name, last_name)
-    user = User.create!(
-      email: email,
-      password: PASSWORD,
-      password_confirmation: PASSWORD,
-      first_name: first_name,
-      last_name: last_name,
-      birthday: sample_date(year_offset: 28 + ((group_index + member_index) % 12), month: ((member_index % 12) + 1), day: [member_index + 1, 28].min),
-      spouse_name: member_index.even? ? spouse_name_for(group_index + member_index) : nil,
-      spouse_birthday: member_index.even? ? sample_date(year_offset: 27 + ((member_index + 2) % 10), month: (((member_index + 4) % 12) + 1), day: [member_index + 3, 28].min) : nil,
-      home_address: address_for((group_index * 20) + member_index),
-      contact_notes: notes_for(group.name, member_index),
-      confirmed_at: Time.current
+begin
+  GROUP_DEFINITIONS.each_with_index do |definition, group_index|
+    group = Group.create!(
+      name: definition[:name],
+      description: "#{definition[:description]} #{SUMMARY_TEXT}"
     )
 
-    create_children_for(user, group_index + member_index)
+    definition[:member_names].each_with_index do |(first_name, last_name), member_index|
+      email = demo_email(first_name, last_name)
+      user = User.create!(
+        email: email,
+        password: PASSWORD,
+        password_confirmation: PASSWORD,
+        first_name: first_name,
+        last_name: last_name,
+        birthday: sample_date(year_offset: 28 + ((group_index + member_index) % 12), month: ((member_index % 12) + 1), day: [member_index + 1, 28].min),
+        spouse_name: member_index.even? ? spouse_name_for(group_index + member_index) : nil,
+        spouse_birthday: member_index.even? ? sample_date(year_offset: 27 + ((member_index + 2) % 10), month: (((member_index + 4) % 12) + 1), day: [member_index + 3, 28].min) : nil,
+        home_address: address_for((group_index * 20) + member_index),
+        contact_notes: notes_for(group.name, member_index),
+        confirmed_at: Time.current
+      )
 
-    Membership.create!(
-      user: user,
-      group: group,
-      role: member_index.zero? ? :admin : :member
-    )
+      create_children_for(user, group_index + member_index)
 
-    3.times do |post_index|
-      body_template = definition[:body_templates][(member_index + post_index) % definition[:body_templates].length]
-      time_offset = ((group_index * 45) + (member_index * 3) + post_index).days
-      created_at = Time.current - time_offset
+      Membership.create!(
+        user: user,
+        group: group,
+        role: member_index.zero? ? :admin : :member
+      )
 
-      body = [
-        body_template,
-        "From #{first_name}'s corner: #{POST_TAGLINES[post_index % POST_TAGLINES.length]}.",
-        post_index == 2 ? "Looking forward to hearing how everyone else is doing when you have a minute." : nil
-      ].compact.join(" ")
+      3.times do |post_index|
+        body_template = definition[:body_templates][(member_index + post_index) % definition[:body_templates].length]
+        time_offset = ((group_index * 45) + (member_index * 3) + post_index).days
+        created_at = Time.current - time_offset
 
-      create_post_for(user: user, group: group, body: body, created_at: created_at)
+        body = [
+          body_template,
+          "From #{first_name}'s corner: #{POST_TAGLINES[post_index % POST_TAGLINES.length]}.",
+          post_index == 2 ? "Looking forward to hearing how everyone else is doing when you have a minute." : nil
+        ].compact.join(" ")
+
+        create_post_for(user: user, group: group, body: body, created_at: created_at)
+      end
     end
   end
+ensure
+  PostGroup.set_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
 end
 
 seeded_group_count = Group.where(name: seed_group_names).count
