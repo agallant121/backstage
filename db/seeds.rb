@@ -1,4 +1,4 @@
-# This file contains repeatable demo content for local development.
+# This file contains repeatable demo content for local development for potential employers to view application.
 
 unless Rails.env.local? || ENV["ALLOW_DEMO_SEEDS"] == "true"
   abort("Demo seeds are disabled outside development and test. Set ALLOW_DEMO_SEEDS=true to run intentionally.")
