@@ -40,6 +40,7 @@ class PostsController < ApplicationController
     end
 
     if post_saved
+      group_ids_to_attach.uniq.each { |group_id| GroupMessageSummaryJob.perform_later(group_id) }
       redirect_to root_path, notice: "Post created."
     else
       render :new, status: :unprocessable_entity
