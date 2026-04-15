@@ -33,10 +33,16 @@ class PostsController < ApplicationController
     @post = current_user.posts.build(post_params)
 
     post_saved = false
-    Post.transaction do
-      post_saved = @post.save
-      attach_post_to_groups(@post, group_ids_to_attach) if post_saved
-      raise ActiveRecord::Rollback unless post_saved
+    begin
+      Post.transaction do
+        post_saved = @post.save
+        attach_post_to_groups(@post, group_ids_to_attach) if post_saved
+        raise ActiveRecord::Rollback unless post_saved
+      end
+    rescue ActiveRecord::StatementInvalid
+      @post.errors.add(:base, "Post could not be created. Please try again.")
+      render :new, status: :unprocessable_entity
+      return
     end
 
     if post_saved
