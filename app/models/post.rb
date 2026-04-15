@@ -17,7 +17,12 @@ class Post < ApplicationRecord
     joins(:groups).where(groups: { id: user.groups.select(:id) }).distinct
   }
   scope :with_list_associations, -> {
-    includes(:user, :groups).with_attached_attachments.with_attached_images
+    preload(
+      :user,
+      :groups,
+      attachments_attachments: :blob,
+      images_attachments: :blob
+    )
   }
 
   validates :body, presence: true, unless: :attachments_attached?
