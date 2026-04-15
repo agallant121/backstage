@@ -10,6 +10,7 @@ RSpec.describe "Posts" do
     Membership.create!(user: user, group: group_two)
 
     sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
 
     post posts_path, params: { post: { body: "Hello" } }
 
@@ -17,6 +18,8 @@ RSpec.describe "Posts" do
 
     expect(response).to redirect_to(root_path)
     expect(PostGroup.where(post: post_record).count).to eq(2)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
   end
 
   it "rolls back the post if group attachment fails" do
