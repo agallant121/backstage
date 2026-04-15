@@ -32,11 +32,14 @@ class PostsController < ApplicationController
 
     @post = current_user.posts.build(post_params)
 
-    if @post.save
-      group_ids_to_attach.each do |gid|
-        PostGroup.find_or_create_by!(post_id: @post.id, group_id: gid)
-      end
+    post_saved = false
+    Post.transaction do
+      post_saved = @post.save
+      attach_post_to_groups(@post, group_ids_to_attach) if post_saved
+      raise ActiveRecord::Rollback unless post_saved
+    end
 
+    if post_saved
       redirect_to root_path, notice: "Post created."
     else
       render :new, status: :unprocessable_entity
@@ -77,6 +80,15 @@ class PostsController < ApplicationController
     return [ selected_group_id ] if current_user.groups.exists?(id: selected_group_id)
 
     nil
+  end
+
+  def attach_post_to_groups(post, group_ids)
+    now = Time.current
+    rows = group_ids.uniq.map do |group_id|
+      { post_id: post.id, group_id: group_id, created_at: now, updated_at: now }
+    end
+
+    PostGroup.insert_all(rows, unique_by: :index_post_groups_on_post_id_and_group_id)
   end
 
   def authorize_post_mutation!
