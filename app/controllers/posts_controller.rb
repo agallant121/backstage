@@ -95,7 +95,10 @@ class PostsController < ApplicationController
       { post_id: post.id, group_id: group_id, created_at: now, updated_at: now }
     end
 
+    # Bulk attach is intentional here; uniqueness is enforced by the composite index.
+    # rubocop:disable Rails/SkipsModelValidations
     PostGroup.insert_all(rows, unique_by: :index_post_groups_on_post_id_and_group_id)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def authorize_post_mutation!
