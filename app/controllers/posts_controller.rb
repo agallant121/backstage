@@ -32,11 +32,21 @@ class PostsController < ApplicationController
 
     @post = current_user.posts.build(post_params)
 
-    if @post.save
-      group_ids_to_attach.each do |gid|
-        PostGroup.find_or_create_by!(post_id: @post.id, group_id: gid)
+    post_saved = false
+    begin
+      Post.transaction do
+        post_saved = @post.save
+        attach_post_to_groups(@post, group_ids_to_attach) if post_saved
+        raise ActiveRecord::Rollback unless post_saved
       end
+    rescue ActiveRecord::StatementInvalid
+      @post.errors.add(:base, "Post could not be created. Please try again.")
+      render :new, status: :unprocessable_entity
+      return
+    end
 
+    if post_saved
+      group_ids_to_attach.uniq.each { |group_id| GroupMessageSummaryJob.perform_later(group_id) }
       redirect_to root_path, notice: "Post created."
     else
       render :new, status: :unprocessable_entity
@@ -77,6 +87,18 @@ class PostsController < ApplicationController
     return [ selected_group_id ] if current_user.groups.exists?(id: selected_group_id)
 
     nil
+  end
+
+  def attach_post_to_groups(post, group_ids)
+    now = Time.current
+    rows = group_ids.uniq.map do |group_id|
+      { post_id: post.id, group_id: group_id, created_at: now, updated_at: now }
+    end
+
+    # Bulk attach is intentional here; uniqueness is enforced by the composite index.
+    # rubocop:disable Rails/SkipsModelValidations
+    PostGroup.insert_all(rows, unique_by: :index_post_groups_on_post_id_and_group_id)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def authorize_post_mutation!

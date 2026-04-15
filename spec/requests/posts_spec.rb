@@ -10,6 +10,7 @@ RSpec.describe "Posts" do
     Membership.create!(user: user, group: group_two)
 
     sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
 
     post posts_path, params: { post: { body: "Hello" } }
 
@@ -17,6 +18,26 @@ RSpec.describe "Posts" do
 
     expect(response).to redirect_to(root_path)
     expect(PostGroup.where(post: post_record).count).to eq(2)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
+  end
+
+  it "rolls back the post if group attachment fails" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+
+    Membership.create!(user: user, group: group)
+
+    sign_in user, scope: :user
+    allow(PostGroup).to receive(:insert_all).and_raise(ActiveRecord::StatementInvalid)
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    expect do
+      post posts_path, params: { post: { body: "Hello" } }
+    end.not_to change(Post, :count)
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(GroupMessageSummaryJob).not_to have_received(:perform_later)
   end
 
   it "only allows creating a post in one of the author's groups" do
