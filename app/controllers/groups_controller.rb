@@ -16,7 +16,7 @@ class GroupsController < ApplicationController
   end
 
   def show
-    @posts = @group.posts.order(created_at: :desc)
+    @posts = @group.posts.with_list_associations.order(created_at: :desc)
     @has_posts = @posts.exists?
     @view_mode = params[:view] == "full" ? :full : :compact
     @group.refresh_message_summary_later if should_backfill_message_summary?
