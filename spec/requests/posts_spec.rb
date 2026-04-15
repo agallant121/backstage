@@ -19,6 +19,22 @@ RSpec.describe "Posts" do
     expect(PostGroup.where(post: post_record).count).to eq(2)
   end
 
+  it "rolls back the post if group attachment fails" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+
+    Membership.create!(user: user, group: group)
+
+    sign_in user, scope: :user
+    allow(PostGroup).to receive(:insert_all).and_raise(ActiveRecord::StatementInvalid)
+
+    expect do
+      expect do
+        post posts_path, params: { post: { body: "Hello" } }
+      end.to raise_error(ActiveRecord::StatementInvalid)
+    end.not_to change(Post, :count)
+  end
+
   it "only allows creating a post in one of the author's groups" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     member_group = Group.create!(name: "Member Group")
