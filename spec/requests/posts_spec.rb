@@ -30,12 +30,14 @@ RSpec.describe "Posts" do
 
     sign_in user, scope: :user
     allow(PostGroup).to receive(:insert_all).and_raise(ActiveRecord::StatementInvalid)
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
 
     expect do
-      expect do
-        post posts_path, params: { post: { body: "Hello" } }
-      end.to raise_error(ActiveRecord::StatementInvalid)
+      post posts_path, params: { post: { body: "Hello" } }
     end.not_to change(Post, :count)
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(GroupMessageSummaryJob).not_to have_received(:perform_later)
   end
 
   it "only allows creating a post in one of the author's groups" do
