@@ -6,6 +6,7 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.visible_to(current_user)
+      .with_list_associations
       .order(created_at: :desc)
       .page(params[:page])
       .per(10)
