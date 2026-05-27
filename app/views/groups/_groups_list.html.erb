@@ -16,7 +16,7 @@
               <span class="badge text-bg-light border"><%= "Group" %></span>
             </div>
             <div class="d-flex gap-2 flex-wrap mt-auto position-relative z-1 align-items-center">
-              <div class="group-meta text-muted small"><%= "#{group.users.count} members" %></div>
+              <div class="group-meta text-muted small"><%= pluralize(group.memberships_count, "member") %></div>
               <% if group.memberships.find_by(user: current_user)&.admin? %>
                 <%= link_to "Edit", edit_group_path(group), class: "btn btn-sm btn-outline-secondary", data: { turbo_frame: "_top" } %>
               <% end %>

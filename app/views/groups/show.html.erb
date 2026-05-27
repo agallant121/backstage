@@ -33,7 +33,7 @@
 
 <div class="d-flex align-items-center gap-2 flex-wrap text-muted mb-4">
   <span class="text-uppercase small"><%= "Group members" %></span>
-  <span class="fw-semibold text-body"><%= pluralize(@group.memberships.count, "member") %></span>
+  <span class="fw-semibold text-body"><%= pluralize(@group.memberships_count, "member") %></span>
   <%= link_to "View members", members_group_path(@group), class: "btn btn-outline-secondary btn-sm" %>
 </div>
 
