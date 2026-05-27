@@ -17,7 +17,13 @@ class GroupsController < ApplicationController
   end
 
   def show
-    posts = @group.posts.with_list_associations.order(created_at: :desc)
+    posts = @group.posts
+      .preload(
+        :user,
+        attachments_attachments: :blob,
+        images_attachments: :blob
+      )
+      .order(created_at: :desc)
     @posts = posts.page(params[:page]).per(10)
     @has_posts = @posts.total_count.positive?
     @membership = current_user.memberships.find_by(group: @group)
@@ -28,7 +34,9 @@ class GroupsController < ApplicationController
   end
 
   def members
-    @memberships = @group.memberships.includes(:user).joins(:user).order("users.email").page(params[:page]).per(25)
+    @memberships = @group.memberships.joins(:user).order("users.email").page(params[:page]).per(25)
+    @memberships.load
+    ActiveRecord::Associations::Preloader.new(records: @memberships, associations: :user).call if @memberships.length > 1
     @admin = current_user.memberships.find_by(group: @group)&.admin?
   end
 
