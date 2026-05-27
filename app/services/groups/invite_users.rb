@@ -93,6 +93,8 @@ module Groups
     end
 
     def call
+      preload_invitation_state
+
       created = []
       reissued = []
       skipped = []
@@ -115,6 +117,12 @@ module Groups
 
     private
 
+    def preload_invitation_state
+      @pending_invitations_by_email = @group.invitations.pending.where(email: @emails).index_by(&:email)
+      @member_emails = @group.users.where(email: @emails).pluck(:email).index_with(true)
+      @inviter_group_member_emails = users_in_inviter_groups.index_with(true)
+    end
+
     def process_one_email(email)
       return skip("#{email} because they are already in one of your groups.") if already_in_inviter_groups?(email)
       return handle_existing_pending(email) if pending_invite_exists?(email)
@@ -124,7 +132,7 @@ module Groups
     end
 
     def handle_existing_pending(email)
-      invitation = @group.invitations.pending.find_by(email: email)
+      invitation = @pending_invitations_by_email[email]
 
       if invitation.expired?
         invitation.reissue!
@@ -147,18 +155,23 @@ module Groups
     end
 
     def pending_invite_exists?(email)
-      @group.invitations.pending.exists?(email: email)
+      @pending_invitations_by_email.key?(email)
     end
 
     def already_member?(email)
-      @group.users.exists?(email: email)
+      @member_emails.key?(email)
     end
 
     def already_in_inviter_groups?(email)
-      user = User.find_by(email: email)
-      return false if user.nil?
+      @inviter_group_member_emails.key?(email)
+    end
 
-      user.group_ids.intersect?(@inviter.group_ids)
+    def users_in_inviter_groups
+      User
+        .joins(:memberships)
+        .where(email: @emails, memberships: { group_id: @inviter.group_ids })
+        .distinct
+        .pluck(:email)
     end
 
     def skip(message, prefix: "Skipped ")
