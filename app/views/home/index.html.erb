@@ -121,10 +121,16 @@
               </div>
               <span class="badge rounded-pill text-bg-light border"><%= "View" %></span>
             <% end %>
+            <% end %>
+            <% if @groups_total.to_i > @groups.size %>
+              <div class="list-group-item text-muted small bg-light">
+                <%= "Showing the first #{@groups.size} groups." %>
+                <%= link_to "View all", groups_path, class: "ms-1" %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="list-group-item text-muted"><%= "You haven't joined any groups yet." %></div>
           <% end %>
-        <% else %>
-          <div class="list-group-item text-muted"><%= "You haven't joined any groups yet." %></div>
-        <% end %>
       </div>
     </div>
 

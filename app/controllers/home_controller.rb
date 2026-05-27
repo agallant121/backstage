@@ -1,8 +1,12 @@
 class HomeController < ApplicationController
+  GROUP_PREVIEW_LIMIT = 8
+
   before_action :authenticate_user!
 
   def index
-    @groups = current_user.groups.order(created_at: :desc).to_a
+    groups_scope = current_user.groups.order(created_at: :desc)
+    @groups_total = groups_scope.count
+    @groups = groups_scope.limit(GROUP_PREVIEW_LIMIT).to_a
     @latest_posts_by_group = latest_posts_by_group(@groups.map(&:id))
     contacts_scope = related_contacts
     @people_total = contacts_scope.count

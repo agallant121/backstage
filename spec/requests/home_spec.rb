@@ -41,4 +41,23 @@ RSpec.describe "Home" do
     expect(response.body).to include("Recent update 3")
     expect(response.body).not_to include("Old update")
   end
+
+  it "limits the dashboard group preview" do
+    user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
+
+    groups = 9.times.map do |index|
+      group = Group.create!(name: "Group #{index + 1}", created_at: index.days.ago)
+      Membership.create!(user: user, group: group)
+      group
+    end
+
+    sign_in user
+    get root_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Showing the first 8 groups.")
+    expect(response.body).to include("View all")
+    expect(response.body).to include(groups.first.name)
+    expect(response.body).not_to include(groups.last.name)
+  end
 end
