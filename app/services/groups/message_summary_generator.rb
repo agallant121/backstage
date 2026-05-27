@@ -9,9 +9,7 @@ module Groups
     end
 
     def call
-      posts = @group.recent_posts_for_summary.to_a
-
-      if posts.empty?
+      unless @group.posts.exists?
         @group.update!(
           message_summary: nil,
           message_summary_generated_at: Time.current,
@@ -28,6 +26,8 @@ module Groups
         )
         return
       end
+
+      posts = @group.recent_posts_for_summary.to_a
 
       @group.update!(
         message_summary: generate_ai_summary(posts).presence,
