@@ -54,6 +54,30 @@ RSpec.describe "Groups", type: :request do
     expect(response.body).to include("member@example.com")
   end
 
+  it "paginates the group members page" do
+    admin = User.create!(email: "admin@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Crew")
+    Membership.create!(user: admin, group: group, role: :admin)
+
+    26.times do |index|
+      user = User.create!(email: format("member%02d@example.com", index), password: "password", confirmed_at: Time.current)
+      Membership.create!(user: user, group: group)
+    end
+
+    sign_in admin, scope: :user
+    get members_group_path(group)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("27 members")
+    expect(response.body).to include("member00@example.com")
+    expect(response.body).not_to include("member25@example.com")
+
+    get members_group_path(group, page: 2)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("member25@example.com")
+  end
+
   it "blocks non-members from viewing the members page" do
     user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     outsider = User.create!(email: "outsider@example.com", password: "password", confirmed_at: Time.current)

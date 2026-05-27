@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "members_list" do %>
+  <%= turbo_frame_tag "members_list" do %>
+    <%= render "members_table", memberships: @memberships, admin: @admin %>
+  <% end %>
+<% end %>

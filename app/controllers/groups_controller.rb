@@ -28,7 +28,7 @@ class GroupsController < ApplicationController
   end
 
   def members
-    @memberships = @group.memberships.includes(:user).joins(:user).order("users.email")
+    @memberships = @group.memberships.includes(:user).joins(:user).order("users.email").page(params[:page]).per(25)
     @admin = current_user.memberships.find_by(group: @group)&.admin?
   end
 
