@@ -25,6 +25,21 @@ RSpec.describe "Groups", type: :request do
     expect(membership).to be_admin
   end
 
+  it "shows edit actions only for groups the user administers" do
+    user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
+    admin_group = Group.create!(name: "Admin Crew")
+    member_group = Group.create!(name: "Member Crew")
+    Membership.create!(user: user, group: admin_group, role: :admin)
+    Membership.create!(user: user, group: member_group)
+
+    sign_in user, scope: :user
+    get groups_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include(edit_group_path(admin_group))
+    expect(response.body).not_to include(edit_group_path(member_group))
+  end
+
   it "allows members to view the group members page" do
     user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Crew")

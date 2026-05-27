@@ -8,6 +8,7 @@ class GroupsController < ApplicationController
       .order(:name)
       .page(params[:page])
       .per(12)
+    @admin_group_ids = admin_group_ids_for(@groups.map(&:id))
 
     respond_to do |format|
       format.html
@@ -79,6 +80,10 @@ class GroupsController < ApplicationController
     @has_posts &&
       @group.message_summary_source.nil? &&
       @group.message_summary_generated_at.blank?
+  end
+
+  def admin_group_ids_for(group_ids)
+    current_user.memberships.admin.where(group_id: group_ids).pluck(:group_id).to_h { |id| [ id, true ] }
   end
 
   def authorize_group_mutation!

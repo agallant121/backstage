@@ -1,3 +1,5 @@
+<% admin_group_ids = local_assigns.fetch(:admin_group_ids, {}) %>
+
 <div class="row g-3 g-lg-4 groups-grid">
   <% if groups.any? %>
     <% groups.each do |group| %>
@@ -17,7 +19,7 @@
             </div>
             <div class="d-flex gap-2 flex-wrap mt-auto position-relative z-1 align-items-center">
               <div class="group-meta text-muted small"><%= pluralize(group.memberships_count, "member") %></div>
-              <% if group.memberships.find_by(user: current_user)&.admin? %>
+              <% if admin_group_ids[group.id] %>
                 <%= link_to "Edit", edit_group_path(group), class: "btn btn-sm btn-outline-secondary", data: { turbo_frame: "_top" } %>
               <% end %>
             </div>
