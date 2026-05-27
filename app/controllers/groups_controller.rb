@@ -19,6 +19,9 @@ class GroupsController < ApplicationController
     posts = @group.posts.with_list_associations.order(created_at: :desc)
     @posts = posts.page(params[:page]).per(10)
     @has_posts = @posts.total_count.positive?
+    @membership = current_user.memberships.find_by(group: @group)
+    @member = @membership.present?
+    @admin = @membership&.admin?
     @view_mode = params[:view] == "full" ? :full : :compact
     @group.refresh_message_summary_later if should_backfill_message_summary?
   end
