@@ -49,7 +49,7 @@ class PostsController < ApplicationController
     end
 
     if post_saved
-      group_ids_to_attach.uniq.each { |group_id| GroupMessageSummaryJob.perform_later(group_id) }
+      Group.where(id: group_ids_to_attach.uniq).find_each(&:refresh_message_summary_later)
       redirect_to root_path, notice: "Post created."
     else
       set_post_form_groups

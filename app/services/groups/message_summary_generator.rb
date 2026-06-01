@@ -13,7 +13,9 @@ module Groups
         @group.update!(
           message_summary: nil,
           message_summary_generated_at: Time.current,
-          message_summary_source: nil
+          message_summary_source: nil,
+          message_summary_stale_at: nil,
+          message_summary_refresh_enqueued_at: nil
         )
         return
       end
@@ -22,7 +24,9 @@ module Groups
         @group.update!(
           message_summary: nil,
           message_summary_generated_at: nil,
-          message_summary_source: UNAVAILABLE_SOURCE
+          message_summary_source: UNAVAILABLE_SOURCE,
+          message_summary_stale_at: nil,
+          message_summary_refresh_enqueued_at: nil
         )
         return
       end
@@ -32,7 +36,9 @@ module Groups
       @group.update!(
         message_summary: generate_ai_summary(posts).presence,
         message_summary_generated_at: Time.current,
-        message_summary_source: OPENAI_SOURCE
+        message_summary_source: OPENAI_SOURCE,
+        message_summary_stale_at: nil,
+        message_summary_refresh_enqueued_at: nil
       )
     rescue StandardError => e
       Rails.logger.error("Group summary refresh failed for group #{@group.id}: #{e.class}: #{e.message}")
@@ -40,7 +46,9 @@ module Groups
       @group.update!(
         message_summary: nil,
         message_summary_generated_at: nil,
-        message_summary_source: ERROR_SOURCE
+        message_summary_source: ERROR_SOURCE,
+        message_summary_stale_at: nil,
+        message_summary_refresh_enqueued_at: nil
       )
     end
 

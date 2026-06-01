@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_27_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_27_123000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_27_120000) do
     t.datetime "message_summary_generated_at"
     t.string "message_summary_source"
     t.integer "memberships_count", default: 0, null: false
+    t.datetime "message_summary_stale_at"
+    t.datetime "message_summary_refresh_enqueued_at"
   end
 
   create_table "invitations", force: :cascade do |t|
