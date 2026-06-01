@@ -12,4 +12,19 @@ RSpec.describe GroupMessageSummaryJob, type: :job do
     expect(Groups::MessageSummaryGenerator).to have_received(:new).with(group: group)
     expect(generator).to have_received(:call)
   end
+
+  it "does not refresh when the cached summary is still fresh" do
+    group = Group.create!(
+      name: "Crew",
+      message_summary: "Fresh summary",
+      message_summary_generated_at: 1.minute.ago,
+      message_summary_source: "openai"
+    )
+
+    allow(Groups::MessageSummaryGenerator).to receive(:new)
+
+    described_class.perform_now(group.id)
+
+    expect(Groups::MessageSummaryGenerator).not_to have_received(:new)
+  end
 end

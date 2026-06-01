@@ -123,6 +123,7 @@ RSpec.describe "Groups", type: :request do
     group = Group.create!(name: "Crew")
     user = create_member(email: "member@example.com", group: group)
     PostGroup.create!(post: Post.create!(user: user, body: "Latest update"), group: group)
+    group.clear_message_summary_refresh_state!
 
     allow(GroupMessageSummaryJob).to receive(:perform_later)
 
