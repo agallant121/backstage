@@ -1,9 +1,11 @@
 <% show_actions = local_assigns.fetch(:show_actions, true) %>
 <% show_group_badges = local_assigns.fetch(:show_group_badges, true) %>
 <% header_badge_label = local_assigns.fetch(:header_badge_label, nil) %>
+<% media_blobs_by_id = local_assigns.fetch(:media_blobs_by_id, {}) %>
 <% turbo_frame_id = dom_id(post, :card) %>
-<% image_attachments = post.media_attachments.select { |att| att.content_type&.start_with?("image") } %>
-<% video_attachments = post.media_attachments.select { |att| att.content_type&.start_with?("video") } %>
+<% media_blobs = post.media_attachments.filter_map { |attachment| media_blobs_by_id[attachment.blob_id] || attachment.blob } %>
+<% image_attachments = media_blobs.select { |blob| blob.content_type&.start_with?("image") } %>
+<% video_attachments = media_blobs.select { |blob| blob.content_type&.start_with?("video") } %>
 <% has_media = image_attachments.any? || video_attachments.any? %>
 <% truncated_summary = post.body.to_s.length > 160 %>
 <% can_expand = truncated_summary || has_media %>

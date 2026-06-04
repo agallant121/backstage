@@ -43,6 +43,29 @@ RSpec.describe Post do
     end
   end
 
+  describe ".media_blobs_by_id" do
+    it "returns blobs for media attachments on loaded posts" do
+      post = described_class.create!(user: user, body: "Photo")
+      blob = ActiveStorage::Blob.create_and_upload!(
+        io: StringIO.new("data"),
+        filename: "image.png",
+        content_type: "image/png"
+      )
+      post.images.attach(blob)
+
+      posts = described_class.preload(:images_attachments).where(id: post.id).to_a
+      attachment = posts.first.images.attachments.first
+
+      expect(described_class.media_blobs_by_id(posts)).to eq(attachment.blob_id => blob)
+    end
+
+    it "returns an empty map when loaded posts have no media attachments" do
+      posts = [described_class.create!(user: user, body: "Text only")]
+
+      expect(described_class.media_blobs_by_id(posts)).to eq({})
+    end
+  end
+
   describe "summary refresh callbacks" do
     it "refreshes attached group summaries when the body changes" do
       group = Group.create!(name: "Group A")

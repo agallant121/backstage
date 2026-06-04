@@ -3,6 +3,7 @@
 <% header_badge_label = local_assigns.fetch(:header_badge_label, nil) %>
 <% empty_state_message = local_assigns.fetch(:empty_state_message, "No posts yet. Share something to kick things off!") %>
 <% posts = posts.load %>
+<% media_blobs_by_id = Post.media_blobs_by_id(posts) %>
 
 <div class="d-flex justify-content-end mb-3 post-list-toolbar">
   <%= link_to(view_mode == :full ? "Show summaries" : "Show full posts", toggle_path, class: "btn btn-outline-secondary btn-sm") %>
@@ -16,6 +17,7 @@
                  view_mode: view_mode,
                  show_actions: show_actions,
                  show_group_badges: show_group_badges,
+                 media_blobs_by_id: media_blobs_by_id,
                  header_badge_label: header_badge_label %>
     <% end %>
   </div>
