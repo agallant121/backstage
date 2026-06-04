@@ -14,13 +14,21 @@ class Group < ApplicationRecord
   end
 
   def refresh_message_summary_later?
-    mark_message_summary_stale!
-    return false if message_summary_refresh_enqueued_at.present? &&
-                    message_summary_refresh_enqueued_at > SUMMARY_REFRESH_DEBOUNCE.ago
+    refresh_enqueued = false
 
-    update!(message_summary_refresh_enqueued_at: Time.current)
-    GroupMessageSummaryJob.perform_later(id)
-    true
+    with_lock do
+      now = Time.current
+      if message_summary_refresh_enqueued_at.present? &&
+         message_summary_refresh_enqueued_at > SUMMARY_REFRESH_DEBOUNCE.ago
+        update!(message_summary_stale_at: now)
+      else
+        update!(message_summary_stale_at: now, message_summary_refresh_enqueued_at: now)
+        refresh_enqueued = true
+      end
+    end
+
+    GroupMessageSummaryJob.perform_later(id) if refresh_enqueued
+    refresh_enqueued
   end
 
   def recent_posts_for_summary(limit: SUMMARY_POST_LIMIT)
@@ -37,11 +45,5 @@ class Group < ApplicationRecord
 
   def clear_message_summary_refresh_state!
     update!(message_summary_stale_at: nil, message_summary_refresh_enqueued_at: nil)
-  end
-
-  private
-
-  def mark_message_summary_stale!
-    update!(message_summary_stale_at: Time.current)
   end
 end
