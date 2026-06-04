@@ -35,7 +35,15 @@ export default class extends Controller {
     this.allTarget.checked = selectedGroups.length === 0
 
     const selectedNames = selectedGroups.map((checkbox) => checkbox.dataset.groupName)
-    this.buttonTarget.textContent = selectedNames.length > 0 ? selectedNames.join(", ") : this.allLabelValue
+    this.buttonTarget.textContent = this.formatLabel(selectedNames)
+  }
+
+  formatLabel(selectedNames) {
+    if (selectedNames.length === 0) return this.allLabelValue
+    if (selectedNames.length === 1) return selectedNames[0]
+    if (selectedNames.length === 2) return `${selectedNames[0]} and ${selectedNames[1]}`
+
+    return `${selectedNames.slice(0, -1).join(", ")}, and ${selectedNames[selectedNames.length - 1]}`
   }
 
   get selectedGroups() {
