@@ -43,6 +43,24 @@ RSpec.describe "Posts" do
     end
   end
 
+  it "ignores duplicate selected group ids" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+
+    Membership.create!(user: user, group: group)
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    post posts_path, params: { post: { body: "Hello", group_ids: [group.id, group.id] } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(response).to redirect_to(root_path)
+    expect(post_record.groups).to contain_exactly(group)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+  end
+
   it "still accepts the previous single group parameter" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group_one = Group.create!(name: "Group One")
