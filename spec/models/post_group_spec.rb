@@ -30,6 +30,7 @@ RSpec.describe PostGroup do
     post = Post.create!(user: user, body: "Hello")
     group = Group.create!(name: "Group")
     post_group = described_class.create!(post: post, group: group)
+    group.clear_message_summary_refresh_state!
 
     allow(GroupMessageSummaryJob).to receive(:perform_later)
 

@@ -20,7 +20,7 @@
     <div>
       <label class="form-label"><%= "Send to group" %></label>
       <%= f.collection_select :group_id,
-                              current_user.groups,
+                              @groups_for_select,
                               :id,
                               :name,
                               { include_blank: "All Groups", selected: @group&.id },

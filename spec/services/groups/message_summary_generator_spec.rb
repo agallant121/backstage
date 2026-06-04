@@ -24,6 +24,13 @@ RSpec.describe Groups::MessageSummaryGenerator do
       "so the group now has both the final numbers and the itinerary."
   end
 
+  def mark_group_stale_while_summarizing(group, client)
+    allow(client).to receive(:summarize) do
+      group.update!(message_summary_stale_at: Time.current)
+      ai_summary
+    end
+  end
+
   describe "#call" do
     it "marks the summary unavailable when no OpenAI key is configured" do
       group = Group.create!(name: "Crew")
@@ -75,6 +82,27 @@ RSpec.describe Groups::MessageSummaryGenerator do
       expect(group.message_summary_source).to eq("openai")
       expect(group.message_summary).to include("travel plans locked in")
       expect(group.message_summary_generated_at).to be_present
+    end
+
+    it "preserves newer stale marks and enqueues a follow-up refresh" do
+      group = Group.create!(name: "Crew", message_summary_refresh_enqueued_at: 1.minute.ago)
+      jess = create_member(email: "jess@example.com", group: group, first_name: "Jess")
+      create_group_post(group: group, user: jess, body: fundraiser_update)
+      group.clear_message_summary_refresh_state!
+      group.update!(message_summary_refresh_enqueued_at: 1.minute.ago)
+      client = instance_double(Ai::ChatClient)
+
+      allow(Ai::ChatClient).to receive_messages(available?: true, new: client)
+      allow(GroupMessageSummaryJob).to receive(:perform_later)
+      mark_group_stale_while_summarizing(group, client)
+
+      described_class.new(group: group).call
+
+      group.reload
+      expect(group.message_summary_source).to eq("openai")
+      expect(group.message_summary_stale_at).to be_present
+      expect(group.message_summary_refresh_enqueued_at).to be_present
+      expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
     end
   end
 end

@@ -20,7 +20,7 @@ gem "jbuilder"
 gem "kaminari"
 
 # Added by me
-gem 'devise', '>= 5.0.3'
+gem 'devise', '>= 5.0.4'
 gem "pundit"
 gem "pry"
 gem "sidekiq"
@@ -55,6 +55,9 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 group :development, :test do
+  # Catch N+1 queries, unused eager loading, and missing counter caches.
+  gem "bullet"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 

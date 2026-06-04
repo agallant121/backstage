@@ -41,7 +41,7 @@ class Post < ApplicationRecord
   def refresh_group_summaries_if_body_changed
     return unless saved_change_to_body?
 
-    groups.find_each(&:refresh_message_summary_later)
+    groups.find_each(&:enqueue_message_summary_refresh)
   end
 
   def attachments_attached?

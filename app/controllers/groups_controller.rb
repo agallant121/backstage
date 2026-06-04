@@ -8,6 +8,7 @@ class GroupsController < ApplicationController
       .order(:name)
       .page(params[:page])
       .per(12)
+    @admin_group_ids = admin_group_ids_for(@groups.map(&:id))
 
     respond_to do |format|
       format.html
@@ -16,15 +17,28 @@ class GroupsController < ApplicationController
   end
 
   def show
-    @posts = @group.posts.with_list_associations.order(created_at: :desc)
-    @has_posts = @posts.exists?
+    posts = @group.posts
+      .preload(
+        :user,
+        attachments_attachments: :blob,
+        images_attachments: :blob
+      )
+      .order(created_at: :desc)
+    @posts = posts.page(params[:page]).per(10)
+    @has_posts = @posts.total_count.positive?
+    @admin = current_group_admin?
     @view_mode = params[:view] == "full" ? :full : :compact
-    @group.refresh_message_summary_later if should_backfill_message_summary?
+    @group.enqueue_message_summary_refresh if should_backfill_message_summary?
   end
 
   def members
-    @memberships = @group.memberships.includes(:user).joins(:user).order("users.email")
-    @admin = current_user.memberships.find_by(group: @group)&.admin?
+    @memberships = @group.memberships
+      .includes(:user)
+      .references(:user)
+      .order("users.email")
+      .page(params[:page])
+      .per(25)
+    @admin = current_group_admin?
   end
 
   def new
@@ -64,7 +78,9 @@ class GroupsController < ApplicationController
   private
 
   def set_group
-    @group = current_user.groups.find(params[:id])
+    @group = current_user.groups
+      .select("groups.*, memberships.role AS current_user_membership_role")
+      .find(params[:id])
   end
 
   def group_params
@@ -72,9 +88,19 @@ class GroupsController < ApplicationController
   end
 
   def should_backfill_message_summary?
+    return false if request.format.turbo_stream?
+
     @has_posts &&
       @group.message_summary_source.nil? &&
       @group.message_summary_generated_at.blank?
+  end
+
+  def admin_group_ids_for(group_ids)
+    current_user.memberships.admin.where(group_id: group_ids).pluck(:group_id).index_with { |_id| true }
+  end
+
+  def current_group_admin?
+    @group.current_user_membership_role == Membership.roles[:admin]
   end
 
   def authorize_group_mutation!

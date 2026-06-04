@@ -9,6 +9,7 @@ class PostGroup < ApplicationRecord
   private
 
   def refresh_group_summary
-    group.refresh_message_summary_later
+    group.enqueue_message_summary_refresh
+    nil
   end
 end

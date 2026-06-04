@@ -4,6 +4,7 @@ class GroupMessageSummaryJob < ApplicationJob
   def perform(group_id)
     group = Group.find_by(id: group_id)
     return unless group
+    return unless group.message_summary_refresh_needed?
 
     Groups::MessageSummaryGenerator.new(group: group).call
   end

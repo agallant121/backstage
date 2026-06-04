@@ -24,6 +24,7 @@ class PostsController < ApplicationController
 
   def new
     @post = current_user.posts.new
+    set_post_form_groups
   end
 
   def create
@@ -42,25 +43,29 @@ class PostsController < ApplicationController
       end
     rescue ActiveRecord::StatementInvalid
       @post.errors.add(:base, "Post could not be created. Please try again.")
+      set_post_form_groups
       render :new, status: :unprocessable_entity
       return
     end
 
     if post_saved
-      group_ids_to_attach.uniq.each { |group_id| GroupMessageSummaryJob.perform_later(group_id) }
+      Group.where(id: group_ids_to_attach.uniq).find_each(&:enqueue_message_summary_refresh)
       redirect_to root_path, notice: "Post created."
     else
+      set_post_form_groups
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
+    set_post_form_groups
   end
 
   def update
     if @post.update(post_params)
       redirect_to @post, notice: "Post was successfully updated."
     else
+      set_post_form_groups
       render :edit, status: :unprocessable_entity
     end
   end
@@ -100,6 +105,10 @@ class PostsController < ApplicationController
     # rubocop:disable Rails/SkipsModelValidations
     PostGroup.insert_all(rows, unique_by: :index_post_groups_on_post_id_and_group_id)
     # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  def set_post_form_groups
+    @groups_for_select = current_user.groups.order(:name).to_a
   end
 
   def authorize_post_mutation!

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_15_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_02_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_120000) do
     t.text "message_summary"
     t.datetime "message_summary_generated_at"
     t.string "message_summary_source"
+    t.integer "memberships_count", default: 0, null: false
+    t.datetime "message_summary_stale_at"
+    t.datetime "message_summary_refresh_enqueued_at"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -75,6 +78,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_120000) do
     t.datetime "expires_at", null: false
     t.index ["email"], name: "index_invitations_on_email"
     t.index ["expires_at"], name: "index_invitations_on_expires_at"
+    t.index ["group_id", "email", "accepted_at"], name: "index_invitations_on_group_email_accepted"
     t.index ["group_id"], name: "index_invitations_on_group_id"
     t.index ["invited_user_id"], name: "index_invitations_on_invited_user_id"
     t.index ["inviter_id"], name: "index_invitations_on_inviter_id"

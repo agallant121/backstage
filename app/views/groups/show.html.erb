@@ -1,22 +1,13 @@
-<% membership = current_user.memberships.find_by(group: @group) %>
-<% member = membership.present? %>
-<% admin = membership&.admin? %>
-
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <div>
     <p class="text-uppercase text-muted small mb-1"><%= "Group" %></p>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <h1 class="h4 mb-0"><%= @group.name %></h1>
-      <% if member %>
-        <span class="badge membership-badge px-3 py-2"><%= "You are a member of this group" %></span>
-      <% end %>
+      <span class="badge membership-badge px-3 py-2"><%= "You are a member of this group" %></span>
     </div>
   </div>
   <div class="d-flex gap-2 flex-wrap align-items-center">
-    <% unless member %>
-      <%= button_to "Join Group", group_memberships_path(@group), method: :post, class: "btn btn-outline-primary" %>
-    <% end %>
-    <% if admin %>
+    <% if @admin %>
       <%= link_to "Manage invites", group_invitations_path(@group), class: "btn btn-outline-secondary" %>
     <% end %>
     <%= link_to "Back to groups", groups_path, class: "btn btn-outline-secondary" %>
@@ -37,7 +28,7 @@
 
 <div class="d-flex align-items-center gap-2 flex-wrap text-muted mb-4">
   <span class="text-uppercase small"><%= "Group members" %></span>
-  <span class="fw-semibold text-body"><%= pluralize(@group.users.count, "member") %></span>
+  <span class="fw-semibold text-body"><%= pluralize(@group.memberships_count, "member") %></span>
   <%= link_to "View members", members_group_path(@group), class: "btn btn-outline-secondary btn-sm" %>
 </div>
 
@@ -57,7 +48,7 @@
       </div>
 
       <% if @group.message_summary.present? %>
-        <div class="mb-0 text-secondary"><%= simple_format(@group.message_summary) %></div>
+        <div class="mb-0 text-dark"><%= simple_format(@group.message_summary) %></div>
       <% elsif @group.message_summary_source == "unavailable" %>
         <p class="mb-0 text-secondary"><%= "AI summaries are not configured yet for this environment." %></p>
       <% elsif @group.message_summary_source == "error" %>
@@ -76,6 +67,7 @@
 
 <%= turbo_frame_tag "posts_list" do %>
   <% toggle_path = @view_mode == :full ? group_path(@group) : group_path(@group, view: "full") %>
+  <% view_param = @view_mode == :full ? "full" : nil %>
   <%= render "posts/post_list",
              posts: @posts,
              view_mode: @view_mode,
@@ -84,4 +76,9 @@
              show_group_badges: false,
              header_badge_label: "Shared update",
              empty_state_message: "No posts in this group yet." %>
+
+  <%= render "shared/pagination",
+             collection: @posts,
+             label: "Group posts pagination",
+             path_for_page: ->(page) { group_path(@group, page: page, view: view_param, format: :turbo_stream) } %>
 <% end %>

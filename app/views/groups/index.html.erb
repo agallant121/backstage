@@ -7,5 +7,5 @@
 </div>
 
 <%= turbo_frame_tag "groups_list" do %>
-  <%= render "groups_list", groups: @groups %>
+  <%= render "groups_list", groups: @groups, admin_group_ids: @admin_group_ids %>
 <% end %>
