@@ -11,6 +11,14 @@ RSpec.describe "Groups", type: :request do
     "Jess wrapped the fundraiser.\nAlex booked flights for the trip."
   end
 
+  def create_member_list(group, count)
+    count.times do |index|
+      user = User.create!(email: format("member%02d@example.com", index), password: "password",
+                          confirmed_at: Time.current)
+      Membership.create!(user: user, group: group)
+    end
+  end
+
   it "creates a group and assigns the creator as admin" do
     user = User.create!(email: "owner@example.com", password: "password", confirmed_at: Time.current)
 
@@ -58,21 +66,23 @@ RSpec.describe "Groups", type: :request do
     admin = User.create!(email: "admin@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Crew")
     Membership.create!(user: admin, group: group, role: :admin)
-
-    26.times do |index|
-      user = User.create!(email: format("member%02d@example.com", index), password: "password",
-                          confirmed_at: Time.current)
-      Membership.create!(user: user, group: group)
-    end
+    create_member_list(group, 26)
 
     sign_in admin, scope: :user
     get members_group_path(group)
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("27 members")
-    expect(response.body).to include("member00@example.com")
+    expect(response.body).to include("27 members", "member00@example.com")
     expect(response.body).not_to include("member25@example.com")
+  end
 
+  it "shows later pages on the group members page" do
+    admin = User.create!(email: "admin@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Crew")
+    Membership.create!(user: admin, group: group, role: :admin)
+    create_member_list(group, 26)
+
+    sign_in admin, scope: :user
     get members_group_path(group, page: 2)
 
     expect(response).to have_http_status(:ok)

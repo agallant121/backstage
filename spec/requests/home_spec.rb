@@ -1,6 +1,18 @@
 require "rails_helper"
 
 RSpec.describe "Home" do
+  def create_dashboard_group(user)
+    group = Group.create!(name: "Crew")
+    Membership.create!(user: user, group: group)
+    group
+  end
+
+  def attach_post_to_group(user:, group:, body:, created_at:)
+    post = Post.create!(user: user, body: body, created_at: created_at)
+    PostGroup.create!(post: post, group: group)
+    post
+  end
+
   it "redirects unauthenticated users to sign in" do
     get root_path
 
@@ -20,25 +32,18 @@ RSpec.describe "Home" do
 
   it "shows the latest three updates for each group" do
     user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
-    group = Group.create!(name: "Crew")
-    Membership.create!(user: user, group: group)
-
-    old_post = Post.create!(user: user, body: "Old update", created_at: 5.days.ago)
-    recent_posts = Array.new(3) do |index|
-      Post.create!(user: user, body: "Recent update #{index + 1}", created_at: (index + 1).hours.ago)
-    end
-
-    ([old_post] + recent_posts).each do |post|
-      PostGroup.create!(post: post, group: group)
+    group = create_dashboard_group(user)
+    attach_post_to_group(user: user, group: group, body: "Old update", created_at: 5.days.ago)
+    3.times do |index|
+      attach_post_to_group(user: user, group: group, body: "Recent update #{index + 1}",
+                           created_at: (index + 1).hours.ago)
     end
 
     sign_in user
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Recent update 1")
-    expect(response.body).to include("Recent update 2")
-    expect(response.body).to include("Recent update 3")
+    expect(response.body).to include("Recent update 1", "Recent update 2", "Recent update 3")
     expect(response.body).not_to include("Old update")
   end
 
@@ -55,9 +60,7 @@ RSpec.describe "Home" do
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Showing the first 8 groups.")
-    expect(response.body).to include("View all")
-    expect(response.body).to include(groups.first.name)
+    expect(response.body).to include("Showing the first 8 groups.", "View all", groups.first.name)
     expect(response.body).not_to include(groups.last.name)
   end
 end

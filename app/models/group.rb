@@ -18,7 +18,7 @@ class Group < ApplicationRecord
     return false if message_summary_refresh_enqueued_at.present? &&
                     message_summary_refresh_enqueued_at > SUMMARY_REFRESH_DEBOUNCE.ago
 
-    update_column(:message_summary_refresh_enqueued_at, Time.current)
+    update!(message_summary_refresh_enqueued_at: Time.current)
     GroupMessageSummaryJob.perform_later(id)
     true
   end
@@ -36,12 +36,12 @@ class Group < ApplicationRecord
   end
 
   def clear_message_summary_refresh_state!
-    update_columns(message_summary_stale_at: nil, message_summary_refresh_enqueued_at: nil)
+    update!(message_summary_stale_at: nil, message_summary_refresh_enqueued_at: nil)
   end
 
   private
 
   def mark_message_summary_stale!
-    update_column(:message_summary_stale_at, Time.current)
+    update!(message_summary_stale_at: Time.current)
   end
 end
