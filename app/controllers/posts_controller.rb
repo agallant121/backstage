@@ -19,8 +19,7 @@ class PostsController < ApplicationController
     end
   end
 
-  def show
-  end
+  def show; end
 
   def new
     @post = current_user.posts.new
@@ -47,7 +46,7 @@ class PostsController < ApplicationController
   end
 
   def update
-    group_ids_to_attach = group_target_resolver.submitted? ? group_target_resolver.attach_ids : @post.group_ids
+    group_ids_to_attach = group_ids_for_update
     return head :not_found if group_ids_to_attach.nil?
     return head :forbidden unless policy(Post).create?(group_ids: group_ids_to_attach)
 
@@ -86,6 +85,12 @@ class PostsController < ApplicationController
 
   def group_target_resolver
     @group_target_resolver ||= Posts::GroupTargetResolver.new(user: current_user, params: params)
+  end
+
+  def group_ids_for_update
+    return group_target_resolver.attach_ids if group_target_resolver.submitted?
+
+    @post.group_ids
   end
 
   def save_post_with_groups(post, group_ids, error_message, attributes: nil)
