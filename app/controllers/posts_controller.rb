@@ -86,13 +86,33 @@ class PostsController < ApplicationController
   end
 
   def group_ids_for_new_post
-    selected_group_id = params.dig(:post, :group_id).presence
-    return current_user.groups.pluck(:id) unless selected_group_id
+    submitted_group_ids = submitted_group_id_values
+    selected_group_ids = submitted_group_ids.filter_map { |group_id| Integer(group_id, exception: false) }.uniq
 
-    selected_group_id = selected_group_id.to_i
-    return [ selected_group_id ] if current_user.groups.exists?(id: selected_group_id)
+    return nil unless selected_group_ids.size == submitted_group_ids.size
+    return current_user.groups.pluck(:id) if selected_group_ids.empty?
+
+    user_group_ids = current_user.groups.where(id: selected_group_ids).pluck(:id)
+    return selected_group_ids if user_group_ids.sort == selected_group_ids.sort
 
     nil
+  end
+
+  def requested_group_ids
+    submitted_group_id_values
+      .filter_map { |group_id| Integer(group_id, exception: false) }
+      .uniq
+  end
+
+  def submitted_group_id_values
+    submitted_group_ids =
+      if params.dig(:post, :group_ids).present?
+        Array(params.dig(:post, :group_ids))
+      else
+        Array(params.dig(:post, :group_id))
+      end
+
+    submitted_group_ids.compact_blank
   end
 
   def attach_post_to_groups(post, group_ids)
@@ -109,6 +129,7 @@ class PostsController < ApplicationController
 
   def set_post_form_groups
     @groups_for_select = current_user.groups.order(:name).to_a
+    @selected_group_ids = requested_group_ids
   end
 
   def authorize_post_mutation!

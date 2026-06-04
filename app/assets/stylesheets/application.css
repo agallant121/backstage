@@ -1096,3 +1096,21 @@ body {
   background: linear-gradient(130deg, rgba(247, 167, 166, 0.5), rgba(200, 181, 244, 0.3), rgba(255, 255, 255, 0.99));
   border-color: rgba(186, 72, 71, 0.9);
 }
+
+.post-group-select__toggle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-group-select__menu {
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.post-group-select__item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: normal;
+}
