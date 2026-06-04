@@ -97,6 +97,26 @@ RSpec.describe "Posts" do
     expect(GroupMessageSummaryJob).not_to have_received(:perform_later).with(group_two.id)
   end
 
+  it "still accepts the previous single group parameter when updating a post" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group_one = Group.create!(name: "Group One")
+    group_two = Group.create!(name: "Group Two")
+
+    Membership.create!(user: user, group: group_one)
+    Membership.create!(user: user, group: group_two)
+
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group_two)
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    patch post_path(post_record), params: { post: { body: "Original", group_id: group_one.id } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to contain_exactly(group_one)
+  end
+
   it "updates the groups that can see a post" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group_one = Group.create!(name: "Group One")
