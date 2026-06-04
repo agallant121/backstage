@@ -28,7 +28,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    group_ids_to_attach = group_ids_for_new_post
+    group_ids_to_attach = group_target_resolver.attach_ids
     return head :not_found if group_ids_to_attach.nil?
     return head :forbidden unless policy(Post).create?(group_ids: group_ids_to_attach)
 
@@ -85,36 +85,6 @@ class PostsController < ApplicationController
     @group = current_user.groups.find(params[:group_id]) if params[:group_id]
   end
 
-  def group_ids_for_new_post
-    submitted_group_ids = submitted_group_id_values
-    selected_group_ids = submitted_group_ids.filter_map { |group_id| Integer(group_id, exception: false) }.uniq
-
-    return nil unless selected_group_ids.size == submitted_group_ids.size
-    return current_user.groups.pluck(:id) if selected_group_ids.empty?
-
-    user_group_ids = current_user.groups.where(id: selected_group_ids).pluck(:id)
-    return selected_group_ids if user_group_ids.sort == selected_group_ids.sort
-
-    nil
-  end
-
-  def requested_group_ids
-    submitted_group_id_values
-      .filter_map { |group_id| Integer(group_id, exception: false) }
-      .uniq
-  end
-
-  def submitted_group_id_values
-    submitted_group_ids =
-      if params.dig(:post, :group_ids).present?
-        Array(params.dig(:post, :group_ids))
-      else
-        Array(params.dig(:post, :group_id))
-      end
-
-    submitted_group_ids.compact_blank
-  end
-
   def attach_post_to_groups(post, group_ids)
     now = Time.current
     rows = group_ids.uniq.map do |group_id|
@@ -129,7 +99,11 @@ class PostsController < ApplicationController
 
   def set_post_form_groups
     @groups_for_select = current_user.groups.order(:name).to_a
-    @selected_group_ids = requested_group_ids
+    @selected_group_ids = group_target_resolver.selected_ids
+  end
+
+  def group_target_resolver
+    @group_target_resolver ||= Posts::GroupTargetResolver.new(user: current_user, params: params)
   end
 
   def authorize_post_mutation!

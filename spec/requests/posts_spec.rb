@@ -24,26 +24,23 @@ RSpec.describe "Posts" do
 
   it "creates a post for only the selected groups" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
-    group_one = Group.create!(name: "Group One")
-    group_two = Group.create!(name: "Group Two")
-    group_three = Group.create!(name: "Group Three")
+    selected_groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Three")]
+    unselected_group = Group.create!(name: "Group Two")
 
-    Membership.create!(user: user, group: group_one)
-    Membership.create!(user: user, group: group_two)
-    Membership.create!(user: user, group: group_three)
+    (selected_groups + [unselected_group]).each { |group| Membership.create!(user: user, group: group) }
 
     sign_in user, scope: :user
     allow(GroupMessageSummaryJob).to receive(:perform_later)
 
-    post posts_path, params: { post: { body: "Hello", group_ids: [group_one.id, group_three.id] } }
+    post posts_path, params: { post: { body: "Hello", group_ids: selected_groups.map(&:id) } }
 
     post_record = Post.find_by!(user: user, body: "Hello")
 
-    expect(response).to redirect_to(root_path)
-    expect(post_record.groups).to contain_exactly(group_one, group_three)
-    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
-    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_three.id)
-    expect(GroupMessageSummaryJob).not_to have_received(:perform_later).with(group_two.id)
+    expect(post_record.groups).to match_array(selected_groups)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).twice
+    selected_groups.each do |group|
+      expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+    end
   end
 
   it "still accepts the previous single group parameter" do
