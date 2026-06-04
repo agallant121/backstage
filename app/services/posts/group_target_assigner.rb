@@ -48,6 +48,7 @@ module Posts
     def remove_stale_targets
       return if group_ids_to_remove.empty?
 
+      # Summary refreshes are enqueued once after the transaction for the full changed set.
       PostGroup.where(post: post, group_id: group_ids_to_remove).delete_all
     end
   end
