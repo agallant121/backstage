@@ -85,6 +85,8 @@ class GroupsController < ApplicationController
   end
 
   def should_backfill_message_summary?
+    return false if request.format.turbo_stream?
+
     @has_posts &&
       @group.message_summary_source.nil? &&
       @group.message_summary_generated_at.blank?

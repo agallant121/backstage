@@ -133,6 +133,24 @@ RSpec.describe "Groups", type: :request do
     expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
   end
 
+  it "does not enqueue summary backfill for turbo post pagination" do
+    group = Group.create!(name: "Crew")
+    user = create_member(email: "member@example.com", group: group)
+    11.times do |index|
+      PostGroup.create!(post: Post.create!(user: user, body: "Latest update #{index}"), group: group)
+    end
+    group.clear_message_summary_refresh_state!
+
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    sign_in user, scope: :user
+    get group_path(group, page: 2, format: :turbo_stream)
+
+    expect(response).to have_http_status(:ok)
+    expect(GroupMessageSummaryJob).not_to have_received(:perform_later)
+    expect(group.reload.message_summary_stale_at).to be_nil
+  end
+
   it "does not re-enqueue summary generation for unavailable or error states" do
     %w[unavailable error].each do |summary_source|
       group = Group.create!(name: "Crew #{summary_source}", message_summary_source: summary_source)
