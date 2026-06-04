@@ -31,7 +31,10 @@ export default class extends Controller {
   }
 
   updateLabel() {
-    const selectedNames = this.selectedGroups.map((checkbox) => checkbox.dataset.groupName)
+    const selectedGroups = this.selectedGroups
+    this.allTarget.checked = selectedGroups.length === 0
+
+    const selectedNames = selectedGroups.map((checkbox) => checkbox.dataset.groupName)
     this.buttonTarget.textContent = selectedNames.length > 0 ? selectedNames.join(", ") : this.allLabelValue
   }
 
