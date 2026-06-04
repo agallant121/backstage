@@ -20,7 +20,7 @@ gem "jbuilder"
 gem "kaminari"
 
 # Added by me
-gem 'devise', '>= 5.0.3'
+gem 'devise', '>= 5.0.4'
 gem "pundit"
 gem "pry"
 gem "sidekiq"
