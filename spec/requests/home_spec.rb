@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "Home" do
-  def create_dashboard_group(user)
-    group = Group.create!(name: "Crew")
+  def create_dashboard_group(user, name: "Crew")
+    group = Group.create!(name: name)
     Membership.create!(user: user, group: group)
     group
   end
@@ -62,5 +62,16 @@ RSpec.describe "Home" do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Showing the first 8 groups.", "View all", groups.first.name)
     expect(response.body).not_to include(groups.last.name)
+  end
+
+  it "shows an empty state for groups without posts" do
+    user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
+    create_dashboard_group(user, name: "Quiet Crew")
+
+    sign_in user
+    get root_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Quiet Crew", "No posts in this group yet.")
   end
 end

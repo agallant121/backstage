@@ -204,16 +204,16 @@
           <div class="d-flex flex-column gap-3">
             <% @groups.each do |group| %>
               <% posts = @latest_posts_by_group.fetch(group.id, []) %>
-              <% if posts.any? %>
-                <div class="group-wall-preview rounded p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2 gap-3 home-dashboard__split-item">
-                    <div>
-                      <h3 class="h6 mb-0 group-name-strong"><%= group.name %></h3>
-                      <small class="text-muted"><%= "Tap to view each wall" %></small>
-                    </div>
-                    <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary home-dashboard__meta" %>
+              <div class="group-wall-preview rounded p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2 gap-3 home-dashboard__split-item">
+                  <div>
+                    <h3 class="h6 mb-0 group-name-strong"><%= group.name %></h3>
+                    <small class="text-muted"><%= "Tap to view each wall" %></small>
                   </div>
+                  <%= link_to "Open", group_path(group), class: "btn btn-sm btn-outline-secondary home-dashboard__meta" %>
+                </div>
 
+                <% if posts.any? %>
                   <div class="list-group list-group-flush post-preview-list">
                     <% posts.each do |post| %>
                       <%= link_to post_path(post), class: "list-group-item list-group-item-action" do %>
@@ -227,8 +227,10 @@
                       <% end %>
                     <% end %>
                   </div>
-                </div>
-              <% end %>
+                <% else %>
+                  <p class="text-muted mb-0"><%= "No posts in this group yet." %></p>
+                <% end %>
+              </div>
             <% end %>
           </div>
         <% else %>
