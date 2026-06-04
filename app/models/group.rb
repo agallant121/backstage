@@ -33,7 +33,6 @@ class Group < ApplicationRecord
 
   def recent_posts_for_summary(limit: SUMMARY_POST_LIMIT)
     posts
-      .includes(:user)
       .order(created_at: :desc)
       .limit(limit)
   end

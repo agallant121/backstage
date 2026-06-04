@@ -9,7 +9,9 @@ module Groups
     end
 
     def call
-      unless @group.posts.exists?
+      posts = @group.recent_posts_for_summary.to_a
+
+      if posts.empty?
         @group.update!(
           message_summary: nil,
           message_summary_generated_at: Time.current,
@@ -31,7 +33,7 @@ module Groups
         return
       end
 
-      posts = @group.recent_posts_for_summary.to_a
+      preload_post_authors(posts)
 
       @group.update!(
         message_summary: generate_ai_summary(posts).presence,
@@ -56,6 +58,10 @@ module Groups
 
     def generate_ai_summary(posts)
       Ai::ChatClient.new.summarize(prompt: prompt_for(posts))
+    end
+
+    def preload_post_authors(posts)
+      ActiveRecord::Associations::Preloader.new(records: posts, associations: :user).call
     end
 
     def prompt_for(posts)
