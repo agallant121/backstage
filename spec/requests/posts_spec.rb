@@ -22,6 +22,21 @@ RSpec.describe "Posts" do
     expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
   end
 
+  it "creates a post for all groups when the all-groups checkbox is submitted" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Two")]
+    groups.each { |group| Membership.create!(user: user, group: group) }
+
+    sign_in user, scope: :user
+
+    post posts_path, params: { post: { body: "Hello", group_ids: [""] } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(response).to redirect_to(root_path)
+    expect(post_record.groups).to match_array(groups)
+  end
+
   it "creates a post for only the selected groups" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     selected_groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Three")]
