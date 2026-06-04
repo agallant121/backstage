@@ -32,12 +32,12 @@ class GroupsController < ApplicationController
   end
 
   def members
-    @memberships = @group.memberships.joins(:user).order("users.email").page(params[:page]).per(25)
-    @memberships.load
-    if @memberships.length > 1
-      ActiveRecord::Associations::Preloader.new(records: @memberships,
-                                                associations: :user).call
-    end
+    @memberships = @group.memberships
+      .includes(:user)
+      .references(:user)
+      .order("users.email")
+      .page(params[:page])
+      .per(25)
     @admin = current_group_admin?
   end
 
