@@ -13,7 +13,7 @@ class Group < ApplicationRecord
     invitations.exists?
   end
 
-  def refresh_message_summary_later
+  def refresh_message_summary_later?
     mark_message_summary_stale!
     return false if message_summary_refresh_enqueued_at.present? &&
                     message_summary_refresh_enqueued_at > SUMMARY_REFRESH_DEBOUNCE.ago

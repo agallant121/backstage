@@ -303,7 +303,7 @@ User.where(email: seed_emails).find_each do |user|
   user.destroy!
 end
 
-PostGroup.skip_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
+PostGroup.skip_callback(:commit, :after, :refresh_group_summary?, on: %i[create destroy])
 
 begin
   admin_user = User.find_by(email: ADMIN_EMAIL)
@@ -371,7 +371,7 @@ begin
     end
   end
 ensure
-  PostGroup.set_callback(:commit, :after, :refresh_group_summary, on: %i[create destroy])
+  PostGroup.set_callback(:commit, :after, :refresh_group_summary?, on: %i[create destroy])
 end
 
 seeded_group_count = Group.where(name: seed_group_names).count
