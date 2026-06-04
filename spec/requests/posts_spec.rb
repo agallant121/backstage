@@ -97,6 +97,41 @@ RSpec.describe "Posts" do
     expect(GroupMessageSummaryJob).not_to have_received(:perform_later).with(group_two.id)
   end
 
+  it "updates the groups that can see a post" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group_one = Group.create!(name: "Group One")
+    group_two = Group.create!(name: "Group Two")
+    [group_one, group_two].each { |group| Membership.create!(user: user, group: group) }
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group_one)
+    group_one.clear_message_summary_refresh_state!
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    patch post_path(post_record), params: { post: { body: "Original", group_ids: [group_two.id] } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to contain_exactly(group_two)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
+  end
+
+  it "keeps existing groups when an update omits group params" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+    Membership.create!(user: user, group: group)
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group)
+
+    sign_in user, scope: :user
+    patch post_path(post_record), params: { post: { body: "Updated" } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.body).to eq("Updated")
+    expect(post_record.groups).to contain_exactly(group)
+  end
+
   it "rolls back the post if group attachment fails" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group One")

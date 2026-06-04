@@ -17,6 +17,10 @@ module Posts
       submitted_ids.uniq
     end
 
+    def submitted?
+      params.dig(:post, :group_ids).present? || params.dig(:post, :group_id).present?
+    end
+
     private
 
     attr_reader :params, :user

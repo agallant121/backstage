@@ -20,7 +20,9 @@
     <div>
       <label class="form-label"><%= "Send to group" %></label>
       <% selected_group_ids = Array(@selected_group_ids.presence || @group&.id).map(&:to_i) %>
-      <% selected_groups = @groups_for_select.select { |group| selected_group_ids.include?(group.id) } %>
+      <% all_group_ids = @groups_for_select.map(&:id) %>
+      <% all_groups_selected = selected_group_ids.blank? || selected_group_ids.sort == all_group_ids.sort %>
+      <% selected_groups = all_groups_selected ? [] : @groups_for_select.select { |group| selected_group_ids.include?(group.id) } %>
       <% group_select_label = selected_groups.any? ? selected_groups.map(&:name).to_sentence : "All Groups" %>
       <div class="dropdown post-group-select" data-controller="group-select" data-group-select-all-label-value="All Groups">
         <button class="form-select text-start post-group-select__toggle"
@@ -36,7 +38,7 @@
             <label class="dropdown-item post-group-select__item">
               <%= check_box_tag "post[group_ids][]",
                                 "",
-                                selected_groups.empty?,
+                                all_groups_selected,
                                 class: "form-check-input mt-0",
                                 data: { group_select_target: "all", action: "group-select#toggleAll" } %>
               <span><%= "All Groups" %></span>
@@ -47,7 +49,7 @@
               <label class="dropdown-item post-group-select__item">
                 <%= check_box_tag "post[group_ids][]",
                                   group.id,
-                                  selected_group_ids.include?(group.id),
+                                  !all_groups_selected && selected_group_ids.include?(group.id),
                                   class: "form-check-input mt-0",
                                   data: { group_select_target: "group", action: "group-select#toggleGroup", group_name: group.name } %>
                 <span><%= group.name %></span>
