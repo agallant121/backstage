@@ -26,9 +26,7 @@ class GroupsController < ApplicationController
       .order(created_at: :desc)
     @posts = posts.page(params[:page]).per(10)
     @has_posts = @posts.total_count.positive?
-    @membership = current_user.memberships.find_by(group: @group)
-    @member = @membership.present?
-    @admin = @membership&.admin?
+    @admin = current_group_admin?
     @view_mode = params[:view] == "full" ? :full : :compact
     @group.refresh_message_summary_later if should_backfill_message_summary?
   end
@@ -37,7 +35,7 @@ class GroupsController < ApplicationController
     @memberships = @group.memberships.joins(:user).order("users.email").page(params[:page]).per(25)
     @memberships.load
     ActiveRecord::Associations::Preloader.new(records: @memberships, associations: :user).call if @memberships.length > 1
-    @admin = current_user.memberships.find_by(group: @group)&.admin?
+    @admin = current_group_admin?
   end
 
   def new
@@ -77,7 +75,9 @@ class GroupsController < ApplicationController
   private
 
   def set_group
-    @group = current_user.groups.find(params[:id])
+    @group = current_user.groups
+      .select("groups.*, memberships.role AS current_user_membership_role")
+      .find(params[:id])
   end
 
   def group_params
@@ -94,6 +94,10 @@ class GroupsController < ApplicationController
 
   def admin_group_ids_for(group_ids)
     current_user.memberships.admin.where(group_id: group_ids).pluck(:group_id).to_h { |id| [ id, true ] }
+  end
+
+  def current_group_admin?
+    @group.current_user_membership_role == Membership.roles[:admin]
   end
 
   def authorize_group_mutation!
