@@ -117,6 +117,37 @@ RSpec.describe "Posts" do
     expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
   end
 
+  it "updates a post to all groups from the all-groups checkbox payload" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Two")]
+    groups.each { |group| Membership.create!(user: user, group: group) }
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: groups.first)
+
+    sign_in user, scope: :user
+    patch post_path(post_record), params: { post: { body: "Original", group_ids: [""] } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to match_array(groups)
+  end
+
+  it "rejects updating a post to an outsider group" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    member_group = Group.create!(name: "Member Group")
+    outsider_group = Group.create!(name: "Outsider Group")
+    Membership.create!(user: user, group: member_group)
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: member_group)
+
+    sign_in user, scope: :user
+
+    expect do
+      patch post_path(post_record), params: { post: { body: "Original", group_ids: [outsider_group.id] } }
+    end.not_to(change { post_record.reload.group_ids })
+
+    expect(response).to have_http_status(:not_found)
+  end
+
   it "keeps existing groups when an update omits group params" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group One")
