@@ -13,7 +13,7 @@ class Group < ApplicationRecord
     invitations.exists?
   end
 
-  def refresh_message_summary_later?
+  def enqueue_message_summary_refresh
     refresh_enqueued = false
 
     with_lock do

@@ -28,7 +28,7 @@ class GroupsController < ApplicationController
     @has_posts = @posts.total_count.positive?
     @admin = current_group_admin?
     @view_mode = params[:view] == "full" ? :full : :compact
-    @group.refresh_message_summary_later? if should_backfill_message_summary?
+    @group.enqueue_message_summary_refresh if should_backfill_message_summary?
   end
 
   def members

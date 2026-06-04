@@ -1,13 +1,13 @@
 require "rails_helper"
 
 RSpec.describe Group do
-  describe "#refresh_message_summary_later?" do
+  describe "#enqueue_message_summary_refresh" do
     it "marks the summary stale and enqueues a refresh" do
       group = described_class.create!(name: "Crew")
 
       allow(GroupMessageSummaryJob).to receive(:perform_later)
 
-      expect(group.refresh_message_summary_later?).to be(true)
+      expect(group.enqueue_message_summary_refresh).to be(true)
 
       group.reload
       expect(group.message_summary_stale_at).to be_present
@@ -24,7 +24,7 @@ RSpec.describe Group do
 
       allow(GroupMessageSummaryJob).to receive(:perform_later)
 
-      expect(group.refresh_message_summary_later?).to be(false)
+      expect(group.enqueue_message_summary_refresh).to be(false)
 
       expect(group.reload.message_summary_stale_at).to be_present
       expect(GroupMessageSummaryJob).not_to have_received(:perform_later)
