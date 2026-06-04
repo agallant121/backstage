@@ -9,48 +9,45 @@ module Groups
     end
 
     def call
+      refresh_started_at = Time.current
       posts = @group.recent_posts_for_summary.to_a
 
       if posts.empty?
-        @group.update!(
+        complete_refresh!(
+          refresh_started_at,
           message_summary: nil,
           message_summary_generated_at: Time.current,
-          message_summary_source: nil,
-          message_summary_stale_at: nil,
-          message_summary_refresh_enqueued_at: nil
+          message_summary_source: nil
         )
         return
       end
 
       unless Ai::ChatClient.available?
-        @group.update!(
+        complete_refresh!(
+          refresh_started_at,
           message_summary: nil,
           message_summary_generated_at: nil,
-          message_summary_source: UNAVAILABLE_SOURCE,
-          message_summary_stale_at: nil,
-          message_summary_refresh_enqueued_at: nil
+          message_summary_source: UNAVAILABLE_SOURCE
         )
         return
       end
 
       preload_post_authors(posts)
 
-      @group.update!(
+      complete_refresh!(
+        refresh_started_at,
         message_summary: generate_ai_summary(posts).presence,
         message_summary_generated_at: Time.current,
-        message_summary_source: OPENAI_SOURCE,
-        message_summary_stale_at: nil,
-        message_summary_refresh_enqueued_at: nil
+        message_summary_source: OPENAI_SOURCE
       )
     rescue StandardError => e
       Rails.logger.error("Group summary refresh failed for group #{@group.id}: #{e.class}: #{e.message}")
 
-      @group.update!(
+      complete_refresh!(
+        refresh_started_at,
         message_summary: nil,
         message_summary_generated_at: nil,
-        message_summary_source: ERROR_SOURCE,
-        message_summary_stale_at: nil,
-        message_summary_refresh_enqueued_at: nil
+        message_summary_source: ERROR_SOURCE
       )
     end
 
@@ -62,6 +59,34 @@ module Groups
 
     def preload_post_authors(posts)
       ActiveRecord::Associations::Preloader.new(records: posts, associations: :user).call
+    end
+
+    def complete_refresh!(refresh_started_at, attributes)
+      enqueue_follow_up = false
+
+      @group.with_lock do
+        @group.reload
+        stale_after_refresh_started = @group.message_summary_stale_at.present? &&
+                                      @group.message_summary_stale_at > refresh_started_at
+        refresh_enqueued_after_started = @group.message_summary_refresh_enqueued_at.present? &&
+                                         @group.message_summary_refresh_enqueued_at > refresh_started_at
+
+        if stale_after_refresh_started
+          attributes[:message_summary_refresh_enqueued_at] = if refresh_enqueued_after_started
+                                                               @group.message_summary_refresh_enqueued_at
+                                                             else
+                                                               enqueue_follow_up = true
+                                                               Time.current
+                                                             end
+        else
+          attributes[:message_summary_stale_at] = nil
+          attributes[:message_summary_refresh_enqueued_at] = nil
+        end
+
+        @group.update!(attributes)
+      end
+
+      GroupMessageSummaryJob.perform_later(@group.id) if enqueue_follow_up
     end
 
     def prompt_for(posts)
