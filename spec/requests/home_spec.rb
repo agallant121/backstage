@@ -24,11 +24,11 @@ RSpec.describe "Home" do
     Membership.create!(user: user, group: group)
 
     old_post = Post.create!(user: user, body: "Old update", created_at: 5.days.ago)
-    recent_posts = 3.times.map do |index|
+    recent_posts = Array.new(3) do |index|
       Post.create!(user: user, body: "Recent update #{index + 1}", created_at: (index + 1).hours.ago)
     end
 
-    ([ old_post ] + recent_posts).each do |post|
+    ([old_post] + recent_posts).each do |post|
       PostGroup.create!(post: post, group: group)
     end
 
@@ -45,7 +45,7 @@ RSpec.describe "Home" do
   it "limits the dashboard group preview" do
     user = User.create!(email: "user@example.com", password: "password", confirmed_at: Time.current)
 
-    groups = 9.times.map do |index|
+    groups = Array.new(9) do |index|
       group = Group.create!(name: "Group #{index + 1}", created_at: index.days.ago)
       Membership.create!(user: user, group: group)
       group

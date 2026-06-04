@@ -19,16 +19,16 @@ class HomeController < ApplicationController
     return {} if group_ids.empty?
 
     ranked_post_groups = PostGroup
-      .joins(:post)
-      .where(group_id: group_ids)
-      .select(<<~SQL.squish)
-        post_groups.post_id,
-        post_groups.group_id,
-        ROW_NUMBER() OVER (
-          PARTITION BY post_groups.group_id
-          ORDER BY posts.created_at DESC, posts.id DESC
-        ) AS preview_rank
-      SQL
+                         .joins(:post)
+                         .where(group_id: group_ids)
+                         .select(<<~SQL.squish)
+                           post_groups.post_id,
+                           post_groups.group_id,
+                           ROW_NUMBER() OVER (
+                             PARTITION BY post_groups.group_id
+                             ORDER BY posts.created_at DESC, posts.id DESC
+                           ) AS preview_rank
+                         SQL
 
     Post
       .joins("INNER JOIN (#{ranked_post_groups.to_sql}) ranked_post_groups ON ranked_post_groups.post_id = posts.id")

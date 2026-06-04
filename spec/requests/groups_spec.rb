@@ -60,7 +60,8 @@ RSpec.describe "Groups", type: :request do
     Membership.create!(user: admin, group: group, role: :admin)
 
     26.times do |index|
-      user = User.create!(email: format("member%02d@example.com", index), password: "password", confirmed_at: Time.current)
+      user = User.create!(email: format("member%02d@example.com", index), password: "password",
+                          confirmed_at: Time.current)
       Membership.create!(user: user, group: group)
     end
 

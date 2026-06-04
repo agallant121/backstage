@@ -34,7 +34,10 @@ class GroupsController < ApplicationController
   def members
     @memberships = @group.memberships.joins(:user).order("users.email").page(params[:page]).per(25)
     @memberships.load
-    ActiveRecord::Associations::Preloader.new(records: @memberships, associations: :user).call if @memberships.length > 1
+    if @memberships.length > 1
+      ActiveRecord::Associations::Preloader.new(records: @memberships,
+                                                associations: :user).call
+    end
     @admin = current_group_admin?
   end
 
@@ -93,7 +96,7 @@ class GroupsController < ApplicationController
   end
 
   def admin_group_ids_for(group_ids)
-    current_user.memberships.admin.where(group_id: group_ids).pluck(:group_id).to_h { |id| [ id, true ] }
+    current_user.memberships.admin.where(group_id: group_ids).pluck(:group_id).index_with { |_id| true }
   end
 
   def current_group_admin?
