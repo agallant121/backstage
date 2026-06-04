@@ -22,6 +22,167 @@ RSpec.describe "Posts" do
     expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
   end
 
+  it "creates a post for all groups when the all-groups checkbox is submitted" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Two")]
+    groups.each { |group| Membership.create!(user: user, group: group) }
+
+    sign_in user, scope: :user
+
+    post posts_path, params: { post: { body: "Hello", group_ids: [""] } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(response).to redirect_to(root_path)
+    expect(post_record.groups).to match_array(groups)
+  end
+
+  it "creates a post for only the selected groups" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    selected_groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Three")]
+    unselected_group = Group.create!(name: "Group Two")
+
+    (selected_groups + [unselected_group]).each { |group| Membership.create!(user: user, group: group) }
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    post posts_path, params: { post: { body: "Hello", group_ids: selected_groups.map(&:id) } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(post_record.groups).to match_array(selected_groups)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).twice
+    selected_groups.each do |group|
+      expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+    end
+  end
+
+  it "ignores duplicate selected group ids" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+
+    Membership.create!(user: user, group: group)
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    post posts_path, params: { post: { body: "Hello", group_ids: [group.id, group.id] } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(response).to redirect_to(root_path)
+    expect(post_record.groups).to contain_exactly(group)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group.id)
+  end
+
+  it "still accepts the previous single group parameter" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group_one = Group.create!(name: "Group One")
+    group_two = Group.create!(name: "Group Two")
+
+    Membership.create!(user: user, group: group_one)
+    Membership.create!(user: user, group: group_two)
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    post posts_path, params: { post: { body: "Hello", group_id: group_one.id } }
+
+    post_record = Post.find_by!(user: user, body: "Hello")
+
+    expect(response).to redirect_to(root_path)
+    expect(post_record.groups).to contain_exactly(group_one)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
+    expect(GroupMessageSummaryJob).not_to have_received(:perform_later).with(group_two.id)
+  end
+
+  it "still accepts the previous single group parameter when updating a post" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group_one = Group.create!(name: "Group One")
+    group_two = Group.create!(name: "Group Two")
+
+    Membership.create!(user: user, group: group_one)
+    Membership.create!(user: user, group: group_two)
+
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group_two)
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    patch post_path(post_record), params: { post: { body: "Original", group_id: group_one.id } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to contain_exactly(group_one)
+  end
+
+  it "updates the groups that can see a post" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group_one = Group.create!(name: "Group One")
+    group_two = Group.create!(name: "Group Two")
+    [group_one, group_two].each { |group| Membership.create!(user: user, group: group) }
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group_one)
+    group_one.clear_message_summary_refresh_state!
+
+    sign_in user, scope: :user
+    allow(GroupMessageSummaryJob).to receive(:perform_later)
+
+    patch post_path(post_record), params: { post: { body: "Original", group_ids: [group_two.id] } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to contain_exactly(group_two)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_one.id)
+    expect(GroupMessageSummaryJob).to have_received(:perform_later).with(group_two.id)
+  end
+
+  it "updates a post to all groups from the all-groups checkbox payload" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    groups = [Group.create!(name: "Group One"), Group.create!(name: "Group Two")]
+    groups.each { |group| Membership.create!(user: user, group: group) }
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: groups.first)
+
+    sign_in user, scope: :user
+    patch post_path(post_record), params: { post: { body: "Original", group_ids: [""] } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.groups).to match_array(groups)
+  end
+
+  it "rejects updating a post to an outsider group" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    member_group = Group.create!(name: "Member Group")
+    outsider_group = Group.create!(name: "Outsider Group")
+    Membership.create!(user: user, group: member_group)
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: member_group)
+
+    sign_in user, scope: :user
+
+    expect do
+      patch post_path(post_record), params: { post: { body: "Original", group_ids: [outsider_group.id] } }
+    end.not_to(change { post_record.reload.group_ids })
+
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "keeps existing groups when an update omits group params" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Group One")
+    Membership.create!(user: user, group: group)
+    post_record = Post.create!(user: user, body: "Original")
+    PostGroup.create!(post: post_record, group: group)
+
+    sign_in user, scope: :user
+    patch post_path(post_record), params: { post: { body: "Updated" } }
+
+    expect(response).to redirect_to(post_path(post_record))
+    expect(post_record.reload.body).to eq("Updated")
+    expect(post_record.groups).to contain_exactly(group)
+  end
+
   it "rolls back the post if group attachment fails" do
     user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Group One")
@@ -51,6 +212,21 @@ RSpec.describe "Posts" do
 
     expect do
       post posts_path, params: { post: { body: "Hello", group_id: outsider_group.id } }
+    end.not_to change(Post, :count)
+
+    expect(response).to have_http_status(:not_found)
+  end
+
+  it "rejects invalid selected group values" do
+    user = User.create!(email: "author@example.com", password: "password", confirmed_at: Time.current)
+    group = Group.create!(name: "Member Group")
+
+    Membership.create!(user: user, group: group)
+
+    sign_in user, scope: :user
+
+    expect do
+      post posts_path, params: { post: { body: "Hello", group_ids: ["abc"] } }
     end.not_to change(Post, :count)
 
     expect(response).to have_http_status(:not_found)

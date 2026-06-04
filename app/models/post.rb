@@ -20,8 +20,8 @@ class Post < ApplicationRecord
     preload(
       :user,
       :groups,
-      attachments_attachments: :blob,
-      images_attachments: :blob
+      :attachments_attachments,
+      :images_attachments
     )
   }
 
@@ -34,6 +34,13 @@ class Post < ApplicationRecord
 
   def media_attachments
     [ attachments.attachments, images.attachments ].flatten.compact
+  end
+
+  def self.media_blobs_by_id(posts)
+    blob_ids = posts.flat_map(&:media_attachments).map(&:blob_id).uniq
+    return {} if blob_ids.empty?
+
+    ActiveStorage::Blob.where(id: blob_ids).index_by(&:id)
   end
 
   private

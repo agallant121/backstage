@@ -20,8 +20,8 @@ class GroupsController < ApplicationController
     posts = @group.posts
       .preload(
         :user,
-        attachments_attachments: :blob,
-        images_attachments: :blob
+        :attachments_attachments,
+        :images_attachments
       )
       .order(created_at: :desc)
     @posts = posts.page(params[:page]).per(10)

@@ -116,6 +116,25 @@ RSpec.describe "Groups", type: :request do
     expect(response.body).to include(cached_summary.lines.second.strip)
   end
 
+  it "renders group posts with media attachments" do
+    group = Group.create!(name: "Crew")
+    user = create_member(email: "member@example.com", group: group)
+    post = Post.create!(user: user, body: "Photo update")
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("image data"),
+      filename: "photo.png",
+      content_type: "image/png"
+    )
+    post.images.attach(blob)
+    PostGroup.create!(post: post, group: group)
+
+    sign_in user, scope: :user
+    get group_path(group)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Includes photos")
+  end
+
   it "shows an unavailable state when AI summaries are not configured" do
     user = User.create!(email: "member@example.com", password: "password", confirmed_at: Time.current)
     group = Group.create!(name: "Crew", message_summary_source: "unavailable")
